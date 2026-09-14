@@ -1,0 +1,15 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Huawei Cloud",
+      "description": "Community-maintained billing, quoting, controlled provisioning, and real-name onboarding via KooCLI/BSS.",
+      "skills": [
+        "huawei-cloud-billing-scout",
+        "huawei-cloud-cost-estimation",
+        "huawei-cloud-account-onboarding"
+      ]
+    }
+  ]
+}

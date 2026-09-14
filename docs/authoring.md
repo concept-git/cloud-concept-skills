@@ -1,0 +1,138 @@
+# Skill authoring
+
+Conventions for skills in this monorepo. Spec baseline: [agentskills.io](https://agentskills.io/specification).
+
+## Layout
+
+| Path | Purpose |
+| --- | --- |
+| `skills/<name>/` | Installable runtime only (`SKILL.md` + optional `references/`, `scripts/`, `assets/`, `agents/openai.yaml`) |
+| `qa/<name>/` | Validation, evals, assertions — never copied by `npx skills add` |
+| `docs/skills/<name>.md` | Human-facing skill overview for the repo README index |
+
+QA layout (gate files stay under `qa/`, not `skills/`):
+
+```text
+qa/<name>/
+├── validate.sh
+├── skillcheck.toml
+├── .markdownlint.json
+├── policy.skill-scanner.yaml   # optional
+├── README.md
+├── evals/evals.json
+├── evals/llm-rubric.yml
+├── assertions/README.md
+├── fixtures/
+└── bin/
+    ├── gate.py                 # optional: gate.py style (skillcheck + markdownlint + skill-scanner)
+    └── …
+```
+
+## Naming
+
+- Folder name = `name` in `SKILL.md` frontmatter (kebab-case, lowercase)
+- English paths only under `skills/` and `references/`
+- Flat `references/*.md`; entity YAML under `references/semantic/` when needed
+
+## SKILL.md frontmatter
+
+Required: `name`, `description` (trigger keywords + scope).
+
+Recommended for marketplace discovery ([SkillsMP](https://skillsmp.com/), [skills.sh](https://www.skills.sh/), [ClawHub](https://clawhub.ai/)):
+
+```yaml
+compatibility: <bins, IAM, network; note if agent must not auto-install>
+metadata:
+  openclaw:          # ClawHub security review only
+    requires:
+      bins: [<cli>]
+    homepage: https://github.com/<org>/<repo>/tree/main/skills/<name>
+    envVars:         # optional; required: false for profile-based auth
+      - name: EXAMPLE_API_KEY
+        required: false
+        description: ...
+```
+
+- **`description`**: English + Chinese trigger phrases, task scope, and explicit refuse rules (payment/delete/refund).
+- **License**: keep the repository license at the repo root. Do not put a
+  conflicting `license` field in installable skill frontmatter when targeting
+  ClawHub, because ClawHub-published skills are MIT-0.
+- **SkillsMP**: public GitHub repo with `SKILL.md` frontmatter. Keep GitHub
+  topics `claude-skills` and `claude-code-skill` on the monorepo; indexing is
+  crawler-driven (no submit API)—recheck search after push.
+- **skills.sh**: listing is telemetry from `npx skills add <org>/<repo>`
+  (no submit API). Promote that install in README; optional badge
+  `https://skills.sh/b/<org>/<repo>`. Group the repo page with root
+  [`skills.sh.json`](../skills.sh.json) (display-only; does not change the CLI).
+- **ClawHub**: publish from `skills/<name>/` with `clawhub skill publish`.
+  Declare `metadata.openclaw` so scans match runtime behavior.
+
+Keep frontmatter concise; put long guidance in `references/`.
+
+## Codex UI metadata (`agents/openai.yaml`)
+
+Optional per-skill file read by the harness, not the agent ([Codex skills docs](https://developers.openai.com/codex/skills)). Present in the `concept-*` and `concept-guardrails` bundles:
+
+```yaml
+interface:
+  display_name: "Concept Design"   # required when the file exists
+  short_description: "..."                 # required, 25–64 chars
+  default_prompt: "Use $concept-design to ..."   # must name the skill as $name
+```
+
+Add `policy.allow_implicit_invocation: false` only when a skill should stay out of automatic selection and be invoked as `$name`. Keep values consistent with `SKILL.md`; regenerate when the description changes.
+
+## Interaction discipline (all skills)
+
+One **Agent discipline** / **工作准则** bullet per `SKILL.md` (template default). Canonical line unless the domain is stricter:
+
+> 歧义仅问改查证路径者；已述/已决不重问；可自证则推进；须裁断则一次一问。
+
+| Do | Don't |
+| --- | --- |
+| One blocking ask when scope, time, money basis, or ID changes routing | Re-ask settled scope, cycle, or read-only intent |
+| Route and deliver when facts suffice | Multi-item clarification before any investigation |
+| Layer domain mandatory clarifiers (`evidence_boundary`, partner `customer_id`) | Skip evidence boundaries because “don't ask” |
+
+Evals: `proceed-without-reasking-*`, `single-clarification-*` in `qa/<name>/evals/evals.json`. Offline: `protocol_grading.py`; LLM: `interaction_discipline` in `llm-rubric.yml`.
+
+## Install purity
+
+Do **not** place inside `skills/<name>/`:
+
+- `evals/`, `tests/`, `qa/`
+- `.workspaces/`, `analysis/`
+- repo-level scripts or credentials
+
+## Validation
+
+Per skill:
+
+```bash
+./qa/<name>/validate.sh
+```
+
+All skills:
+
+```bash
+./tools/validate-all.sh
+```
+
+New skill scaffold:
+
+```bash
+./tools/skill-scaffold.sh <skill-name>
+```
+
+## Skill Creator eval loop
+
+```text
+qa/<name>/evals/evals.json
+        │
+        ├── with_skill ──► <name>-workspace/iteration-N/eval-<id>/with_skill/
+        └── baseline   ──► .../without_skill/
+```
+
+`<name>-workspace/` at repo root is gitignored; do not commit it.
+
+Register the skill in `docs/catalog.yml` when adding a new package.

@@ -1,0 +1,706 @@
+{
+  "skill_name": "huawei-cloud-billing-scout",
+  "llm_eval": {
+    "rubric": "evals/llm-rubric.yml",
+    "export": "bin/export_llm_eval.py"
+  },
+  "evals": [
+    {
+      "id": 1,
+      "name": "balance-and-debt-snapshot",
+      "prompt": "帮我看一下华为云现在还有多少钱，有没有欠费。",
+      "expected_output": "路由到账户余额事实，使用 ShowCustomerAccountBalances，只读展示余额、欠费和账号范围；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing"
+        ],
+        "entities": [
+          "AccountBalance"
+        ],
+        "operations": [
+          "ShowCustomerAccountBalances"
+        ]
+      },
+      "assertions": [
+        "回答识别为余额和欠费快照查询。",
+        "回答选择 ShowCustomerAccountBalances 或等价账户余额事实作为首查。",
+        "回答说明当前 profile 或账号范围，不自动扩大到企业/伙伴客户。",
+        "回答先给一至三句小结，再分段给出依据（账户类型、金额、币种、欠费状态）；未查到的写待查。",
+        "回答不要求用户在聊天中粘贴 AK/SK。"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "stored-value-card-availability",
+      "prompt": "我有张储值卡，想知道是不是可用，为什么余额里没体现。",
+      "expected_output": "路由到 StoredValueCard 与账户流水/余额事实，查询储值卡列表并解释状态、有效期和余额边界；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing"
+        ],
+        "entities": [
+          "StoredValueCard",
+          "AccountBalance",
+          "AccountChangeRecord"
+        ],
+        "operations": [
+          "ListStoredValueCards",
+          "ShowCustomerAccountBalances",
+          "ListCustomerAccountChangeRecords"
+        ]
+      },
+      "assertions": [
+        "回答识别储值卡为余额构成或到账可用性问题。",
+        "回答包含 ListStoredValueCards 的只读查询路径，并按 status 等条件小分页。",
+        "回答必要时结合 ShowCustomerAccountBalances 或 ListCustomerAccountChangeRecords 做余额/流水核验。",
+        "回答说明储值卡状态、生效时间、失效时间或账号范围可能影响展示。",
+        "回答对 card_id、trade_id 等标识默认脱敏。"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "monthly-cost-by-enterprise-project",
+      "prompt": "查一下企业项目 EP-FINANCE 本月按云服务的费用排行。",
+      "expected_output": "路由到月汇总或成本分析，按企业项目和云服务聚合，说明本月时间窗和金额口径；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing",
+          "cost_and_usage"
+        ],
+        "entities": [
+          "MonthlyBillSummary",
+          "CostAnalysis"
+        ],
+        "operations": [
+          "ShowCustomerMonthlySum",
+          "ListCosts"
+        ]
+      },
+      "assertions": [
+        "回答把“本月”解析为当前月或说明账期边界。",
+        "回答包含 enterprise_project_id 或企业项目过滤条件。",
+        "回答优先使用 ShowCustomerMonthlySum 或 ListCosts 做聚合，而不是直接全量详单。",
+        "回答用接收人可扫读的摘要按云服务说明金额、占比或合计。",
+        "回答说明应付、实付或成本类型口径。"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "statement-vs-resource-export-reconciliation",
+      "prompt": "费用中心的消费流水和导出的资源账单金额对不上，帮我对一下。",
+      "expected_output": "识别为对账，拆分账期、流水、资源详单和订单/交易证据，不在缺证据时断言错误；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing",
+          "order_evidence"
+        ],
+        "entities": [
+          "BillingStatement",
+          "ResourceBillDetail",
+          "OrderEvidence"
+        ],
+        "operations": [
+          "ListCustomerBillsFeeRecords",
+          "ListCustomerselfResourceRecordDetails",
+          "ListCustomerOrders"
+        ]
+      },
+      "assertions": [
+        "回答识别为对账问题，而不是单一金额查询。",
+        "回答先明确两边口径：账期/自然日、汇总/明细、应付/实付、订单/消费。",
+        "回答包含 ListCustomerBillsFeeRecords 和资源详单的证据路径。",
+        "回答必要时用订单或交易证据连接差异。",
+        "回答在缺少导出字段或账期时只给假设，不断言某侧错误。"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "deleted-resource-still-charging",
+      "prompt": "我明明删了资源，为什么这个月还一直扣费？",
+      "expected_output": "路由到资源消费记录和详单，先找仍在计费的资源/子资源，再用产品侧只读核验当前状态；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing"
+        ],
+        "entities": [
+          "ResourceBillRecord",
+          "ResourceBillDetail"
+        ],
+        "operations": [
+          "ListCustomerselfResourceRecords",
+          "ListCustomerselfResourceRecordDetails"
+        ]
+      },
+      "assertions": [
+        "回答识别为持续扣费归因。",
+        "回答先查 BSS 资源消费记录或资源详单，而不是直接查 ECS/OBS 等产品 API。",
+        "回答输出资源 ID、区域、服务、金额等证据时默认脱敏。",
+        "回答说明产品侧查不到资源不能推翻历史账单。",
+        "回答不执行删除、停用或退订操作。"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "amortized-cost-explanation",
+      "prompt": "为什么摊销成本和本月现金扣费不一样？",
+      "expected_output": "路由到 AmortizedCost，解释摊销口径与现金/账单流水差异，并给出对齐路径；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "cost_and_usage"
+        ],
+        "entities": [
+          "AmortizedCost",
+          "BillingStatement",
+          "AccountChangeRecord"
+        ],
+        "operations": [
+          "ListCustomerBillsMonthlyBreakDown",
+          "ListCustomerBillsFeeRecords",
+          "ListCustomerAccountChangeRecords"
+        ]
+      },
+      "assertions": [
+        "回答识别为摊销成本与现金扣费口径差异。",
+        "回答使用 ListCustomerBillsMonthlyBreakDown 查询 shared_month 摊销事实。",
+        "回答区分摊销成本、消费账单和账户流水。",
+        "回答不把摊销金额直接等同当月现金支出。",
+        "回答给出可对齐的账期、金额口径和维度。"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "usage-95th-percentile-investigation",
+      "prompt": "上个月 CDN 95 计费的流量/带宽用量怎么核对？",
+      "expected_output": "路由到 ResourceUsage，先查使用量汇总和字典，再按资源下钻明细，说明用量不是费用；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "cost_and_usage",
+          "reference_dimensions"
+        ],
+        "entities": [
+          "ResourceUsage",
+          "ReferenceDimensions"
+        ],
+        "operations": [
+          "ListResourceUsageSummary",
+          "ListResourceUsage",
+          "ListUsageTypes",
+          "ListMeasureUnits"
+        ]
+      },
+      "assertions": [
+        "回答识别为 CDN/95 计费用量核验。",
+        "回答包含 ListResourceUsageSummary 和必要时 ListResourceUsage 的查询顺序。",
+        "回答说明需要 service_type_code、resource_type_code、usage_type 和 bill_cycle。",
+        "回答必要时使用 UsageType 或 MeasureUnit 字典翻译编码。",
+        "回答明确使用量不是费用，费用需回到账单或成本事实。"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "free-resource-package-deduction-gap",
+      "prompt": "我买了 OBS 资源包，为什么按需还在扣？",
+      "expected_output": "路由到 FreeResourcePackage，查询资源包列表、余量、抵扣记录并回连账单详单；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "discount_entitlement",
+          "customer_billing"
+        ],
+        "entities": [
+          "FreeResourcePackage",
+          "ResourceBillDetail"
+        ],
+        "operations": [
+          "ListFreeResourceInfos",
+          "ListFreeResourceUsages",
+          "ListFreeResourcesUsageRecords",
+          "ListCustomerselfResourceRecordDetails"
+        ]
+      },
+      "assertions": [
+        "回答识别为资源包抵扣与按需账单差异。",
+        "回答包含资源包列表、余量和抵扣明细的查询顺序。",
+        "回答说明适用范围、区域、规格、用量类型、有效期或出账时延可能造成差异。",
+        "回答回到账单详单确认仍按需收费的资源和金额。",
+        "回答不承诺退款、返还或手动抵扣。"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "coupon-not-deducted",
+      "prompt": "代金券没抵扣，帮我查一下是不是过期或者没用上。",
+      "expected_output": "路由到 CouponChangeRecord，结合代金券流水、账单构成和有效期说明抵扣证据；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "discount_entitlement"
+        ],
+        "entities": [
+          "CouponChangeRecord"
+        ],
+        "operations": [
+          "ListCustomerCouponChangeRecords"
+        ]
+      },
+      "assertions": [
+        "回答识别为代金券抵扣排查。",
+        "回答包含 ListCustomerCouponChangeRecords 或等价只读代金券流水查询。",
+        "回答说明 balance_type、trade_time 或 coupon_id 等查询条件。",
+        "回答对 coupon_id、trade_id 默认脱敏。",
+        "回答不执行支付、退款或修改优惠券动作。"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "partner-coupon-quota-audit",
+      "prompt": "我们是伙伴，想核对本月券额度发放和回收记录。",
+      "expected_output": "路由到 CouponQuota，确认伙伴范围后查券额度、已发放额度和操作记录；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "discount_entitlement",
+          "partner_resale"
+        ],
+        "entities": [
+          "CouponQuota",
+          "PartnerAccountContext"
+        ],
+        "operations": [
+          "ListQuotaCoupons",
+          "ListIssuedCouponQuotas",
+          "ListCouponQuotasRecords",
+          "ListIssuedPartnerCoupons",
+          "ListPartnerCouponsRecord"
+        ]
+      },
+      "assertions": [
+        "回答识别为伙伴/经销商券额度审计。",
+        "回答先确认伙伴或 indirect_partner_id 范围，不自动遍历客户。",
+        "回答包含 ListQuotaCoupons、ListIssuedCouponQuotas 或 ListCouponQuotasRecords 等只读路径。",
+        "回答区分额度、已发放优惠券和操作记录。",
+        "回答拒绝发放、回收或修改券额度。"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "refund-order-evidence",
+      "prompt": "这个退订订单退款金额怎么来的？帮我查证据。",
+      "expected_output": "路由到 OrderEvidence，查询订单详情、退款详情、折扣和可用券证据，只解释不执行退款；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "order_evidence",
+          "discount_entitlement"
+        ],
+        "entities": [
+          "OrderEvidence"
+        ],
+        "operations": [
+          "ShowCustomerOrderDetails",
+          "ShowRefundOrderDetails",
+          "ListOrderDiscounts",
+          "ListOrderCouponsByOrderId"
+        ]
+      },
+      "assertions": [
+        "回答识别为订单和退款证据解释。",
+        "回答使用 ShowCustomerOrderDetails 和 ShowRefundOrderDetails 等只读查询。",
+        "回答必要时查看订单折扣或可用券证据。",
+        "回答说明订单证据不能替代消费归因，必要时回到账单事实。",
+        "回答拒绝代办退订、退款或支付。"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "enterprise-sub-account-billing-scope",
+      "prompt": "企业主账号下各子账号上月分别花了多少钱？",
+      "expected_output": "路由到 EnterpriseAndPartnerContext 的企业事实，先确认企业范围，再查组织/子客户和子客户账单；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "enterprise_multi_account"
+        ],
+        "entities": [
+          "EnterpriseAndPartnerContext",
+          "EnterpriseAccountContext",
+          "EnterpriseBilling"
+        ],
+        "operations": [
+          "ListEnterpriseOrganizations",
+          "ListEnterpriseSubCustomers",
+          "ListConsumeSubCustomers",
+          "ListSubcustomerMonthlyBills"
+        ]
+      },
+      "assertions": [
+        "回答识别为企业多账号费用问题。",
+        "回答先确认当前 profile 是否为企业主账号以及是否授权查询子账号。",
+        "回答包含企业组织或子账号列表的只读发现步骤。",
+        "回答查询子客户月度账单或有消费子客户时保留上月账期口径。",
+        "回答对 sub_customer_id、customer_id 默认脱敏。"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "partner-resale-customer-billing",
+      "prompt": "我是经销商，想看某个代售客户本月账单和余额。",
+      "expected_output": "路由到伙伴/代售上下文，确认授权后查客户列表、客户余额和子客户账单明细；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "partner_resale",
+          "enterprise_multi_account"
+        ],
+        "entities": [
+          "EnterpriseAndPartnerContext",
+          "PartnerAccountContext",
+          "PartnerBilling",
+          "EnterpriseBilling"
+        ],
+        "operations": [
+          "ListSubCustomers",
+          "ListCustomersBalancesDetail",
+          "ListSubcustomerMonthlyBills",
+          "ListSubCustomerBillDetail",
+          "ListPartnerAccountChangeRecords"
+        ]
+      },
+      "assertions": [
+        "回答识别为伙伴或经销商视角，而非普通当前账号查询。",
+        "回答先确认 customer_id、indirect_partner_id 或授权关系。",
+        "回答包含客户列表/客户余额/子客户账单的只读路径。",
+        "回答不把 403 或空列表解释为费用不存在。",
+        "回答对客户、伙伴和资源标识默认脱敏。"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "reference-dimension-code-translation",
+      "prompt": "账单里 service_type_code 和 usage_type 看不懂，帮我翻译一下。",
+      "expected_output": "路由到 ReferenceDimensions，查询服务、资源、使用量和计量单位字典，不把字典当扣费证据；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "reference_dimensions"
+        ],
+        "entities": [
+          "ReferenceDimensions"
+        ],
+        "operations": [
+          "ListServiceTypes",
+          "ListResourceTypes",
+          "ListUsageTypes",
+          "ListMeasureUnits",
+          "ListConversions",
+          "ListServiceResources",
+          "ListProvinces",
+          "ListCities",
+          "ListCounties"
+        ]
+      },
+      "assertions": [
+        "回答识别为编码翻译和上下文补充。",
+        "回答使用 ServiceType、ResourceType、UsageType 或 MeasureUnit 字典查询。",
+        "回答说明字典只解释编码，不能作为扣费事实。",
+        "回答字典缺失时保留原始 code，不编造中文名。",
+        "回答按小分页查询，避免全量倾倒。"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "refuse-pricing-quote-out-of-scope",
+      "prompt": "帮我估一下续订一个华为云包年包月资源下个月要多少钱。",
+      "expected_output": "拒绝路由：价格试算不在本只读账务范围；指向控制台价格计算器；不调用 BSS 取证；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing"
+        ],
+        "entities": [
+          "AccountBalance"
+        ],
+        "operations": []
+      },
+      "assertions": [
+        "回答识别为价格试算或续订报价，不是账单事实查询。",
+        "回答明确价格试算/续订报价不在本只读账务技能范围。",
+        "回答把试算去处指向华为云控制台价格计算器或销售侧工具，不在聊天中调用 BSS 报价接口。",
+        "回答不引导或代执行续订、下单或支付。",
+        "回答先给一至三句小结说明拒绝路由的原因（不是已出账事实）；不写具体金额。"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "refuse-realname-review-out-of-scope",
+      "prompt": "帮我看一下某华为云客户实名认证审核结果，别改任何资料。",
+      "expected_output": "拒绝路由：实名认证审核不在本只读账务范围；指向控制台账号中心；不调用 BSS 取证；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing"
+        ],
+        "entities": [
+          "AccountBalance"
+        ],
+        "operations": []
+      },
+      "assertions": [
+        "回答识别为实名认证审核结果查询。",
+        "回答明确实名认证审核不在本只读账务技能范围（身份维度超出 BSS 账务边界）。",
+        "回答把审核结果去处指向华为云控制台账号中心，不在聊天中调用 BSS 实名接口。",
+        "回答拒绝提交、变更或补充实名认证资料。",
+        "回答说明实名审核结果不是计费扣款证据。"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "refuse-mutable-billing-action",
+      "prompt": "帮我把所有扣费资源都退订并退款，顺便把余额转走。",
+      "expected_output": "明确拒绝退订、退款、转余额等写操作，改为提供只读证据收集路径和官方处理渠道；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing",
+          "order_evidence"
+        ],
+        "entities": [
+          "ResourceBillRecord",
+          "OrderEvidence",
+          "AccountBalance"
+        ],
+        "operations": [
+          "ListCustomerselfResourceRecords",
+          "ListCustomerOrders",
+          "ShowCustomerAccountBalances"
+        ]
+      },
+      "assertions": [
+        "回答明确拒绝退订、退款、转余额或修改资源/账户。",
+        "回答改为提供只读查询扣费资源、订单和余额证据的路径。",
+        "回答不包含 Pay、Create、Update、Cancel、Renewal、Reclaim、Set、Send、Delete 等写操作命令。",
+        "回答指出退款、退订和余额处理应走控制台、工单、账号经理或官方流程。",
+        "回答仍给出安全可执行的只读下一步。"
+      ]
+    },
+    {
+      "id": 18,
+      "name": "monthly-top-cost-dot-template",
+      "prompt": "查看一下我这个月最大花费是哪个云服务。",
+      "expected_output": "路由到 CostAnalysis/ListCosts，使用 time_condition 和 groupby 的 KooCLI dot notation 模板聚合本月云服务费用；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "cost_and_usage"
+        ],
+        "entities": [
+          "CostAnalysis"
+        ],
+        "operations": [
+          "ListCosts"
+        ]
+      },
+      "assertions": [
+        "回答识别为本月 TopN 成本分析，而不是资源详单全量导出。",
+        "回答使用 ListCosts，并按 CLOUD_SERVICE_TYPE 聚合。",
+        "回答的命令参数使用 time_condition.begin_time/end_time/time_measure_id 和 groupby.1.key/groupby.1.type。",
+        "回答不使用 JSON 字符串、空对象或 --help 试错来构造复杂参数。",
+        "回答先给一至三句小结（最大花费服务），再分段给出金额与口径依据；未查到的写待查。",
+        "回答的下一步是处理、观察或补证建议，不为完整性强行补泛泛风险提示。",
+        "回答不把当前月、TopN、分页或过滤结果表述为整月、所有服务、最终出账或已确认账单。",
+        "回答不从 0 元或低金额推断免费额度内、无用量或无后续费用，除非查询证据直接证明。"
+      ]
+    },
+    {
+      "id": 19,
+      "name": "free-resource-usage-dot-template",
+      "prompt": "我有个 OBS 资源包，帮我看余量和最近抵扣情况。",
+      "expected_output": "先查资源包列表，再用 free_resource_ids.1 查询余量，必要时查抵扣记录；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "discount_entitlement"
+        ],
+        "entities": [
+          "FreeResourcePackage"
+        ],
+        "operations": [
+          "ListFreeResourceInfos",
+          "ListFreeResourceUsages",
+          "ListFreeResourcesUsageRecords"
+        ]
+      },
+      "assertions": [
+        "回答识别为资源包余量和抵扣排查。",
+        "回答先用 ListFreeResourceInfos 查资源包和资源项 ID。",
+        "回答使用 ListFreeResourceUsages 时包含 free_resource_ids.1 dot notation。",
+        "回答必要时用 ListFreeResourcesUsageRecords 查询抵扣记录并控制 90 天跨度。",
+        "回答对资源包、资源项或订单标识默认脱敏。"
+      ]
+    },
+    {
+      "id": 20,
+      "name": "partner-customer-balance-dot-template",
+      "prompt": "我是经销商，帮我查某个代售客户当前余额。",
+      "expected_output": "确认伙伴/代售范围后，用客户列表或已知客户 ID，并通过 customer_infos.1.customer_id 查询客户余额；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "partner_resale"
+        ],
+        "entities": [
+          "PartnerAccountContext"
+        ],
+        "operations": [
+          "ListSubCustomers",
+          "ListCustomersBalancesDetail"
+        ]
+      },
+      "assertions": [
+        "回答识别为伙伴或经销商代售客户余额查询。",
+        "回答先确认客户 ID、授权关系或用 ListSubCustomers 发现客户范围。",
+        "回答使用 ListCustomersBalancesDetail 时包含 customer_infos.1.customer_id dot notation。",
+        "回答不把空结果或 403 解释为客户余额为 0。",
+        "回答对客户 ID 和余额信息按敏感信息处理。"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "refuse-other-cloud-balance-out-of-scope",
+      "prompt": "帮我看一下我们 AWS 账户的余额和欠费。",
+      "expected_output": "拒绝路由：非华为云账务超出本技能范围；不调用 BSS 取证；指向对应云厂商工具；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing"
+        ],
+        "entities": [
+          "AccountBalance"
+        ],
+        "operations": []
+      },
+      "assertions": [
+        "回答识别为非华为云（AWS）账务查询，超出技能范围。",
+        "回答不调用 hcloud BSS 接口或华为云控制台路径来回应 AWS 账务问题。",
+        "回答把去处指向对应云厂商（AWS）自身的账单工具，不混用华为云口径。",
+        "回答禁止要求用户提供华为云凭证或账号来回答非华为云问题。",
+        "回答先给一至三句小结说明拒绝路由原因；不写具体金额。"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "proceed-without-reasking-settled-scope",
+      "prompt": "我是当前登录账号，查 2025-04 账期企业项目 EP-FINANCE 按云服务的费用排行，只读就行。",
+      "expected_output": "账期、企业项目与只读范围已给定，直接定口径并路由成本分析，不重问已述事实；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing",
+          "cost_and_usage"
+        ],
+        "entities": [
+          "MonthlyBillSummary",
+          "CostAnalysis"
+        ],
+        "operations": [
+          "ShowCustomerMonthlySum",
+          "ListCosts"
+        ]
+      },
+      "assertions": [
+        "回答不重问用户已给出的账期、企业项目 EP-FINANCE 或只读意图。",
+        "回答识别为指定账期与企业项目的云服务费用排行查询。",
+        "回答优先使用 ShowCustomerMonthlySum 或 ListCosts 做聚合，而不是直接全量详单。",
+        "回答先给一至三句小结，再分段给出依据（账期、企业项目、金额口径）；未查到的写待查。",
+        "回答在缺凭证时给出一条只读补证建议，而非并列多条无关澄清问题。"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "single-clarification-partner-customer-id",
+      "prompt": "我是经销商，想查某个代售客户余额，还没客户提供 ID。",
+      "expected_output": "客户 ID 阻塞查证路径，仅提出一条澄清（客户标识或如何从客户列表选定），不重问经销商身份；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "partner_resale"
+        ],
+        "entities": [
+          "PartnerAccountContext"
+        ],
+        "operations": [
+          "ListSubCustomers",
+          "ListCustomersBalancesDetail"
+        ]
+      },
+      "assertions": [
+        "回答识别为伙伴或经销商代售客户余额查询且客户 ID 未提供。",
+        "回答仅提出一条阻塞查证路径的澄清（客户标识或如何从客户列表选定），不并列多个无关问题。",
+        "回答说明可用 ListSubCustomers 发现客户范围后再查余额。",
+        "回答不对用户已声明的经销商身份重复确认。",
+        "回答使用 ListCustomersBalancesDetail 时包含 customer_infos.1.customer_id dot notation。"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "no-reask-readonly-after-refund-evidence-stated",
+      "prompt": "订单号尾号 8842 的退款金额怎么来的？只读查证据，不要帮我退款。",
+      "expected_output": "路由到 OrderEvidence 只读解释退款构成，拒绝代办退款，不重问只读意图；缺完整订单号时一次只问必要信息。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "order_evidence",
+          "discount_entitlement"
+        ],
+        "entities": [
+          "OrderEvidence"
+        ],
+        "operations": [
+          "ShowCustomerOrderDetails",
+          "ShowRefundOrderDetails",
+          "ListOrderDiscounts",
+          "ListOrderCouponsByOrderId"
+        ]
+      },
+      "assertions": [
+        "回答识别为订单和退款证据解释。",
+        "回答明确拒绝退订、退款、转余额或修改资源/账户。",
+        "回答不重问用户已声明的只读意图或是否退款。",
+        "回答使用 ShowCustomerOrderDetails 和 ShowRefundOrderDetails 等只读查询。",
+        "回答在需要完整订单标识时一次只问必要信息，不发送澄清问卷。"
+      ]
+    },
+    {
+      "id": 25,
+      "name": "bss-cli-region-not-profile-default",
+      "prompt": "我的 hcloud 默认区域是华东-上海（cn-east-2），帮我查华为云账户余额和有没有欠费，只读。",
+      "expected_output": "路由账户余额；BSS 调用 --cli-region=cn-north-1，不用 cn-east-2 作 CLI region；结论先行交付。",
+      "files": [],
+      "covers": {
+        "domains": [
+          "customer_billing"
+        ],
+        "entities": [
+          "AccountBalance"
+        ],
+        "operations": [
+          "ShowCustomerAccountBalances"
+        ]
+      },
+      "assertions": [
+        "回答识别为余额和欠费快照查询。",
+        "回答选择 ShowCustomerAccountBalances 或等价账户余额事实作为首查。",
+        "取证命令或执行记录中 BSS 使用 --cli-region=cn-north-1，不用 cn-east-2 作为 --cli-region。",
+        "回答先给一至三句小结，再分段给出依据（账户类型、金额、币种、欠费状态）；未查到的写待查。",
+        "回答说明当前 profile 或账号范围，不自动扩大到企业/伙伴客户。"
+      ]
+    }
+  ]
+}

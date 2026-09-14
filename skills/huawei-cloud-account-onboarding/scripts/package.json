@@ -1,0 +1,17 @@
+{
+  "name": "huawei-cloud-account-onboarding-scripts",
+  "private": true,
+  "description": "Terminal QR renderer for the huawei-cloud-account-onboarding skill",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "tsx": "^4.23.12"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/qrcode": "^1.5.6"
+  }
+}

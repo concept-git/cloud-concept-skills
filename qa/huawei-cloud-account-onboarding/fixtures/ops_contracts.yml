@@ -1,0 +1,38 @@
+# 跨层合同：skills/.../references/commands.md 中每条命令的可核对事实。
+# 由 validate.sh 校验：operation 名、响应字段与枚举值必须在 commands.md 中出现。
+# 技能面只讲 hcloud 命令，不暴露 OpenAPI 路径。
+# 证据来源：KooCLI 7.2.12 元数据 + huaweicloud-sdk BSS v2 响应模型 + 真实调用。
+version: 1
+service: BSS
+cli_region: cn-north-1
+throttle_per_second: 5
+operations:
+  ShowRealNameAuthStatus:
+    required_params: []
+    response_fields:
+      verified_status:
+        type: Integer
+        enum:
+          "-1": 未实名认证
+          "0": 实名认证审核中
+          "1": 实名认证不通过
+          "2": 已实名认证
+      verified_type:
+        type: Integer
+        enum:
+          "0": 个人实名认证
+          "1": 企业实名认证
+        nullable_when: verified_status=-1
+  ShowRealNameAuthQrCode:
+    required_params: []
+    response_fields:
+      qr_code_url:
+        type: String
+        single_use: true
+        ttl_minutes: 10
+    notes: 接口不校验实名状态，已实名账号同样返回可用地址；门禁由技能承担。
+refused_operations:
+  - CreatePersonalRealnameAuth
+  - CreateEnterpriseRealnameAuthentication
+  - ChangeEnterpriseRealnameAuthentication
+  - ShowRealnameAuthenticationReviewResult
