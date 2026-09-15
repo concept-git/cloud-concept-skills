@@ -28,6 +28,8 @@ install it automatically.
 
 Base names install English. Append `-cn` for Simplified Chinese.
 
+ClawHub publishes only the English `skills/en` editions; Chinese editions remain on GitHub.
+
 ```bash
 npx skills add concept-git/cloud-concept-skills \
   --skill <skill-name> \

@@ -20,8 +20,9 @@ skills/cn/<name>-cn/    # 简体中文
    documented and tested.
 6. English `SKILL.md`, UI metadata, and skill page use English; Chinese equivalents use Chinese.
    Preserve vendor-native labels only when users must match them exactly.
-7. Update both locales, QA, catalog, README, and marketplaces in one change. CI must pass
-   `tools/validate-localization.py` and `tools/validate-all.sh` before publish.
+7. Update both locales, QA, catalog, and README in one change. ClawHub publishes only `skills/en`;
+   never sync `skills/cn` to ClawHub. CI must pass `tools/validate-localization.py` and
+   `tools/validate-all.sh` before publish.
 
 ## Change Rule
 

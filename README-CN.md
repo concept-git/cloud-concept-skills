@@ -24,6 +24,8 @@ English: [README.md](README.md).
 
 基础名安装英文版；简体中文版统一使用 `-cn`。
 
+ClawHub 只发布 `skills/en` 英文版；中文版继续通过 GitHub 安装。
+
 ```bash
 npx skills add concept-git/cloud-concept-skills \
   --skill <skill-name> \
