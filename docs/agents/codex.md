@@ -9,6 +9,8 @@ npx skills add concept-git/cloud-concept-skills \
   --copy
 ```
 
+Base skill names install English; append `-cn` for Simplified Chinese.
+
 Codex direct skill installs use the same `SKILL.md` structure as Cursor and
 Claude Code. For repo-scoped authoring, Codex scans `.agents/skills/` from the
 current working directory up to the repository root.

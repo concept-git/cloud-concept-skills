@@ -2,6 +2,8 @@
 
 Install skills from [cloud-concept-skills](https://github.com/concept-git/cloud-concept-skills) into [Hermes Agent](https://github.com/NousResearch/Hermes) — **Huawei Community Edition**, community-maintained, not official Huawei Cloud. Same `SKILL.md` + `references/` bundle as `npx skills add`.
 
+Base skill names install English; append `-cn` for Simplified Chinese.
+
 | Skill | Use when |
 | --- | --- |
 | `huawei-cloud-billing-scout` | Past spend — balance, bills, reconciliation, coupons |

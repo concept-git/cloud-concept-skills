@@ -6,14 +6,17 @@ Conventions for skills in this monorepo. Spec baseline: [agentskills.io](https:/
 
 | Path | Purpose |
 | --- | --- |
-| `skills/<name>/` | Installable runtime only (`SKILL.md` + optional `references/`, `scripts/`, `assets/`, `agents/openai.yaml`) |
-| `qa/<name>/` | Validation, evals, assertions — never copied by `npx skills add` |
-| `docs/skills/<name>.md` | Human-facing skill overview for the repo README index |
+| `skills/en/<name>/` | English install payload (`SKILL.md` plus optional resources) |
+| `skills/cn/<name>-cn/` | Simplified-Chinese install payload |
+| `qa/<locale>/<name>/` | Validation, evals, assertions; never installed |
+| `docs/skills/<locale>/<name>.md` | Human-facing skill overview |
+
+Every capability ships as an English/default and `-cn` pair. Follow [localization.md](localization.md).
 
 QA layout (gate files stay under `qa/`, not `skills/`):
 
 ```text
-qa/<name>/
+qa/<locale>/<name>/
 ├── validate.sh
 ├── skillcheck.toml
 ├── .markdownlint.json

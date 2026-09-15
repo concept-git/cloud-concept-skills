@@ -1,0 +1,236 @@
+# Cross-layer contract for huawei-cloud-billing-scout-cn.
+# Keep this file in sync with references/semantic/catalog.yml and related-commands.md.
+
+coverage:
+  expected_query_operations: 53
+  source_version: KooCLI 7.2.2
+  allowed_prefixes: [List, Show]
+
+operations:
+  ShowCustomerAccountBalances:
+    domain: customer_billing
+    entity: AccountBalance
+    required: []
+  ShowCustomerMonthlySum:
+    domain: customer_billing
+    entity: MonthlyBillSummary
+    required: [bill_cycle]
+  ListCustomerBillsFeeRecords:
+    domain: customer_billing
+    entity: BillingStatement
+    required: [bill_cycle]
+  ListCustomerselfResourceRecords:
+    domain: customer_billing
+    entity: ResourceBillRecord
+    required: [cycle]
+  ListCustomerselfResourceRecordDetails:
+    domain: customer_billing
+    entity: ResourceBillDetail
+    required: [cycle]
+  ListCustomerAccountChangeRecords:
+    domain: customer_billing
+    entity: AccountChangeRecord
+    required: [balance_type]
+  ListStoredValueCards:
+    domain: customer_billing
+    entity: StoredValueCard
+    required: [status]
+
+  ListCosts:
+    domain: cost_and_usage
+    entity: CostAnalysis
+    required: [amount_type, cost_type, time_condition.begin_time, time_condition.end_time, time_condition.time_measure_id, groupby.1.key, groupby.1.type]
+    templates: [time_condition.begin_time, time_condition.end_time, time_condition.time_measure_id, groupby.1.key, groupby.1.type, filters.1.filter_factor.key, filters.1.filter_factor.value.1, filters.1.operator]
+  ListCustomerBillsMonthlyBreakDown:
+    domain: cost_and_usage
+    entity: AmortizedCost
+    required: [shared_month]
+  ListResourceUsageSummary:
+    domain: cost_and_usage
+    entity: ResourceUsage
+    required: [bill_cycle, service_type_code, resource_type_code, usage_type]
+  ListResourceUsage:
+    domain: cost_and_usage
+    entity: ResourceUsage
+    required: [bill_cycle, resource_id, service_type_code, resource_type_code, usage_type]
+
+  ListFreeResourceInfos:
+    domain: discount_entitlement
+    entity: FreeResourcePackage
+    required: []
+    templates: [service_type_code_list.1]
+  ListFreeResourceUsages:
+    domain: discount_entitlement
+    entity: FreeResourcePackage
+    required: [free_resource_ids.1]
+    templates: [free_resource_ids.1]
+  ListFreeResourcesUsageRecords:
+    domain: discount_entitlement
+    entity: FreeResourcePackage
+    required: [deduct_time_begin, deduct_time_end]
+  ListCustomerCouponChangeRecords:
+    domain: discount_entitlement
+    entity: CouponChangeRecord
+    required: [balance_type]
+  ListQuotaCoupons:
+    domain: discount_entitlement
+    entity: CouponQuota
+    required: []
+    templates: [quota_ids.1, quota_status_list.1]
+  ListIssuedCouponQuotas:
+    domain: discount_entitlement
+    entity: CouponQuota
+    required: []
+  ListCouponQuotasRecords:
+    domain: discount_entitlement
+    entity: CouponQuota
+    required: []
+  ListIssuedPartnerCoupons:
+    domain: discount_entitlement
+    entity: CouponQuota
+    required: []
+  ListPartnerCouponsRecord:
+    domain: discount_entitlement
+    entity: CouponQuota
+    required: []
+    templates: [coupon_ids.1, operation_types.1]
+  ListSubCustomerCoupons:
+    domain: discount_entitlement
+    entity: CouponQuota
+    required: []
+  ListOrderCouponsByOrderId:
+    domain: discount_entitlement
+    entity: OrderEvidence
+    required: [order_id]
+
+  ListCustomerOrders:
+    domain: order_evidence
+    entity: OrderEvidence
+    required: []
+  ShowCustomerOrderDetails:
+    domain: order_evidence
+    entity: OrderEvidence
+    required: [order_id]
+  ShowRefundOrderDetails:
+    domain: order_evidence
+    entity: OrderEvidence
+    required: [order_id]
+  ListOrderDiscounts:
+    domain: order_evidence
+    entity: OrderEvidence
+    required: [order_id]
+
+  ListEnterpriseOrganizations:
+    domain: enterprise_multi_account
+    entity: EnterpriseAccountContext
+    required: []
+  ListEnterpriseSubCustomers:
+    domain: enterprise_multi_account
+    entity: EnterpriseAccountContext
+    required: []
+  ListEnterpriseMultiAccount:
+    domain: enterprise_multi_account
+    entity: EnterpriseAccountContext
+    required: [balance_type, sub_customer_id]
+  ShowMultiAccountTransferAmount:
+    domain: enterprise_multi_account
+    entity: EnterpriseAccountContext
+    required: [balance_type]
+  ListMultiAccountTransferCoupons:
+    domain: enterprise_multi_account
+    entity: EnterpriseAccountContext
+    required: []
+  ListMultiAccountRetrieveCoupons:
+    domain: enterprise_multi_account
+    entity: EnterpriseAccountContext
+    required: [sub_customer_id]
+  ListConsumeSubCustomers:
+    domain: enterprise_multi_account
+    entity: EnterpriseBilling
+    required: [bill_cycle]
+  ListSubcustomerMonthlyBills:
+    domain: enterprise_multi_account
+    entity: EnterpriseBilling
+    required: [cycle, charge_mode]
+  ListSubCustomerBillDetail:
+    domain: enterprise_multi_account
+    entity: EnterpriseBilling
+    required: [bill_cycle, customer_id]
+
+  ListSubCustomers:
+    domain: partner_resale
+    entity: PartnerAccountContext
+    required: []
+  ListSubCustomerNewTag:
+    domain: partner_resale
+    entity: PartnerAccountContext
+    required: []
+    templates: [customer_ids.1]
+  ListCustomerOnDemandResources:
+    domain: partner_resale
+    entity: PartnerAccountContext
+    required: [customer_id]
+    templates: [resource_ids.1]
+  ListPayPerUseCustomerResources:
+    domain: partner_resale
+    entity: PartnerAccountContext
+    required: []
+    templates: [resource_ids.1, status_list.1]
+  ListCustomersBalancesDetail:
+    domain: partner_resale
+    entity: PartnerAccountContext
+    required: [customer_infos.1.customer_id]
+    templates: [customer_infos.1.customer_id]
+  ListPartnerBalances:
+    domain: partner_resale
+    entity: PartnerAccountContext
+    required: []
+  ListPartnerAccountChangeRecords:
+    domain: partner_resale
+    entity: PartnerBilling
+    required: [balance_type]
+  ListPartnerAdjustRecords:
+    domain: partner_resale
+    entity: PartnerBilling
+    required: []
+  ListIndirectPartners:
+    domain: partner_resale
+    entity: PartnerAccountContext
+    required: []
+
+  ListServiceTypes:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: []
+  ListResourceTypes:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: []
+  ListUsageTypes:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: []
+  ListMeasureUnits:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: []
+  ListConversions:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: []
+  ListServiceResources:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: [service_type_code]
+  ListProvinces:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: []
+  ListCities:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: [province_code]
+  ListCounties:
+    domain: reference_dimensions
+    entity: ReferenceDimensions
+    required: [city_code]

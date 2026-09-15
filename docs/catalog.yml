@@ -1,48 +1,134 @@
 # Machine-readable skill index. Keep in sync with skills/ and qa/.
 version: 1
 skills:
-  - id: huawei-cloud-billing-scout
-    path: skills/huawei-cloud-billing-scout
-    qa: qa/huawei-cloud-billing-scout
-    display_name: "Huawei Cloud Read-Only Billing — Spend, Charges & Reconciliation"
-    display_name_zh: "华为云 · 花多少为何扣 · 只读对账"
-    domain: cloud
-    subdomains: [billing, finops]
-    summary: Read-only Huawei Cloud BSS FinOps—balance, spend, charge attribution, reconciliation, coupons, enterprise billing; one-page briefing; 53 read-only ops; independent skill; refuses pricing-quote (see cost-estimation) and real-name review
-    summary_zh: 华为云 · 花多少为何扣 · 只读对账；余额/扣费归因/对账/券包/企业账；一页简报；53 个只读 Operation；独立技能；拒绝询价（见 cost-estimation）/实名
-    version: "2.3.9"
-    agents: [cursor, claude-code, codex, openclaw]
-    compatibility: hcloud KooCLI 7.2+, read-only BSS IAM, outbound network; no agent auto-install
-    marketplaces: [skills-sh, skillsmp, clawhub]
-    distribution: direct-skill
-    clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
-  - id: huawei-cloud-cost-estimation
-    path: skills/huawei-cloud-cost-estimation
-    qa: qa/huawei-cloud-cost-estimation
-    display_name: "Huawei Cloud Cost Estimation & Controlled Provisioning — Quote, Create, Console-Guided Unsubscribe"
-    display_name_zh: "华为云成本估算与资源开通"
-    domain: cloud
-    subdomains: [pricing, finops, procurement, provisioning]
-    summary: Huawei Cloud pre-order pricing (period + on-demand; resolve service resource type → ListResourceSpecs → on-demand ListUsageTypes then quote) plus 74 controlled create ops; small chains complete directly, larger chains 2-3 commands/round; creates require help, --dryrun, fee review, confirmation; unsubscribe console-only
-    summary_zh: 华为云 · 询价（资源类型→规格→按需 usage_factor→报价）+ 受控开通 + 退订控制台指引；小任务直达、大任务每轮 2–3 条；开通必经 help/--dryrun/费用/确认
-    version: "3.2.4"
-    agents: [cursor, claude-code, codex, openclaw]
-    compatibility: hcloud KooCLI 7.2+, IAM permissions matching requested read/create operations, outbound network; no agent auto-install
-    marketplaces: [skills-sh, skillsmp, clawhub]
-    distribution: direct-skill
-    clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
-  - id: huawei-cloud-account-onboarding
-    path: skills/huawei-cloud-account-onboarding
-    qa: qa/huawei-cloud-account-onboarding
-    display_name: "Huawei Cloud Account Onboarding — Real-Name Verification via Face-Scan QR"
-    display_name_zh: "华为云账号开通 · 人脸扫码实名认证"
-    domain: cloud
-    subdomains: [onboarding, identity]
-    summary: Read-only Huawei Cloud real-name verification guidance via hcloud BSS—check verified_status, and when unverified fetch the face-auth QR address, render it in the terminal to scan, then poll with --cli-waiter until verification lands; face-scan channel only; refuses ID/document/bank-card intake, write operations, and non-Huawei-Cloud identity flows
-    summary_zh: 华为云 · 人脸扫码实名认证引导；查状态 → 取二维码地址 → 终端渲染 → waiter 轮询至已实名；仅人脸通道，只读；拒收证件/银行卡、拒绝写接口；企业与证件认证指路控制台
-    version: "1.0.0"
-    agents: [cursor, claude-code, codex, openclaw]
-    compatibility: hcloud KooCLI 7.2+ with a configured profile (main account), Node.js 18+ for the QR renderer, outbound network; no agent auto-install
-    marketplaces: [skills-sh, skillsmp, clawhub]
-    distribution: direct-skill
-    clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
+- id: huawei-cloud-billing-scout
+  path: skills/en/huawei-cloud-billing-scout
+  qa: qa/en/huawei-cloud-billing-scout
+  display_name: Huawei Cloud Read-Only Billing — Spend, Charges & Reconciliation
+  display_name_zh: 华为云 · 花多少为何扣 · 只读对账
+  domain: cloud
+  subdomains: &id001
+  - billing
+  - finops
+  summary: Read-only Huawei Cloud BSS FinOps—balance, spend, charge attribution, reconciliation, coupons, enterprise billing; one-page briefing; 53 read-only ops; independent skill; refuses pricing-quote (see cost-estimation) and real-name review
+  summary_zh: 华为云 · 花多少为何扣 · 只读对账；余额/扣费归因/对账/券包/企业账；一页简报；53 个只读 Operation；独立技能；拒绝询价（见 cost-estimation）/实名
+  version: 2.3.9
+  agents: &id002
+  - cursor
+  - claude-code
+  - codex
+  - openclaw
+  compatibility: hcloud KooCLI 7.2+, read-only BSS IAM, outbound network; no agent auto-install
+  marketplaces: &id003
+  - skills-sh
+  - skillsmp
+  - clawhub
+  distribution: direct-skill
+  clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
+  language: en
+  translation_of: huawei-cloud-billing-scout-cn
+- id: huawei-cloud-billing-scout-cn
+  path: skills/cn/huawei-cloud-billing-scout-cn
+  qa: qa/cn/huawei-cloud-billing-scout-cn
+  display_name: 华为云 · 花多少为何扣 · 只读对账（中文）
+  display_name_zh: 华为云 · 花多少为何扣 · 只读对账
+  domain: cloud
+  subdomains: *id001
+  summary: Chinese edition. 华为云 · 花多少为何扣 · 只读对账；余额/扣费归因/对账/券包/企业账；一页简报；53 个只读 Operation；独立技能；拒绝询价（见 cost-estimation）/实名
+  summary_zh: 华为云 · 花多少为何扣 · 只读对账；余额/扣费归因/对账/券包/企业账；一页简报；53 个只读 Operation；独立技能；拒绝询价（见 cost-estimation）/实名
+  version: 2.3.9
+  agents: *id002
+  compatibility: hcloud KooCLI 7.2+, read-only BSS IAM, outbound network; no agent auto-install
+  marketplaces: *id003
+  distribution: direct-skill
+  clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
+  language: zh-CN
+  translation_of: huawei-cloud-billing-scout
+- id: huawei-cloud-cost-estimation
+  path: skills/en/huawei-cloud-cost-estimation
+  qa: qa/en/huawei-cloud-cost-estimation
+  display_name: Huawei Cloud Cost Estimation & Controlled Provisioning — Quote, Create, Console-Guided Unsubscribe
+  display_name_zh: 华为云成本估算与资源开通
+  domain: cloud
+  subdomains: &id004
+  - pricing
+  - finops
+  - procurement
+  - provisioning
+  summary: Huawei Cloud pre-order pricing (period + on-demand; resolve service resource type → ListResourceSpecs → on-demand ListUsageTypes then quote) plus 74 controlled create ops; small chains complete directly, larger chains 2-3 commands/round; creates require help, --dryrun, fee review, confirmation; unsubscribe console-only
+  summary_zh: 华为云 · 询价（资源类型→规格→按需 usage_factor→报价）+ 受控开通 + 退订控制台指引；小任务直达、大任务每轮 2–3 条；开通必经 help/--dryrun/费用/确认
+  version: 3.2.4
+  agents: &id005
+  - cursor
+  - claude-code
+  - codex
+  - openclaw
+  compatibility: hcloud KooCLI 7.2+, IAM permissions matching requested read/create operations, outbound network; no agent auto-install
+  marketplaces: &id006
+  - skills-sh
+  - skillsmp
+  - clawhub
+  distribution: direct-skill
+  clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
+  language: en
+  translation_of: huawei-cloud-cost-estimation-cn
+- id: huawei-cloud-cost-estimation-cn
+  path: skills/cn/huawei-cloud-cost-estimation-cn
+  qa: qa/cn/huawei-cloud-cost-estimation-cn
+  display_name: 华为云成本估算与资源开通（中文）
+  display_name_zh: 华为云成本估算与资源开通
+  domain: cloud
+  subdomains: *id004
+  summary: Chinese edition. 华为云 · 询价（资源类型→规格→按需 usage_factor→报价）+ 受控开通 + 退订控制台指引；小任务直达、大任务每轮 2–3 条；开通必经 help/--dryrun/费用/确认
+  summary_zh: 华为云 · 询价（资源类型→规格→按需 usage_factor→报价）+ 受控开通 + 退订控制台指引；小任务直达、大任务每轮 2–3 条；开通必经 help/--dryrun/费用/确认
+  version: 3.2.4
+  agents: *id005
+  compatibility: hcloud KooCLI 7.2+, IAM permissions matching requested read/create operations, outbound network; no agent auto-install
+  marketplaces: *id006
+  distribution: direct-skill
+  clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
+  language: zh-CN
+  translation_of: huawei-cloud-cost-estimation
+- id: huawei-cloud-account-onboarding
+  path: skills/en/huawei-cloud-account-onboarding
+  qa: qa/en/huawei-cloud-account-onboarding
+  display_name: Huawei Cloud Account Onboarding — Real-Name Verification via Face-Scan QR
+  display_name_zh: 华为云账号开通 · 人脸扫码实名认证
+  domain: cloud
+  subdomains: &id007
+  - onboarding
+  - identity
+  summary: Read-only Huawei Cloud real-name verification guidance via hcloud BSS—check verified_status, and when unverified fetch the face-auth QR address, render it in the terminal to scan, then poll with --cli-waiter until verification lands; face-scan channel only; refuses ID/document/bank-card intake, write operations, and non-Huawei-Cloud identity flows
+  summary_zh: 华为云 · 人脸扫码实名认证引导；查状态 → 取二维码地址 → 终端渲染 → waiter 轮询至已实名；仅人脸通道，只读；拒收证件/银行卡、拒绝写接口；企业与证件认证指路控制台
+  version: 1.0.0
+  agents: &id008
+  - cursor
+  - claude-code
+  - codex
+  - openclaw
+  compatibility: hcloud KooCLI 7.2+ with a configured profile (main account), Node.js 18+ for the QR renderer, outbound network; no agent auto-install
+  marketplaces: &id009
+  - skills-sh
+  - skillsmp
+  - clawhub
+  distribution: direct-skill
+  clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
+  language: en
+  translation_of: huawei-cloud-account-onboarding-cn
+- id: huawei-cloud-account-onboarding-cn
+  path: skills/cn/huawei-cloud-account-onboarding-cn
+  qa: qa/cn/huawei-cloud-account-onboarding-cn
+  display_name: 华为云账号开通 · 人脸扫码实名认证（中文）
+  display_name_zh: 华为云账号开通 · 人脸扫码实名认证
+  domain: cloud
+  subdomains: *id007
+  summary: Chinese edition. 华为云 · 人脸扫码实名认证引导；查状态 → 取二维码地址 → 终端渲染 → waiter 轮询至已实名；仅人脸通道，只读；拒收证件/银行卡、拒绝写接口；企业与证件认证指路控制台
+  summary_zh: 华为云 · 人脸扫码实名认证引导；查状态 → 取二维码地址 → 终端渲染 → waiter 轮询至已实名；仅人脸通道，只读；拒收证件/银行卡、拒绝写接口；企业与证件认证指路控制台
+  version: 1.0.0
+  agents: *id008
+  compatibility: hcloud KooCLI 7.2+ with a configured profile (main account), Node.js 18+ for the QR renderer, outbound network; no agent auto-install
+  marketplaces: *id009
+  distribution: direct-skill
+  clawhub_license: MIT-0 on ClawHub; repository source remains Apache-2.0
+  language: zh-CN
+  translation_of: huawei-cloud-account-onboarding

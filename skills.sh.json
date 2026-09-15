@@ -7,8 +7,11 @@
       "description": "Community-maintained billing, quoting, controlled provisioning, and real-name onboarding via KooCLI/BSS.",
       "skills": [
         "huawei-cloud-billing-scout",
+        "huawei-cloud-billing-scout-cn",
         "huawei-cloud-cost-estimation",
-        "huawei-cloud-account-onboarding"
+        "huawei-cloud-cost-estimation-cn",
+        "huawei-cloud-account-onboarding",
+        "huawei-cloud-account-onboarding-cn"
       ]
     }
   ]

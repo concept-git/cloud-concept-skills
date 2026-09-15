@@ -9,6 +9,8 @@ npx skills add concept-git/cloud-concept-skills \
   --copy
 ```
 
+Base skill names install English; append `-cn` for Simplified Chinese.
+
 Local path:
 
 ```bash

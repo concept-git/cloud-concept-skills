@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
-# 遍历 qa/*/validate.sh，与 GitHub validate workflow 一致。
+# Traverse qa/<locale>/<skill>/validate.sh, matching the GitHub workflow.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 status=0
 
-for validate in "$ROOT"/qa/*/validate.sh; do
-  [[ -f "$validate" ]] || continue
+python3 "$ROOT/tools/validate-localization.py"
+
+while IFS= read -r validate; do
   name=$(basename "$(dirname "$validate")")
   printf '==> %s\n' "$name"
   if ! "$validate"; then
     status=1
   fi
   printf '\n'
-done
+done < <(find "$ROOT/qa" -mindepth 3 -maxdepth 3 -name validate.sh -type f | sort)
 
 [[ "$status" -eq 0 ]] || exit "$status"
 printf 'OK: all skill QA passed\n'
