@@ -1,6 +1,6 @@
 # huawei-cloud-billing-scout-cn QA
 
-Quality gate for the Huawei Cloud billing skill. Run after changing `SKILL.md`,
+Quality gate for the Cloud billing skill. Run after changing `SKILL.md`,
 semantic YAML, `related-commands.md`, or public docs.
 
 ## Commands

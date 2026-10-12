@@ -1,11 +1,11 @@
-# Huawei Cloud Agent Skills
+# Cloud Agent Skills
 
 [![skills.sh](https://skills.sh/b/concept-git/cloud-concept-skills)](https://skills.sh/concept-git/cloud-concept-skills)
 
-Community-maintained Huawei Cloud skills for billing analysis, pre-order cost estimation and
+Community-maintained Cloud skills for billing analysis, pre-order cost estimation and
 controlled provisioning, and account real-name onboarding. Three capabilities ship as six localized
 skills: English uses the base name and Simplified Chinese adds `-cn`. This project is not an
-official Huawei Cloud product.
+official Cloud product.
 
 Every skill keeps its runtime payload under `skills/<name>/`; QA and evaluations live under
 `qa/<name>/` and are not installed with the skill.

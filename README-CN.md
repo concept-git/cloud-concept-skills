@@ -1,9 +1,9 @@
-# 华为云 Agent Skills
+# Cloud Agent Skills
 
 [![skills.sh](https://skills.sh/b/concept-git/cloud-concept-skills)](https://skills.sh/concept-git/cloud-concept-skills)
 
-社区维护的华为云技能仓库，覆盖账务分析、购买前成本估算与受控开通，以及账号实名认证引导。3 项能力提供 6 个中英文技能：英文使用基础名，简体中文增加
-`-cn`。本项目不是华为云官方产品。
+社区维护的Cloud 技能仓库，覆盖账务分析、购买前成本估算与受控开通，以及账号实名认证引导。3 项能力提供 6 个中英文技能：英文使用基础名，简体中文增加
+`-cn`。本项目不是Cloud 官方产品。
 
 运行载荷位于 `skills/<name>/`；QA 与评估位于 `qa/<name>/`，安装技能时不会复制。
 
