@@ -17,6 +17,12 @@ English: [README.md](README.md).
 | [`huawei-cloud-cost-estimation-cn`](docs/skills/cn/huawei-cloud-cost-estimation-cn.md)       | 3.2.4 | 当次响应询价与受控资源开通。         |
 | [`huawei-cloud-account-onboarding-cn`](docs/skills/cn/huawei-cloud-account-onboarding-cn.md) | 1.0.0 | 只读查询实名状态并引导人脸扫码。     |
 
+## 开发中
+
+[`huaweicloud-ecs-troubleshooting`](development/huaweicloud-ecs-troubleshooting/README.md)
+面向华为云 ECS Linux 及关联云服务排障，目前仅完成结构设计，独立存放在 `development/`，
+尚不能安装或使用。
+
 ## 安装
 
 需要 Node.js（用于 `npx`）与 [KooCLI](https://support.huaweicloud.com/productdesc-hcli/hcli_01.html)

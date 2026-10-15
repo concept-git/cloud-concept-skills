@@ -20,6 +20,12 @@ Every skill keeps its runtime payload under `skills/<name>/`; QA and evaluations
 | [`huawei-cloud-cost-estimation`](docs/skills/en/huawei-cloud-cost-estimation.md)       | [`huawei-cloud-cost-estimation-cn`](docs/skills/cn/huawei-cloud-cost-estimation-cn.md)       | Current-response quotes and guarded provisioning.  |
 | [`huawei-cloud-account-onboarding`](docs/skills/en/huawei-cloud-account-onboarding.md) | [`huawei-cloud-account-onboarding-cn`](docs/skills/cn/huawei-cloud-account-onboarding-cn.md) | Read-only real-name status and face-scan guidance. |
 
+## In development
+
+[`huaweicloud-ecs-troubleshooting`](development/huaweicloud-ecs-troubleshooting/README.md)
+is an early structure draft for Huawei Cloud ECS Linux troubleshooting and related
+cloud services. It is isolated under `development/` and is not ready to install or use.
+
 ## Install
 
 Requires Node.js for `npx`. The skills additionally require
