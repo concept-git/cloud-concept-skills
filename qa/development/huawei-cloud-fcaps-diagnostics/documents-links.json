@@ -1,0 +1,114 @@
+{
+  "checked_date": "2026-10-22",
+  "method": "web.open: official HTML title and page content",
+  "sources": [
+    {
+      "id": "api-ecs/ecs_07_0002",
+      "section": "ECS API参考",
+      "url": "https://support.huaweicloud.com/api-ecs/ecs_07_0002.html",
+      "title": "错误码"
+    },
+    {
+      "id": "api-ecs/ecs_08_0002",
+      "section": "ECS API参考",
+      "url": "https://support.huaweicloud.com/api-ecs/ecs_08_0002.html",
+      "title": "云服务器状态"
+    },
+    {
+      "id": "ces_faq/ces_faq_2513",
+      "section": "CES 常见问题",
+      "url": "https://support.huaweicloud.com/ces_faq/ces_faq_2513.html",
+      "title": "Agent支持的指标列表"
+    },
+    {
+      "id": "productdesc-evs/zh-cn_topic_0014580744",
+      "section": "EVS 产品介绍",
+      "url": "https://support.huaweicloud.com/productdesc-evs/zh-cn_topic_0014580744.html",
+      "title": "云硬盘类型及性能介绍"
+    },
+    {
+      "id": "usermanual-vpc/zh-cn_topic_0073379079",
+      "section": "VPC 用户指南",
+      "url": "https://support.huaweicloud.com/usermanual-vpc/zh-cn_topic_0073379079.html",
+      "title": "安全组和安全组规则概述"
+    },
+    {
+      "id": "usermanual-vpc/FlowLog_0002",
+      "section": "VPC 用户指南",
+      "url": "https://support.huaweicloud.com/usermanual-vpc/FlowLog_0002.html",
+      "title": "VPC流日志概述"
+    },
+    {
+      "id": "usermanual-lts/lts_07_0086",
+      "section": "LTS 用户指南",
+      "url": "https://support.huaweicloud.com/usermanual-lts/lts_07_0086.html",
+      "title": "搜索语法介绍"
+    },
+    {
+      "id": "cts_faq/cts_faq_0918",
+      "section": "CTS 常见问题",
+      "url": "https://support.huaweicloud.com/cts_faq/cts_faq_0918.html",
+      "title": "查询不到事件怎么办？"
+    },
+    {
+      "id": "usermanual-cts/cts_03_5121",
+      "section": "CTS 用户指南",
+      "url": "https://support.huaweicloud.com/usermanual-cts/cts_03_5121.html",
+      "title": "查询华为云账号相关事件"
+    },
+    {
+      "id": "iam_faq/iam_01_0609",
+      "section": "IAM 常见问题",
+      "url": "https://support.huaweicloud.com/iam_faq/iam_01_0609.html",
+      "title": "IAM权限没有生效怎么办"
+    },
+    {
+      "id": "usermanual-hss2.0/hss_01_0003",
+      "section": "HSS 用户指南",
+      "url": "https://support.huaweicloud.com/usermanual-hss2.0/hss_01_0003.html",
+      "title": "查看主机防护状态"
+    },
+    {
+      "id": "billing_faq/billing_faq_5100079",
+      "section": "费用中心 常见问题",
+      "url": "https://support.huaweicloud.com/billing_faq/billing_faq_5100079.html",
+      "title": "如何通过云服务资源名称/ID查询账单明细？"
+    },
+    {
+      "id": "usermanual-coc/coc_um_06_08_01",
+      "section": "COC 用户指南",
+      "url": "https://support.huaweicloud.com/usermanual-coc/coc_um_06_08_01.html",
+      "title": "诊断ECS实例故障"
+    },
+    {
+      "id": "usermanual-eip/monitor_0007",
+      "section": "EIP 用户指南",
+      "url": "https://support.huaweicloud.com/usermanual-eip/monitor_0007.html",
+      "title": "弹性公网IP服务支持事件监控的事件说明"
+    },
+    {
+      "id": "dns_faq/dns_faq_015",
+      "section": "DNS 常见问题",
+      "url": "https://support.huaweicloud.com/dns_faq/dns_faq_015.html",
+      "title": "怎样测试域名解析是否生效？"
+    },
+    {
+      "id": "intl/zh-cn/elb_faq/zh-cn_topic_0018127975",
+      "section": "ELB 常见问题",
+      "url": "https://support.huaweicloud.com/intl/zh-cn/elb_faq/zh-cn_topic_0018127975.html",
+      "title": "健康检查异常排查（独享型）"
+    },
+    {
+      "id": "cce_faq/cce_faq_00468",
+      "section": "CCE 常见问题",
+      "url": "https://support.huaweicloud.com/cce_faq/cce_faq_00468.html",
+      "title": "节点异常问题排查"
+    },
+    {
+      "id": "usermanual-cbr/cbr_03_0033",
+      "section": "CBR 用户指南",
+      "url": "https://support.huaweicloud.com/usermanual-cbr/cbr_03_0033.html",
+      "title": "使用云硬盘备份恢复数据"
+    }
+  ]
+}

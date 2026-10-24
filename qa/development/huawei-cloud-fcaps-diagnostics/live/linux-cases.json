@@ -1,0 +1,376 @@
+[
+  {
+    "id": "LINUX/os-release",
+    "env": "linux",
+    "help": "cat --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/kernel",
+    "env": "linux",
+    "help": "uname --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/identity",
+    "env": "linux",
+    "help": "id --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/units",
+    "env": "linux",
+    "help": "systemctl --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/service-status",
+    "env": "linux",
+    "help": "systemctl --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/unit-journal",
+    "env": "linux",
+    "help": "journalctl --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/kernel-journal",
+    "env": "linux",
+    "help": "journalctl --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/kernel-ring",
+    "env": "linux",
+    "help": "dmesg --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/block-devices",
+    "env": "linux",
+    "help": "lsblk --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/mounts",
+    "env": "linux",
+    "help": "findmnt --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/addresses",
+    "env": "linux",
+    "help": "ip address help",
+    "live": true
+  },
+  {
+    "id": "LINUX/routes",
+    "env": "linux",
+    "help": "ip route help",
+    "live": true
+  },
+  {
+    "id": "LINUX/rules",
+    "env": "linux",
+    "help": "ip rule help",
+    "live": true
+  },
+  {
+    "id": "LINUX/modules",
+    "env": "linux",
+    "help": "lsmod --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/timers",
+    "env": "linux",
+    "help": "systemctl --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/process-snapshot",
+    "env": "linux",
+    "help": "top -h",
+    "live": true
+  },
+  {
+    "id": "LINUX/memory",
+    "env": "linux",
+    "help": "free --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/vm-sample",
+    "env": "linux",
+    "help": "vmstat --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/disk-sample",
+    "env": "linux",
+    "help": "iostat --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/process-io",
+    "env": "linux",
+    "help": "pidstat --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/cpu-sample",
+    "env": "linux",
+    "help": "mpstat --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/filesystem-space",
+    "env": "linux",
+    "help": "df --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/filesystem-inodes",
+    "env": "linux",
+    "help": "df --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/nic-statistics",
+    "env": "linux",
+    "help": "ip link help",
+    "live": true
+  },
+  {
+    "id": "LINUX/driver-statistics",
+    "env": "linux",
+    "help": "ethtool --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/connections",
+    "env": "linux",
+    "help": "ss --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/dns-query",
+    "env": "linux",
+    "help": "dig -h",
+    "live": true
+  },
+  {
+    "id": "LINUX/recent-logins",
+    "env": "linux",
+    "help": "last --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/failed-logins",
+    "env": "linux",
+    "help": "lastb --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/cron",
+    "env": "linux",
+    "help": "crontab --help",
+    "live": true
+  },
+  {
+    "id": "LINUX/rpm-verify",
+    "env": "linux",
+    "help": "rpm --help",
+    "live": false
+  },
+  {
+    "id": "LINUX/deb-verify",
+    "env": "linux",
+    "help": "debsums --help",
+    "live": false
+  },
+  {
+    "id": "LINUX/packet-capture",
+    "env": "linux",
+    "help": "tcpdump --help",
+    "live": false
+  },
+  {
+    "id": "LINUX/syscall-trace",
+    "env": "linux",
+    "help": "strace --help",
+    "live": false
+  },
+  {
+    "id": "LINUX/perf-sample",
+    "env": "linux",
+    "help": "perf stat -h",
+    "live": false
+  },
+  {
+    "id": "LINUX/icmp-probe",
+    "env": "linux",
+    "help": "ping -h",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/mtr-report",
+    "env": "linux",
+    "help": "mtr --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/trace-route",
+    "env": "linux",
+    "help": "traceroute --help",
+    "live": true,
+    "required_live": false
+  },
+  {
+    "id": "LINUX/deleted-open-files",
+    "env": "linux",
+    "help": "lsof -h",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/disk-by-id",
+    "env": "linux",
+    "help": "ls --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/udev-device",
+    "env": "linux",
+    "help": "udevadm info --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/filesystem-id",
+    "env": "linux",
+    "help": "blkid --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/partition-table",
+    "env": "linux",
+    "help": "fdisk --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/kernel-setting",
+    "env": "linux",
+    "help": "sysctl --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/service-enabled",
+    "env": "linux",
+    "help": "systemctl --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/network-manager",
+    "env": "linux",
+    "help": "nmcli device help",
+    "live": true,
+    "required_live": false
+  },
+  {
+    "id": "LINUX/directory-usage",
+    "env": "linux",
+    "help": "du --help",
+    "live": true,
+    "required_live": true,
+    "test_bindings": {
+      "path": "/var/log"
+    }
+  },
+  {
+    "id": "LINUX/run-queue",
+    "env": "linux",
+    "help": "sar --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/thread-inventory",
+    "env": "linux",
+    "help": "ps --help all",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/conntrack-capacity",
+    "env": "linux",
+    "help": "sysctl --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/cpu-mitigation",
+    "env": "linux",
+    "help": "grep --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/iptables-filter",
+    "env": "linux",
+    "help": "iptables --help",
+    "live": true,
+    "required_live": true
+  },
+  {
+    "id": "LINUX/firewalld-state",
+    "env": "linux",
+    "help": "firewall-cmd --help",
+    "live": true,
+    "required_live": false
+  },
+  {
+    "id": "LINUX/firewalld-zones",
+    "env": "linux",
+    "help": "firewall-cmd --help",
+    "live": true,
+    "required_live": false
+  },
+  {
+    "id": "LINUX/firewalld-rules",
+    "env": "linux",
+    "help": "firewall-cmd --help",
+    "live": true,
+    "required_live": false
+  },
+  {
+    "id": "LINUX/chrony-sources",
+    "env": "linux",
+    "help": "chronyc --help",
+    "live": true,
+    "required_live": false
+  },
+  {
+    "id": "LINUX/ntp-peers",
+    "env": "linux",
+    "help": "ntpq --help",
+    "live": true,
+    "required_live": false
+  },
+  {
+    "id": "LINUX/metadata-http",
+    "env": "linux",
+    "help": "curl --help all",
+    "live": true,
+    "required_live": true
+  }
+]
