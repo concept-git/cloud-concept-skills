@@ -1,11 +1,17 @@
 # KooCLI 安装指南
 
 > **用户手册（非 Agent 执行）**  
-> 以下安装、`sudo`、下载脚本仅供用户在本机终端人工执行。Agent **仅**可执行 `hcloud version` 与 `hcloud configure list`；不得代为下载、安装或改凭证。
+> 以下安装、`sudo`、下载脚本仅供用户在本机终端人工执行。Agent 可执行下述只读可用性检查；下载、安装和凭证配置由用户自行操作。
+
+## 可用性检查
+
+1. 运行 `hcloud version` 确认工具能启动。用户要求验证连接时，先看当前 `IAM KeystoneListAuthProjects --help`，再用 `--cli-region=cn-north-1 --cli-output=json` 查询。
+2. 缺少配置时，查看 `hcloud configure list`，不展示凭证或配置项明细，请用户在本机配置；权限问题按 `iam-policies.md` 处理。
+3. 只报告已验证的范围：工具能运行，以及成功时的当前账号 IAM 项目查询。不能据此保证 BSS 询价或创建权限；不以余额、账单或空询价请求作为通用健康探测。
 
 ## 概述
 
-华为云 KooCLI（`hcloud`）是华为云统一 CLI；**本技能仅使用其中 BSS 只读查询**。
+华为云 KooCLI（`hcloud`）是华为云统一 CLI。可用性检查只读；资源创建另按 `SKILL.md` 的开通流程执行。
 
 安装后执行 `hcloud version` 确认版本；下载包以官方
 [快速安装](https://support.huaweicloud.com/qs-hcli/hcli_02_003.html)
@@ -22,8 +28,7 @@ https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/
 
 ## 一键安装（Linux / macOS）
 
-以下命令需要用户在本机终端确认后手动执行。Agent 只负责检查 `hcloud version`
-和 `hcloud configure list`；不要在未确认时下载或执行安装脚本。
+以下命令需要用户在本机终端确认后手动执行。Agent 按上文进行只读检查，不代为下载或执行安装脚本。
 
 ```bash
 BASE=https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest

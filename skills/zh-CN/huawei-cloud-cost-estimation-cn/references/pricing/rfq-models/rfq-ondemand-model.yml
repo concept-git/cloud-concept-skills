@@ -1,0 +1,33 @@
+name: RFQOnDemandModel
+type: semantic_ontology
+pricing_mode: on_demand
+source_operation: BSS/ListOnDemandResourceRatings
+shared_file: rfq-core.yml
+facts:
+  - name: RFQ_OnDemand_Header
+    grain: "每次 ListOnDemandResourceRatings 请求一条记录。"
+    fields_from: request_fields
+    attributes:
+      inquiry_precision: {meaning: "返回价格的精度选项，不改变用量含义。"}
+    child_facts: [RFQ_OnDemand_Line]
+  - name: RFQ_OnDemand_Line
+    grain: "product_infos[] 中每个 DemandProductInfo 一条记录。"
+    parent_fact: RFQ_OnDemand_Header
+    fields_from: line_fields
+    attributes:
+      usage_factor: {dimension: Dim_UsageType}
+      usage_value: {meaning: "当前计费因子及单位下的询价用量。"}
+      usage_measure_id: {dimension: Dim_MeasureUnit, role: usage_unit}
+dimensions:
+  Dim_UsageType:
+    business_key: code
+    scope_keys: [service_type_code, resource_type_code]
+    source_operations: [BSS/ListUsageTypes]
+    scope_binding: {service_type_code: cloud_service_type, resource_type_code: resource_type}
+invariants:
+  - "usage_factor 取匹配服务及资源类型的 code；该因子与当前规格的适配仍需产品依据。"
+  - "因子、用量、用量单位共同解释；订购容量独立保存。容量乘时长等换算仅在产品合同确认后进行。"
+contract_sections:
+  - BSS/ListOnDemandResourceRatings
+  - "容量和单位"
+  - "读取报价与处理异常"

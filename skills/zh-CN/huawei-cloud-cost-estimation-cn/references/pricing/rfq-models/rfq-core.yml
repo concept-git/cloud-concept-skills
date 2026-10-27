@@ -1,0 +1,58 @@
+name: RFQCore
+type: semantic_ontology
+domain: huawei_cloud_cost_estimation
+description: "询价输入侧的公共语义。模型的 fields_from 引用本文件字段集，attributes 追加专属字段；这是文档组合约定，不是 YAML 自动继承。"
+command_contracts_file: ../commands.md
+models:
+  period: rfq-period-model.yml
+  on_demand: rfq-ondemand-model.yml
+
+request_fields:
+  project_id: {dimension: Dim_Project}
+line_fields:
+  id: {meaning: "同次请求内唯一，关联响应分项；不作为跨请求标识。"}
+  cloud_service_type: {dimension: Dim_CloudServiceType}
+  resource_type: {dimension: Dim_ResourceType}
+  resource_spec: {dimension: Dim_ResourceSpec}
+  region: {dimension: Dim_Region}
+  subscription_num: {meaning: "购买数量，与单份容量及使用量分别表达。"}
+  available_zone: {dimension: Dim_AvailabilityZone, meaning: "可选 AZ 筛选；未指定不代表所有 AZ 可用。"}
+  resource_size: {meaning: "单份订购容量或规模，与 size_measure_id 配对；按产品合同判断是否需要。"}
+  size_measure_id: {dimension: Dim_MeasureUnit, role: capacity_unit}
+
+dimensions:
+  Dim_Project:
+    business_key: id
+    source_operations: [IAM/KeystoneListProjects, IAM/KeystoneListAuthProjects]
+  Dim_CloudServiceType:
+    business_key: service_type_code
+    source_operations: [BSS/ListServiceTypes]
+  Dim_ResourceType:
+    business_key: resource_type_code
+    parent_dimension: Dim_CloudServiceType
+    source_bindings:
+      BSS/ListServiceResources: {records: 'infos[].basic_info', parent_key: product_owner_service}
+      BSS/ListResourceTypes: {records: 'resource_types[]', parent_key: service_type_code}
+  Dim_Region:
+    business_key: region_code
+    source_documents: [https://developer.huaweicloud.com/endpoint]
+  Dim_AvailabilityZone:
+    business_key: az_code
+    parent_dimension: Dim_Region
+    source_rule: "使用当前服务在目标区域的 AZ 定义；ECS 可用 ECS/NovaListAvailabilityZones，其他服务核对各自来源。"
+  Dim_MeasureUnit:
+    business_key: measure_id
+    source_operations: [BSS/ListMeasureUnits]
+  Dim_ResourceSpec:
+    business_key: [cloud_service_type, resource_type, region_code, charge_mode, resource_spec]
+    source_operations: [BSS/ListResourceSpecs]
+    source_documents: [https://support.huaweicloud.com/api-oce/qct_00008.html]
+
+relations:
+  field_binding: "dimension 将字段绑定到该维度的 business_key；名称仅用于识别，规格按下述五项共同匹配。"
+  project_scope: "project_id 属于当前身份可访问且与目标区域对应的项目。"
+  specification: "请求行的服务、资源类型、规格及 region 与候选五项身份匹配；region 对应 region_code，charge_mode 由模型计费方式映射，编码见命令合同。"
+  availability_zone: "指定 AZ 时校验其区域归属；ECS 的 AZ 查询不替代其他服务的可用性证据。"
+  units: "单位字典证明单位存在，产品合同证明字段适用性；容量单位与用量单位不互换。"
+  response: "按请求行 id 对应响应分项；金额路径、折扣及合计核对见命令合同，不预设通用金额乘法公式。"
+evidence_boundary: "拟购买或使用条件不代表历史消费；目录匹配、成功报价与可开通分别取证。"

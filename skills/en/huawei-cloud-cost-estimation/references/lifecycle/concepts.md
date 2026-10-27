@@ -1,48 +1,50 @@
-# 生命周期执行概念
+# Provisioning checks and failure handling
 
-本文件解释开通安全与退订控制台指引；开通命令白名单在 `commands.md`。参数永远以当次 operation help 为准。
+Allowed writes are listed in `commands.md`. This reference defines checks; obtain parameters from current `hcloud <Service> <Operation> --help`. Stop if help fails, the operation does not exist, or parameter definitions are missing.
 
-## 四种证据
+## What each kind of evidence establishes
 
-1. **Allowlist**：只有 `commands.md` 中的 74 个开通主体可写；其中前置或配置动作会明确标注为非独立计费。
-2. **Help**：先运行 `hcloud <Service> <Operation> --help`。若输出 `[APIE_ERROR]`、无参数定义或 operation 不存在，停止；不得凭文档、记忆或相似产品补参数。
-3. **Lookup**：根据 help 的必填/条件必填项运行必要的只读依赖命令；多候选让用户选择。
-4. **Dry run**：完整写命令必须先带全局 `--dryrun`。它只构造并打印请求，不访问业务接口。
+- BSS directory match: a pricing specification exists for the requested service, resource type, region, and billing mode.
+- Successful BSS quote: the current inputs produced a price. Capacity, units, and included billing items must still match the intended configuration.
+- Service-side checks: inspect sales status, billing support, account restrictions, and dependency compatibility. Passing permits the statement that current availability checks passed, not a guarantee of successful creation.
 
-KooCLI 全局参数是 `--dryrun`，不是 `--dry-run`。少数接口另有 `dry_run` / `dryRun` 请求参数；它会访问服务端，只能作为可选增强，不能替代本地 `--dryrun`。
+Retain pricing specification codes and creation flavor IDs separately, checking their mapping. Adding or removing suffixes does not replace a service-side lookup.
 
-## 费用状态
+## Read-only ECS checks
 
-- **Known**：当前 BSS 询价返回金额；回显官网价、折扣（有则报）、计费模式、数量和周期/用量。
-- **Unknown**：无法可靠询价；明确说明“价格未知且可能收费”，要求额外确认后才可进入正式确认。
-- **Not applicable**：有证据表明动作本身不计费；仍回显可能创建的关联付费资源。
+Read current `ECS/ListFlavors` help, then query the target flavor and AZ. Preserve `id`, CPU, memory, and relevant `os_extra_specs`.
 
-不得用历史价格、相似服务或控制台截图填补未知金额。
+1. **Sales status.** Use the target AZ's entry in `cond:operation:az` when present; otherwise use regional `cond:operation:status`. `normal/promotion` means commercially available, `abandon` means retired, `sellout` means sold out, and `obt/obt_sellout` concerns public beta. Apply documented defaults; regional `abandon` must not override AZ-level `normal`.
+2. **Billing support.** Check `cond:operation:charge`: `period` means yearly/monthly and `demand` means pay-per-use. The documented default, when absent, supports both. Where further sales-policy evidence is needed, use `ListFlavorSellPolicies` within the current help and response capabilities. Verify returned flavor, AZ, `sell_mode`, and `sell_status`; a CLI enum does not prove every mode is supported by the service.
+3. **Account and dependencies.** Check beta or role restrictions, queryable quotas, image architecture and status, network and subnet constraints, and supported disk types. Preserve fields needed to judge compatibility instead of keeping names alone.
 
-## 请求不变式
+Stop for explicit lack of support, sold-out status, or permission restrictions. Disclose conditions that current read-only APIs cannot establish; do not call them available inventory. Use each other service's own product or flavor APIs, not ECS-specific fields.
 
-通过 dry 后冻结请求。正式命令只能移除 `--dryrun`；任何服务、operation、region、参数或数量变化都使此前 dry 与确认失效，必须重新 help、询价、dry 和确认。
+Source: [ECS flavor extension fields](https://support.huaweicloud.com/api-ecs/zh-cn_topic_0020212656.html). Interpret fields through the official definitions and take current status from the current response.
 
-## 批次
+## Costs and request checks
 
-多资源可按 SKILL.md 的 Execution Pace 分段取证；正式确认前，仍须完成全量依赖、费用和 dry，再统一回显完整批次。确认后按回显顺序执行：
+Classify cost as reliably quoted for the complete current configuration, unverified, or evidenced as not independently billable. Include associated resource costs. For unverified cost, disclose that the price is unknown and charges may apply, and obtain separate consent. This cannot bypass a known incompatibility or permission restriction.
 
-- 一条失败即停止后续命令；
-- 不自动回滚已成功资源；
-- 明确报告成功、失败和未执行三组；
-- 不把多个独立 API 描述成原子事务。
+Global `--dryrun` constructs the request locally without calling the business API. It does not validate inventory, permissions, or order acceptance. Some services also have request-level `dry_run/dryRun` parameters that call the service; these differ from the global option.
 
-## 退订仅走控制台
+Run the complete command with `--dryrun` and inspect the constructed request and output. Correct failures and repeat the check. Run the real call separately: do not unconditionally chain it after a dry run or let a successful pipeline tail mask an earlier failure.
 
-本技能不运行、不生成任何退订 CLI/API 命令；即使用户坚持也不例外。本地 `--dryrun` 只验证请求构造，不能展示关联资源、实际退款和资金流向，不能作为安全预览。
+The user confirms the displayed configuration, costs, and batch order. Remove only `--dryrun` for the real call. Changing flavor, region, AZ, image, network, disk, quantity, billing mode, period, or operation requires fresh checks, pricing, dry run, and confirmation.
 
-- **包年/包月**：引导登录华为云控制台 → 费用中心 → 订单管理 → 云服务退订；若界面显示「退订与退换货」，从该入口进入。用资源 ID、资源名称或订单号定位。
-- **按需**：不涉及退订；引导到对应云服务控制台，在备份后自行删除。本技能不代为删除。
+## After a create failure
 
-提交退订前提醒用户：
+Stop subsequent writes immediately. Preserve the error and request association, then investigate read-only. Do not cycle through flavors, images, or AZs using real create calls, or automatically roll back. A new proposal supported by evidence must complete the full workflow.
 
-1. 备份或迁移数据；退订后资源可能立即删除且无法恢复。
-2. 核对当前账号、目标资源和关联资源，避免业务中断或关联资源继续计费。
-3. 以控制台展示为准，核对退款金额、已消费金额、手续费、券处理和退款流向。
+If a request times out or its outcome is unclear, inspect order, task, or resource state before risking duplicate creation. An order or task ID means accepted, not completed. Query its final state read-only; report successful, failed, unexecuted, and still-unverified batch items separately.
 
-官方规则：<https://support.huaweicloud.com/usermanual-billing/unsubscription_topic_2000010.html>。
+Explain `Ecs.0016` beta-permission errors and `Ecs.0019` retired-flavor errors from their actual messages. An `Ecs.0707` product-not-found error alone does not establish a network or site root cause.
+
+## Unsubscribe and stop using
+
+Do not generate or run unsubscribe CLI/API operations, or substitute a local dry run for the console preview.
+
+- Yearly/monthly: Huawei Cloud Console → Cost Center → Orders → Unsubscriptions. If the UI labels the entry Unsubscriptions and Returns, use that entry.
+- Pay-per-use: direct the user to the relevant service console to delete the resource themselves after backup. This skill does not delete it.
+
+Before submission, remind the user to back up or migrate data and check account, resource, related resources, refund amount, fees, and refund destination. Follow the console and [official unsubscription rules](https://support.huaweicloud.com/usermanual-billing/unsubscription_topic_2000010.html).

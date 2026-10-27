@@ -1,49 +1,50 @@
-# KooCLI 安装指南
+# KooCLI installation guide
 
-> **用户手册（非 Agent 执行）**  
-> 以下安装、`sudo`、下载脚本仅供用户在本机终端人工执行。Agent **仅**可执行 `hcloud version` 与 `hcloud configure list`；不得代为下载、安装或改凭证。
+> User instructions, not agent-executed setup. Installation, sudo, and download commands below are for the user to review and run locally. The agent may perform the read-only checks below; installation and credential configuration remain user actions.
 
-## 概述
+## Readiness checks
 
-华为云 KooCLI（`hcloud`）是华为云统一 CLI；**本技能仅使用其中 BSS 只读查询**。
+1. Run `hcloud version` to confirm the CLI runs. For a requested connection check, inspect current `IAM KeystoneListAuthProjects --help`, then query with `--cli-region=cn-north-1 --cli-output=json`.
+2. If configuration is missing, inspect `hcloud configure list` without exposing credentials or profile details, and ask the user to configure it locally. For permission errors, follow `iam-policies.md`.
+3. Report the tested scope: CLI execution and, if successful, the current account's IAM project query. Do not infer BSS pricing or creation permissions. Do not use balances, bills, or an empty pricing request as a generic health probe.
 
-安装后执行 `hcloud version` 确认版本；下载包以官方
-[快速安装](https://support.huaweicloud.com/qs-hcli/hcli_02_003.html)
-页面 `latest` 链接为准。
+## Overview
 
-官方下载域名（2026-04 起）：
+Huawei Cloud KooCLI (`hcloud`) is the unified Huawei Cloud CLI. Readiness checks are read-only; resource creation follows the separate provisioning workflow in `SKILL.md`.
+
+After installation, run `hcloud version`. Obtain the latest package link from the official [quick installation guide](https://support.huaweicloud.com/qs-hcli/hcli_02_003.html).
+
+Official download location, in use since April 2026:
 
 ```text
 https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/
 ```
 
-旧域名 `hcloudcli.obs.cn-north-4.myhuaweicloud.com` 及旧包名
-`hcloud_cli_*` 已失效，勿再使用。
+The old `hcloudcli.obs.cn-north-4.myhuaweicloud.com` domain and `hcloud_cli_*` package names are no longer valid.
 
-## 一键安装（Linux / macOS）
+## Script installation: Linux and macOS
 
-以下命令需要用户在本机终端确认后手动执行。Agent 只负责检查 `hcloud version`
-和 `hcloud configure list`；不要在未确认时下载或执行安装脚本。
+The user must review and run these commands in their own terminal. Use the readiness checks above; the agent does not download or execute an installer.
 
 ```bash
 BASE=https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest
 curl -sSL "$BASE/hcloud_install.sh" -o ./hcloud_install.sh
-# 执行前先审阅脚本来源和内容：less ./hcloud_install.sh
+# Review the script source and contents before running: less ./hcloud_install.sh
 bash ./hcloud_install.sh
 ```
 
-默认安装到 `/usr/local/hcloud/`，并链接到 `/usr/local/bin/`。非交互模式：
+The default installation directory is `/usr/local/hcloud/`, with a link in `/usr/local/bin/`. For non-interactive installation after review:
 
 ```bash
 BASE=https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest
 curl -sSL "$BASE/hcloud_install.sh" -o ./hcloud_install.sh
-# 执行前先审阅脚本来源和内容：less ./hcloud_install.sh
+# Review the script source and contents before running: less ./hcloud_install.sh
 bash ./hcloud_install.sh -y
 ```
 
-## 分步安装
+## Manual installation
 
-### Linux (AMD 64)
+### Linux AMD64
 
 ```bash
 curl -LO "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz"
@@ -52,7 +53,7 @@ sudo mv hcloud /usr/local/bin/
 hcloud version
 ```
 
-### Linux (ARM 64)
+### Linux ARM64
 
 ```bash
 curl -LO "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-arm64.tar.gz"
@@ -61,7 +62,7 @@ sudo mv hcloud /usr/local/bin/
 hcloud version
 ```
 
-### macOS (AMD 64)
+### macOS AMD64
 
 ```bash
 curl -LO "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-mac-amd64.tar.gz"
@@ -70,7 +71,7 @@ sudo mv hcloud /usr/local/bin/
 hcloud version
 ```
 
-### macOS (ARM 64)
+### macOS ARM64
 
 ```bash
 curl -LO "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-mac-arm64.tar.gz"
@@ -79,27 +80,25 @@ sudo mv hcloud /usr/local/bin/
 hcloud version
 ```
 
-### Windows (64 位)
+### Windows 64-bit
 
 ```powershell
 $url = "https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-windows-amd64.zip"
 Invoke-WebRequest -Uri $url -OutFile "huaweicloud-cli-windows-amd64.zip"
 Expand-Archive -Path huaweicloud-cli-windows-amd64.zip -DestinationPath C:\hcloud
-# 将 C:\hcloud 加入系统 Path 后：
+# Add C:\hcloud to the system Path, then run:
 hcloud version
 ```
 
-## 认证配置
+## Authentication
 
-### 推荐方式
+Prefer an existing local profile. Do not ask the user to paste an AK or SK into chat.
 
 ```bash
 hcloud configure list
 ```
 
-优先使用本机已配置的 profile。不要让用户在对话里粘贴 AK/SK。
-
-### 临时环境变量
+### Temporary environment variables
 
 ```bash
 export HUAWEICLOUD_SDK_AK=<your-ak>
@@ -107,23 +106,23 @@ export HUAWEICLOUD_SDK_SK=<your-sk>
 export HUAWEICLOUD_SDK_REGION=cn-north-1
 ```
 
-仅在用户明确授权真实验证时使用。验证完成后清理当前 shell 环境变量。
+Use only for explicitly authorized live verification. Clear these variables from that shell after verification.
 
-### 交互式配置
+### Interactive setup
 
-如本机未配置 KooCLI，可由用户在本机终端交互执行：
+If KooCLI has no configuration, the user can run this locally:
 
 ```bash
 hcloud configure set
 ```
 
-不要通过聊天记录、脚本参数、日志输出传递明文 AK/SK。
+Do not pass plaintext AK/SK values through chat, script arguments, or logs.
 
-### 验证配置
+### Verify configuration
 
 ```bash
 hcloud configure list
-# 期望输出:
+# Expected shape:
 # {
 #   "current": "default",
 #   "profiles": [{
@@ -135,39 +134,32 @@ hcloud configure list
 # }
 ```
 
-## 获取AK/SK
+## Obtain an AK/SK
 
-1. 登录 [华为云控制台](https://console.huaweicloud.com)
-2. 右上角点击用户名 → "我的凭证"
-3. 选择 "访问密钥" 标签
-4. 点击 "新增访问密钥"
-5. 下载并妥善保存AK/SK文件
+1. Sign in to the [Huawei Cloud Console](https://console.huaweicloud.com).
+2. Open the username menu and choose My Credentials.
+3. Select Access Keys.
+4. Choose Create Access Key.
+5. Download the credential file and store it securely.
 
-⚠️ **安全提醒**:
+AK/SK values are long-lived account credentials. Do not store them as plaintext in code, configuration files, or conversations. Prefer IAM-user credentials over account-owner credentials, rotate them regularly, and grant least privilege. Live verification uses read-only BSS/API calls; do not execute payment, renewal, deletion, or modification commands.
 
-- AK/SK是账号的长期凭证，等同于账号密码
-- 绝不在代码、配置文件、对话中明文存储
-- 建议使用IAM用户AK/SK而非主账号
-- 定期轮换AK/SK
-- 为IAM用户配置最小权限策略
-- 真实验证只使用只读 BSS/API，禁止执行支付、续费、删除、修改类命令
+## Troubleshooting
 
-## 常见安装问题
-
-| 问题 | 原因 | 解决方案 |
+| Symptom | Cause | Action |
 | --- | --- | --- |
-| `hcloud: command not found` | 未加入PATH | `sudo mv hcloud /usr/local/bin/` |
-| `Permission denied` | 无执行权限 | `chmod +x /usr/local/bin/hcloud` |
-| 下载 404 | 使用了旧域名/旧包名 | 改用 `cn-north-4-hdn-koocli` 域名与 `huaweicloud-cli-*` 包名 |
-| SSL证书错误 | 系统CA证书过旧 | 更新ca-certificates包 |
-| 连接超时 | 网络限制 | 检查代理/防火墙设置 |
+| `hcloud: command not found` | Not on PATH | Place the executable in the intended PATH directory; for example `sudo mv hcloud /usr/local/bin/` |
+| `Permission denied` | Executable permission missing | `chmod +x /usr/local/bin/hcloud` |
+| Download returns 404 | Obsolete host or package name | Use the `cn-north-4-hdn-koocli` host and `huaweicloud-cli-*` packages |
+| TLS certificate error | Outdated system CA certificates | Update the CA certificate package |
+| Connection timeout | Network restrictions | Inspect proxy and firewall settings |
 
-## 参考链接
+## References
 
-- [KooCLI 快速安装（概述与下载表）](https://support.huaweicloud.com/qs-hcli/hcli_02_003.html)
-- [Linux 安装](https://support.huaweicloud.com/qs-hcli/hcli_02_003_02.html)
-- [macOS 安装](https://support.huaweicloud.com/qs-hcli/hcli_02_003_03.html)
-- [Windows 安装](https://support.huaweicloud.com/qs-hcli/hcli_02_003_01.html)
-- [KooCLI 产品描述](https://support.huaweicloud.com/productdesc-hcli/hcli_01.html)
+- [Quick installation and downloads](https://support.huaweicloud.com/qs-hcli/hcli_02_003.html)
+- [Linux installation](https://support.huaweicloud.com/qs-hcli/hcli_02_003_02.html)
+- [macOS installation](https://support.huaweicloud.com/qs-hcli/hcli_02_003_03.html)
+- [Windows installation](https://support.huaweicloud.com/qs-hcli/hcli_02_003_01.html)
+- [KooCLI product description](https://support.huaweicloud.com/productdesc-hcli/hcli_01.html)
 - [API Explorer](https://console.huaweicloud.com/apiexplorer/#/openapi/overview)
-- [IAM 权限最佳实践](https://support.huaweicloud.com/bestpractice-iam/iam_0426.html)
+- [IAM best practices](https://support.huaweicloud.com/bestpractice-iam/iam_0426.html)

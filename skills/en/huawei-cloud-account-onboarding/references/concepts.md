@@ -6,10 +6,10 @@ mappings live in `commands.md`.
 ## Entities
 
 **RealNameAuthStatus** is an account-level fact from `ShowRealNameAuthStatus`, at the grain of one
-account at one point in time. It determines whether the account can purchase resources on the China
-site and whether a QR code is needed. It answers only whether the current profile is verified and
-its verification type; subject details, document numbers, submission time, review comments, and
-failure detail remain in the console.
+account at one point in time. It establishes the real-name prerequisite and whether a QR code is
+needed, not resource-purchase eligibility. It answers current status and verification type only;
+subject details, document numbers, submission time, review comments, and failure details remain
+in the console.
 
 **FaceAuthQrCode** is a one-time credential from `ShowRealNameAuthQrCode`, at one URL per call. The
 account holder scans it on their phone for a liveness check. It expires after scanning or after ten
@@ -25,8 +25,8 @@ unscanned minutes. Render it only for the current user; never persist, forward, 
 | rejected   | review failed                 | console review comments; never edit documents |
 | verified   | terminal state                | report status/type and do not fetch a code    |
 
-Pending and rejected usually come from non-face channels such as document review. Face verification
-is immediate and normally moves from unverified directly to verified.
+These states describe the result, not the verification channel or history. A current verified state
+does not reveal how verification was completed, its completion date, or an expiry date.
 
 ## The Skill Owns the QR Gate
 

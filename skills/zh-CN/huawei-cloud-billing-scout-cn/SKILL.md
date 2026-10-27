@@ -4,7 +4,7 @@ description: "Huawei Cloud BSS billing read-only only (not AWS/Azure/other cloud
 metadata:
   language: zh-CN
   translation_of: huawei-cloud-billing-scout
-  version: "2.3.9"
+  version: "2.3.11"
   openclaw:
     requires:
       bins: [hcloud]
@@ -23,6 +23,8 @@ Huawei Cloud Read-Only Billing — Spend, Charges & Reconciliation
 > **华为社区版** · 社区维护，非华为云官方；结论以当次 hcloud/BSS 响应为准。
 
 凭 **hcloud ≥7.2** 与 BSS 只读 IAM，在一轮对话里回答：花了多少、为何扣、差在哪、还缺什么证据。只查不改，不代用户动账。
+
+用户仅检查 hcloud 安装或连接时，转可用性检查流程；不以财务数据查询充当连接探测。
 
 ## 原则
 

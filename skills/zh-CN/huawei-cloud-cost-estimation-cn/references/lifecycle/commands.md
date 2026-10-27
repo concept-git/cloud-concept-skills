@@ -97,7 +97,7 @@ KooCLI 7.2.2 证据快照。这里只保存可执行开通命令的主体与精�
 | IMG | `IMS/ListImages` | 镜像 |
 | DISK | `EVS/CinderListVolumeTypes` | 云硬盘类型 |
 | KEY | `ECS/NovaListKeypairs` | 密钥对 |
-| SPEC | `ECS/NovaListFlavors`; 各产品 `ListFlavors` | 当前服务规格 |
+| SPEC | `ECS/ListFlavors`；按需补充 `ECS/ListFlavorSellPolicies`；其他服务使用自身 `ListFlavors` 等接口 | 保留目标 AZ 状态、计费支持及限制信息，核验方法见 `concepts.md`；基础规格列表不足以判断可开通性 |
 | PRODUCT | `Kafka/ListEngineProducts`, `RabbitMQ/ListEngineProducts`, `RocketMQ/ListEngineProducts`, `SecMaster/ListSubscriptionProduct` | 可售产品 |
 | PARENT | `CCE/ListClusters`, `GaussDB/ListGaussMySqlInstances`; 服务自身 `List*` | 父集群、父实例或父网关 |
 | STACK | `CloudIDE/ListStacks` | CodeArts IDE Online 技术栈与可用规格 |

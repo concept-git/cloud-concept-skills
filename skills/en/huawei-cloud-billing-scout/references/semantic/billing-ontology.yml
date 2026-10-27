@@ -29,7 +29,11 @@ entities:
     grain: 账户×时点
     summary: 余额、欠费、账户构成
     dimensions: [account_type, currency]
+    account_type_labels: {1: Balance, 2: Credit, 5: Bonus funds, 7: Security deposit}
+    interpretation: "Read credit_amount only for type 2. For a missing account type, say 'not returned; reason unknown'; do not infer zero balance, no account, or inapplicability. Coupons and stored-value cards require their own facts."
+    source_documents: [https://support.huaweicloud.com/api-oce/mac_00001.html]
     measures: [amount, debt_amount]
+    amount_meaning: "Reported balance of this account type at query time; not a withdrawable amount or purchase-eligibility result."
     evidence_boundary: 时点快照；非扣因归因
 
   - name: MonthlyBillSummary

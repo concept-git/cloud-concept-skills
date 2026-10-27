@@ -64,6 +64,8 @@ for base in bases:
         fail(f"English locale metadata mismatch for {base}")
     if cn_loc.get("language") != "zh-CN" or cn_loc.get("translation_of") != base:
         fail(f"Chinese locale metadata mismatch for {cn}")
+    if catalog_by_id.get(base, {}).get("version") != catalog_by_id.get(cn, {}).get("version"):
+        fail(f"catalog versions differ across locales: {base}")
     if HAN.search((en_dir / "SKILL.md").read_text(encoding="utf-8")):
         fail(f"English SKILL.md contains Chinese prose: {base}")
     if not HAN.search((cn_dir / "SKILL.md").read_text(encoding="utf-8")):

@@ -15,9 +15,9 @@ Every skill keeps its runtime payload under `skills/<locale>/<name>/`; QA and ev
 
 | English | 中文 | Version | Purpose |
 | --- | --- | --- | --- |
-| [`huawei-cloud-billing-scout`](skills/en/huawei-cloud-billing-scout/SKILL.md) | [`huawei-cloud-billing-scout-cn`](skills/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.9 | Read-only billing analysis and reconciliation. |
-| [`huawei-cloud-cost-estimation`](skills/en/huawei-cloud-cost-estimation/SKILL.md) | [`huawei-cloud-cost-estimation-cn`](skills/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.2.4 | Current-response quotes and guarded provisioning. |
-| [`huawei-cloud-account-onboarding`](skills/en/huawei-cloud-account-onboarding/SKILL.md) | [`huawei-cloud-account-onboarding-cn`](skills/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.0 | Read-only real-name status and face-scan guidance. |
+| [`huawei-cloud-billing-scout`](skills/en/huawei-cloud-billing-scout/SKILL.md) | [`huawei-cloud-billing-scout-cn`](skills/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.11 | Read-only billing analysis and reconciliation. |
+| [`huawei-cloud-cost-estimation`](skills/en/huawei-cloud-cost-estimation/SKILL.md) | [`huawei-cloud-cost-estimation-cn`](skills/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.2.7 | Current-response quotes and guarded provisioning. |
+| [`huawei-cloud-account-onboarding`](skills/en/huawei-cloud-account-onboarding/SKILL.md) | [`huawei-cloud-account-onboarding-cn`](skills/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | Read-only real-name status and face-scan guidance. |
 
 Discovery metadata: [catalog.yml](catalog.yml).
 

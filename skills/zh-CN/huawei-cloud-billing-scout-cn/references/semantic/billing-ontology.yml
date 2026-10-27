@@ -29,7 +29,11 @@ entities:
     grain: 账户×时点
     summary: 余额、欠费、账户构成
     dimensions: [account_type, currency]
+    account_type_labels: {1: 余额, 2: 信用, 5: 奖励金, 7: 保证金}
+    interpretation: "credit_amount 只按信用账户（类型2）解释。缺少某类账户只说“未返回，原因未知”，不推断余额为零、未开通或不适用；优惠券和储值卡另查对应事实。"
+    source_documents: [https://support.huaweicloud.com/api-oce/mac_00001.html]
     measures: [amount, debt_amount]
+    amount_meaning: "该类账户在查询时点的余额；不是可提现金额，也不证明资源购买额度或资格。"
     evidence_boundary: 时点快照；非扣因归因
 
   - name: MonthlyBillSummary

@@ -8,7 +8,7 @@ description:
 metadata:
   language: en
   translation_of: huawei-cloud-account-onboarding-cn
-  version: "1.0.0"
+  version: "1.0.3"
   openclaw:
     requires:
       bins: [hcloud]
@@ -24,9 +24,11 @@ metadata:
 > Community edition, not an official Huawei Cloud skill. Treat the current hcloud response as
 > authoritative.
 
-Use **hcloud 7.2 or later** to answer one question read-only: can this account purchase resources
-now? Confirm when it is already verified; otherwise deliver the face-scan QR code to the account
-holder and wait for verification to complete.
+Use **hcloud 7.2 or later** to check the current account's real-name status and type read-only.
+A verified result satisfies the real-name prerequisite; it does not establish inventory, quota,
+payment or creation permissions. If unverified, guide the account holder through face-scan verification.
+
+For a request only to check hcloud installation or connectivity, use the available CLI-readiness workflow; do not query identity status as a connectivity probe.
 
 ## Three Steps
 

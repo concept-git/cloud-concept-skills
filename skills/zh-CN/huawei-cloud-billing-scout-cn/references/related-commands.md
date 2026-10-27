@@ -97,7 +97,7 @@ hcloud BSS ListCosts \
 
 #### `ShowCustomerAccountBalances`
 
-余额/欠费首查：
+余额／欠费首查。解释账户构成前，按 `semantic/billing-ontology.yml` 的 `AccountBalance` 核对账户类型及未返回账户的含义：
 
 ```bash
 hcloud BSS ShowCustomerAccountBalances \

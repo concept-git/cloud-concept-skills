@@ -8,7 +8,7 @@ description:
 metadata:
   language: en
   translation_of: huawei-cloud-billing-scout-cn
-  version: "2.3.9"
+  version: "2.3.11"
   openclaw:
     requires:
       bins: [hcloud]
@@ -28,6 +28,8 @@ metadata:
 With **hcloud 7.2 or later** and read-only BSS IAM, answer in one conversation: how much was spent,
 why it was charged, where figures differ, and which evidence is still missing. Inspect only; never
 alter the account.
+
+For a request only to check hcloud installation or connectivity, use the available CLI-readiness workflow; do not query financial data as a connectivity probe.
 
 ## Principles
 

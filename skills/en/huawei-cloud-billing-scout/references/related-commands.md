@@ -97,7 +97,7 @@ hcloud BSS ListCosts \
 
 #### `ShowCustomerAccountBalances`
 
-余额/欠费首查：
+Balance/debt lookup. Interpret account types and missing accounts using `AccountBalance` in `semantic/billing-ontology.yml` before describing the balance composition:
 
 ```bash
 hcloud BSS ShowCustomerAccountBalances \

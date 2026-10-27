@@ -4,7 +4,7 @@ description: "Checks Huawei Cloud real-name verification (实名认证) status a
 metadata:
   language: zh-CN
   translation_of: huawei-cloud-account-onboarding
-  version: "1.0.0"
+  version: "1.0.3"
   openclaw:
     requires:
       bins: [hcloud]
@@ -19,7 +19,9 @@ metadata:
 
 > **华为社区版** · 社区维护，非华为云官方；结论以当次 hcloud 响应为准。
 
-凭 **hcloud ≥7.2** 只读回答一件事：**这个账号现在能不能买东西**。已实名则确认了事；未实名把人脸二维码递到用户手机上，盯到认证落地。
+使用 **hcloud ≥7.2**，只读查询当前账号的实名状态和类型。已实名只说明实名前提已满足，不证明库存、配额、支付或创建权限；未实名时引导账号本人扫码完成认证。
+
+用户仅检查 hcloud 安装或连接时，转可用性检查流程；不以实名状态查询充当连接探测。
 
 ## 三步
 

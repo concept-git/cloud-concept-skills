@@ -1,171 +1,128 @@
-# 命令合同（RFQ 询价）
+# Pricing commands and fields
 
-每个 op：**contract** + **CLI 模板**。事实/维度看 `semantic/*.yml`。数组用 dot notation（`--product_infos.1.*`）；输出 `--cli-output=json`；字典分页默认 `--limit=10 --offset=0`，每命令 ≤3 页。
+Read the sections needed for the current request. Use `--cli-output=json`. All BSS calls use `--cli-region=cn-north-1`; the resource region is the user's selected deployment region. Consult the current operation's `--help` for parameters.
 
-## Universal Traps（每次询价必看）
+## Preserve the evidence
 
-1. **数组仅 dot notation** — JSON 串 / `[...]` KooCLI 不识别。
-2. **询价 API 无分页** — 多项一次放进 `product_infos.N.*`。
-3. **code 大小写敏感** — type / region / spec 用维度查询原文，不小写化、不拼接。
-4. **解析链** — `ListServiceResources` → `ListResourceSpecs` → 按需 `ListUsageTypes(--resource_type_code)` → `ListMeasureUnits` + Measure Resolve → 询价。多候选则问；Specs 有行 ≠ 可询价；禁止默认 Duration/小时。
-5. **Measure Resolve** — UsageTypes 无 measure（对齐 `ListMeasureUnits`）。用量槽≠容量槽
-   （容量槽仅线性表）。同名 GB：用量 `type=3→10`，容量槽 `17`/`15`。factor 定族：
-   `Duration`→`4`/小时；`size*|容量|存量`→`10`/**GB×小时**（勿 `resource_size`，禁 type7/72/87）；
-   `*flow|retrieval*`→`10`/GB；`get|put|request*`→`14`/次。
-   `CBC.6006`/`CBC.6050`：改 type/factor 或同 abbreviation sibling **一次**；禁穷举。
-6. **参数类错误** — `CBC.0100` 核对运行时 help 与参数组合；`CBC.99006006` 回到规格、
-   region、计费模式确认；`CBC.99006055` 缩小询价批次或周期。权限类（403/`CBC.0151`/429）
-   见 `../iam-policies.md`。
+Parse the complete JSON and check business errors before filtering fields. Errors may appear on stdout just like successful responses. Preserve request conditions, errors, and pagination markers. Do not truncate evidence with `head` or treat a parsing failure as an empty result. User-facing presentation may be shorter.
 
----
+Identify a candidate by `(cloud_service_type, resource_type, region_code, charge_mode, resource_spec)` together; names are display labels. Retain all five fields and `page_info.next_marker` after filtering. Do not quote a returned row whose fields conflict with the request.
 
-## rfq_quote_execution
+For each quote, preserve candidate identity, project scope, period or usage, quantity, capacity, and units. Match response amounts to request-line `id`. Use the same account and the project for the target region. Query specifications again when region, billing mode, or specification changes; reprice when period, usage, quantity, or capacity changes.
 
-### `BSS/ListRateOnPeriodDetail` —— 包年/包月询价
+## Resolve resource types and specifications
 
-> **method**: POST · **safety**: readonly · **entities**: `RFQ_Header`, `RFQ_Line` · **pagination**: n/a · **doc**: [bcloud_01002](https://support.huaweicloud.com/api-bpconsole/bcloud_01002.html)
-> **required**: `project_id` + 每行 `id` / `cloud_service_type` / `resource_type` / `resource_spec` / `region` / `period_type` / `period_num` / `subscription_num`
-> **conditional**: `linear_product` → `resource_size` + `size_measure_id`
+1. Use `ListServiceResources(--service_type_code)` to find resource types. If the service code is unknown, query `ListServiceTypes` first. Preserve returned codes without concatenation or case changes.
+2. Use `ListResourceSpecs` for the target region and billing mode. A pricing-directory match does not establish inventory or provisioning permission.
+3. For pay-per-use, query `ListUsageTypes(--resource_type_code)` and resolve units with `ListMeasureUnits`. Do not default to `Duration`. Filtering by resource type is a skill rule; the API declares that filter optional.
 
-```bash
-hcloud BSS ListRateOnPeriodDetail \
-  --project_id=<project_id> \
-  --product_infos.1.id=1 \
-  --product_infos.1.cloud_service_type=hws.service.type.ec2 \
-  --product_infos.1.resource_type=hws.resource.type.vm \
-  --product_infos.1.resource_spec=c6.2xlarge.2.linux \
-  --product_infos.1.region=cn-north-1 \
-  --product_infos.1.period_type=2 --product_infos.1.period_num=1 --product_infos.1.subscription_num=1 \
-  --product_infos.2.id=2 \
-  --product_infos.2.cloud_service_type=hws.service.type.ebs \
-  --product_infos.2.resource_type=hws.resource.type.volume \
-  --product_infos.2.resource_spec=GPSSD \
-  --product_infos.2.region=cn-north-1 \
-  --product_infos.2.resource_size=40 --product_infos.2.size_measure_id=17 \
-  --product_infos.2.period_type=2 --product_infos.2.period_num=1 --product_infos.2.subscription_num=1 \
-  --cli-region=cn-north-1 --cli-output=json
-```
+### BSS/ListResourceSpecs
 
-| 字段 | 类型 | 取值 | 备注 |
-| --- | --- | --- | --- |
-| `period_type` / `period_num` | int | 0 天 / 2 月 / 3 年 / 4 小时 | 包年包月通常 2 或 3 |
-| `subscription_num` | int | 1..10000 | 询价数量 |
-| `size_measure_id` | int | 仅线性三类 | 见容量槽表 |
-| `fee_installment_mode` | string | HALF_PAY / ZERO_PAY / NA | 暂仅 CloudPond |
+[API reference](https://support.huaweicloud.com/api-oce/qct_00008.html). Read-only. Required: `cloud_service_type`, `resource_type`, `region_code`, and `charge_mode`.
 
-### `BSS/ListOnDemandResourceRatings` —— 按需询价
-
-> **method**: POST · **safety**: readonly · **entities**: `RFQ_OnDemand_Header`, `RFQ_OnDemand_Line` · **pagination**: n/a · **doc**: [bcloud_01001](https://support.huaweicloud.com/api-bpconsole/bcloud_01001.html)
-> **required**: `project_id` + 每行 `id` / `cloud_service_type` / `resource_type` / `resource_spec` / `region` / `usage_factor` / `usage_value` / `usage_measure_id` / `subscription_num`
-> **conditional**: `linear_product` → `resource_size` + `size_measure_id`
-> **optional**: `inquiry_precision`（0 默认 6 位 / 1 全 10 位）
-
-混合按需（ECS + EVS + 按流量带宽）：
+- `charge_mode=1`: yearly/monthly; `3`: pay-per-use. Distinguish yearly from monthly through the pricing request's period fields.
+- When a specification hint exists, set `filters.1.key=RESOURCE_SPEC` and `filters.1.value`. Matching is fuzzy: check the full code, configuration, and family instead of choosing the first row.
+- Use `limit=100`. Omit `marker` on the first page; subsequent pages use the returned `next_marker` together with `limit`. Keep query conditions unchanged while paging.
+- Read at most three pages. If more pages or materially different candidates remain, state the inspected scope and narrow the query or ask the user to choose. Partial results do not prove absence.
+- Use the returned `resource_spec`. Do not add an OS suffix already present in it. Obtain creation flavor IDs from the service API and retain their mapping to the quoted specification.
 
 ```bash
-hcloud BSS ListOnDemandResourceRatings \
-  --project_id=<project_id> \
-  --product_infos.1.id=1 \
-  --product_infos.1.cloud_service_type=hws.service.type.ec2 \
-  --product_infos.1.resource_type=hws.resource.type.vm \
-  --product_infos.1.resource_spec=c3.3xlarge.2.linux \
-  --product_infos.1.region=cn-north-1 \
-  --product_infos.1.usage_factor=Duration --product_infos.1.usage_value=2 --product_infos.1.usage_measure_id=4 \
-  --product_infos.1.subscription_num=1 \
-  --product_infos.2.id=2 \
-  --product_infos.2.cloud_service_type=hws.service.type.ebs \
-  --product_infos.2.resource_type=hws.resource.type.volume \
-  --product_infos.2.resource_spec=SSD \
-  --product_infos.2.region=cn-north-1 \
-  --product_infos.2.resource_size=10 --product_infos.2.size_measure_id=17 \
-  --product_infos.2.usage_factor=Duration --product_infos.2.usage_value=2 --product_infos.2.usage_measure_id=4 \
-  --product_infos.2.subscription_num=1 \
-  --product_infos.3.id=3 \
-  --product_infos.3.cloud_service_type=hws.service.type.vpc \
-  --product_infos.3.resource_type=hws.resource.type.bandwidth \
-  --product_infos.3.resource_spec=12_sbgp \
-  --product_infos.3.region=cn-north-1 \
-  --product_infos.3.resource_size=1 --product_infos.3.size_measure_id=15 \
-  --product_infos.3.usage_factor=upflow --product_infos.3.usage_value=4 --product_infos.3.usage_measure_id=10 \
-  --product_infos.3.subscription_num=1 \
-  --cli-region=cn-north-1 --cli-output=json
-```
-
-| 字段 | 类型 | 取值 | 备注 |
-| --- | --- | --- | --- |
-| `usage_factor` | string | 当次 `ListUsageTypes.code` | 禁止默认 Duration |
-| `usage_value` | number | 按 Trap #5 编码 | 容量族=GB×小时；时长=小时；流量=GB |
-| `usage_measure_id` | int | Trap #5 + `ListMeasureUnits` | 用量槽；≠ `size_measure_id` |
-| `inquiry_precision` | int | 0 / 1 | 默认 6 位 / 全 10 位 |
-
----
-
-## response_contract（报价怎么读）
-
-只读当次响应，**不臆造折扣**。`measure_id=1`=元；`currency=CNY`（空=人民币）；`id` 回映射请求行。默认官网价；有折扣才附折后。分项之和=总额；on-demand 已含 `usage_value`，不再二次乘。
-
-| API | 官网价 | 折后（有则报） |
-| --- | --- | --- |
-| `ListRateOnPeriodDetail` | `official_website_rating_result.official_website_amount`（分项同对象） | `optional_discount_rating_results[]` 取 `best_offer==1` |
-| `ListOnDemandResourceRatings` | 根级 / `product_rating_results[]` 的 `official_website_amount` | `discount_amount>0` 时读 `amount` |
-
----
-
-## dimension_lookup
-
-| 操作 | 用途 | 必填 | 分页 |
-| --- | --- | --- | --- |
-| `BSS/ListServiceTypes` | `cloud_service_type` | - | limit/offset |
-| `BSS/ListServiceResources` | →`resource_type` | `service_type_code` | limit/offset |
-| `BSS/ListUsageTypes` | →`usage_factor` | **`resource_type_code`** | limit/offset |
-| `BSS/ListMeasureUnits` | Measure Resolve（会话一次） | - | none |
-| `BSS/ListResourceTypes` | 翻译 resource_type | - | limit/offset |
-| `BSS/ListConversions` | 度量进制 | - | none |
-
-```bash
-hcloud BSS ListServiceResources --service_type_code=hws.service.type.ec2 \
-  --cli-region=cn-north-1 --cli-output=json --limit=10 --offset=0
-hcloud BSS ListUsageTypes --resource_type_code=hws.resource.type.vm \
-  --cli-region=cn-north-1 --cli-output=json --limit=100 --offset=0
-hcloud BSS ListMeasureUnits --cli-region=cn-north-1 --cli-output=json
-```
-
----
-
-## resource_spec_lookup
-
-### `BSS/ListResourceSpecs` —— 规格解析唯一路径
-
-> **method**: POST · **safety**: readonly · **entities**: `Dim_ResourceSpec` · **pagination**: marker/limit · **doc**: [qct_00008](https://support.huaweicloud.com/api-oce/qct_00008.html)
-> **required**: `cloud_service_type` / `resource_type` / `region_code` / `charge_mode`（1 包年包月 / 3 按需）
-> **optional**: `filters.[N].key=RESOURCE_SPEC` + `filters.[N].value`、`marker` + `limit`
-
-- `marker`+`limit` 同用；首页无 `marker`；翻页用 `page_info.next_marker`。
-- `charge_mode`/`region_code` 与询价 line 一致；返回值禁再拼 OS 后缀。
-- 有规格线索必须带 `filters`；`limit=100`；3 页未收敛则停并让用户选；429 等 2s 重试一次。
-- 候选取 `cloud_service_basics[].resource_spec`，复述用 `resource_spec_name`。
-
-```bash
-hcloud BSS ListResourceSpecs --charge_mode=1 \
-  --cloud_service_type=hws.service.type.ec2 --resource_type=hws.resource.type.vm \
-  --region_code=cn-north-4 \
-  --filters.1.key=RESOURCE_SPEC --filters.1.value=c6.2xlarge \
+hcloud BSS ListResourceSpecs --charge_mode=<1-or-3> \
+  --cloud_service_type=<service-code> --resource_type=<resource-type-code> \
+  --region_code=<deployment-region> \
+  --filters.1.key=RESOURCE_SPEC --filters.1.value=<specification-hint> \
   --limit=100 --cli-region=cn-north-1 --cli-output=json
 ```
 
-### 线性产品容量槽（仅此三类可填 `resource_size`+`size_measure_id`）
+Dictionary operations `ListServiceTypes`, `ListServiceResources`, `ListResourceTypes`, and `ListUsageTypes` use `limit/offset`. Start with 10 rows per page, increasing it as needed; inspect at most three pages per query. `ListMeasureUnits` and `ListConversions` have no pagination. Reuse measure-unit results within the current session.
 
-| `resource_type` | `size_measure_id` | 单位 |
-| --- | --- | --- |
-| `hws.resource.type.volume` | 17 | GB |
-| `hws.resource.type.bandwidth` | 15 | Mbps |
-| `hws.resource.type.share_bandwidth` | 15 | Mbps |
+## Yearly/monthly pricing
 
-## scope_resolve
+### BSS/ListRateOnPeriodDetail
+
+[API reference](https://support.huaweicloud.com/api-bpconsole/bcloud_01002.html). Read-only. Pricing requests do not paginate.
+
+- Request: `project_id` is required.
+- Each line requires `id`, `cloud_service_type`, `resource_type`, `resource_spec`, `region`, `period_type`, `period_num`, and `subscription_num`. IDs must be unique within a request.
+- Month: `period_type=2`; year: `3`. `period_num` is the number of periods. Other values, `0=day` and `4=hour`, apply only when the product supports them.
+- Do not equate an annual purchase with twelve monthly purchases. Query the user's selected period directly. Monthly price multiplied by twelve is only an explicitly labeled extrapolation.
+- `subscription_num` ranges from 1 to 10000. See the capacity section for linear-product capacity and units.
+- Supply `available_zone` when selected. An empty value means no AZ filter; it does not mean availability in every AZ.
+- `fee_installment_mode` defaults to `NA`; `HALF_PAY/ZERO_PAY` currently apply only to CloudPond. Follow current help.
 
 ```bash
-hcloud IAM KeystoneListAuthProjects --cli-region=cn-north-1 --cli-output=json
-hcloud IAM KeystoneListProjects --domain_id=<domain_id> --cli-region=cn-north-1 --cli-output=json
+hcloud BSS ListRateOnPeriodDetail --project_id=<project-id> \
+  --product_infos.1.id=1 \
+  --product_infos.1.cloud_service_type=<service-code> \
+  --product_infos.1.resource_type=<resource-type-code> \
+  --product_infos.1.resource_spec=<verified-specification-code> \
+  --product_infos.1.region=<deployment-region> \
+  --product_infos.1.period_type=<2-or-3> --product_infos.1.period_num=<period-count> \
+  --product_infos.1.subscription_num=<quantity> \
+  --cli-region=cn-north-1 --cli-output=json
 ```
 
-伙伴代客：置换客户 Token 后取 region 对应 `project_id`；见 `../iam-policies.md`。
+## Pay-per-use pricing
+
+### BSS/ListOnDemandResourceRatings
+
+[API reference](https://support.huaweicloud.com/api-bpconsole/bcloud_01001.html). Read-only. Pricing requests do not paginate.
+
+- Request: `project_id` is required.
+- Each line requires `id`, `cloud_service_type`, `resource_type`, `resource_spec`, `region`, `usage_factor`, `usage_value`, `usage_measure_id`, and `subscription_num`.
+- Obtain `usage_factor` from `ListUsageTypes.code` for the corresponding resource type. `usage_value` is that factor's usage. `inquiry_precision=0` defaults to six decimal places; `1` gives ten.
+- Established examples: `Duration` in hours uses unit `4`; traffic in GB commonly uses `10`, and request counts commonly use `14`. Time-integrated capacity may be GB-hours. Multiply capacity by hours only when the current product contract establishes that meaning.
+- `ListUsageTypes` does not provide a complete unit mapping. Confirm with `ListMeasureUnits` and the product definition; do not infer from `size`, `flow`, or a unit abbreviation alone.
+- Verified case (KooCLI 7.2.12, 2026-10-27): for `hws.service.type.obs` / `hws.resource.type.obs`, `obs.size.ltcp.clr.standard.1az` in `cn-north-4`, pay-per-use factor `size` uses `usage_value=GB × hours` and `usage_measure_id=10`. Unit `72` is rejected with `CBC.6050`; do not select it merely because its dictionary label is GB-hours. Recheck applicability for other products or specifications.
+- Usage units (`usage_measure_id`) and purchased-capacity units (`size_measure_id`) serve different purposes. Identically named GB units are not interchangeable.
+
+Use dotted array arguments such as `--product_infos.1.*` and `--product_infos.2.*`, not JSON strings or bracket arrays. A server error mentioning `productInfos` does not rename the CLI field: check current help and the actual request shape. Do not wrap pricing lines in `body.demand` or send period fields to the pay-per-use API. Reuse the period template's common fields and replace its period parameters with the resolved usage factor, usage value, and usage unit.
+
+## Pricing parameter constraints
+
+These constraints apply to the two pricing APIs above; mode-specific fields belong only to that mode. Checked against their official request definitions and KooCLI 7.2.12 help on 2026-10-27. Lengths and ranges absent from help come from the API documentation; recheck them when the interface changes.
+
+| Field | Type and constraint |
+| --- | --- |
+| `product_infos` | Product-line array, at most 100 items; line `id` is unique within the request |
+| `project_id`, line `id`, `region`, `available_zone` | string, maximum length 64 |
+| `cloud_service_type`, `resource_type`, `resource_spec` | string, maximum length 400 for pricing input; the specification-directory API has its own limits |
+| `subscription_num` | integer, 1–10000 |
+| `resource_size` | integer, 1–214783647; linear products require it together with `size_measure_id`; omitted/null values do not filter nonlinear products |
+| `size_measure_id` | integer; resolve the unit from the current product contract |
+| Period `period_type`, `period_num` | integer; period values are in the operation section, and the count is 1–214783647 |
+| Period `fee_installment_mode` | string, maximum length 64; defaults and applicability are in the operation section |
+| Pay-per-use `usage_factor` | string, maximum length 64, case-insensitive; retain the source code |
+| Pay-per-use `usage_value` | number (API BigDecimal), interpreted with factor and unit; do not force an integer |
+| Pay-per-use `usage_measure_id`, `inquiry_precision` | integer; usage unit and optional precision mode respectively |
+
+For both modes, `available_zone` is case-insensitive; omitted, empty or null means no filter. Installments apply only to CloudPond; omitted, empty or null `fee_installment_mode` defaults to `NA`. The pay-per-use API documents both capacity and usage unit IDs with a maximum length of 4; do not invent a numeric range from that integer-length notation.
+
+## Capacity and units
+
+Use the current product's request definition to decide whether `resource_size` and `size_measure_id` are needed. `resource_size` describes purchased capacity or scale; it does not replace pay-per-use usage.
+
+These are established examples, not an exhaustive product allowlist:
+
+- Cloud disks, `hws.resource.type.volume`: capacity in GB, `size_measure_id=17`.
+- Bandwidth, `hws.resource.type.bandwidth` and `hws.resource.type.share_bandwidth`: Mbps, `size_measure_id=15`.
+
+For RDS storage, DCS, ELB, and other products, establish the product-specific capacity meaning and unit separately. Generic help listing `14=count` or `17=GB` establishes available unit codes, not which one a particular product requires.
+
+On a missing `resourceSpecSize` error, identify the product-specific capacity dimension and unit before filling it. `subscription_num=1` does not justify `resource_size=1`, whether the unit is count or GB. Without that mapping, mark this line unverified, exclude it from the verified subtotal, and continue other resolved lines. A returned amount alone does not validate the mapping.
+
+## Quote delivery
+
+State the query date. A price snapshot does not establish a validity period, price guarantee, tax treatment, or SLA; include such terms only with an identified source or as explicitly user-supplied assumptions. When required items remain unpriced, headline the verified-items subtotal and list missing charges beside it. Reuse the confirmed configuration for diagrams and line items; label any changes. Keep full-precision amounts for totals and round for display.
+
+## Read prices and handle exceptions
+
+- Period list price: `official_website_rating_result.official_website_amount`; line items are its `product_rating_results[]`. When discounts are returned, inspect `optional_discount_rating_results[]` and identify the best result with `best_offer==1`.
+- Pay-per-use list price: root-level and line-item `official_website_amount`. If `discount_amount>0`, the corresponding `amount` may be shown.
+- `measure_id=1` means yuan. `currency=CNY`, or an empty value under the API's documented convention, means CNY. Match lines by request `id` and reconcile their sum. Pay-per-use amounts already include `usage_value`; do not multiply again.
+- Zero amount: retain the actual zero, product ID, line items, and request conditions. Until coverage and conditions are verified, do not promise free service or infer that no price exists or the site configuration is wrong.
+- Empty list: state that the inspected pages found no match under the current conditions, not that the product is absent everywhere.
+- Business error: preserve its code and message, separating facts from causal hypotheses. For `CBC.0100`, check parameters; for `CBC.99006006`, check service, type, specification, region, and mode; for `CBC.99006055`, check batch and period without silently changing the user's request.
+- For `CBC.6006/CBC.6050`, correct and retry once only after obtaining specific field or unit evidence; never enumerate guesses. On 429, wait two seconds and retry once. Read `../iam-policies.md` for permission errors.
+
+If field relationships or cross-product mappings are unclear, read `rfq-models/rfq-core.yml` and the current billing-mode model; shared-dimension lookup needs only the core. Resolve the project with current IAM `KeystoneListAuthProjects` or `KeystoneListProjects`. Partner-on-behalf-of-customer scope is covered in `../iam-policies.md`; never transmit tokens through chat.
