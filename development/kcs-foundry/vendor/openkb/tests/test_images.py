@@ -1,0 +1,249 @@
+"""Tests for openkb.images — base64 extraction and relative image copy."""
+
+from __future__ import annotations
+
+import base64
+
+from openkb.images import copy_relative_images, extract_base64_images
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _make_b64(data: bytes) -> str:
+    return base64.b64encode(data).decode()
+
+
+FAKE_PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 8  # minimal fake PNG bytes
+FAKE_JPG = b"\xff\xd8\xff" + b"\x00" * 8  # minimal fake JPEG bytes
+
+
+# ---------------------------------------------------------------------------
+# extract_base64_images
+# ---------------------------------------------------------------------------
+
+
+class TestExtractBase64Images:
+    def test_no_images_returns_unchanged(self, tmp_path):
+        md = "# Hello\n\nSome text without any images."
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+        result = extract_base64_images(md, "doc", images_dir)
+        assert result == md
+
+    def test_single_base64_image_extracted(self, tmp_path):
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+        b64 = _make_b64(FAKE_PNG)
+        md = f"![alt text](data:image/png;base64,{b64})"
+        result = extract_base64_images(md, "doc", images_dir)
+
+        # Result should reference a saved file, not the raw base64
+        assert "data:image/png;base64," not in result
+        assert "![alt text](images/doc/img_001.png)" == result
+
+        # File should exist on disk
+        saved = images_dir / "img_001.png"
+        assert saved.exists()
+        assert saved.read_bytes() == FAKE_PNG
+
+    def test_multiple_base64_images_numbered_sequentially(self, tmp_path):
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+        b64_png = _make_b64(FAKE_PNG)
+        b64_jpg = _make_b64(FAKE_JPG)
+        md = f"![fig1](data:image/png;base64,{b64_png})\n![fig2](data:image/jpeg;base64,{b64_jpg})"
+        result = extract_base64_images(md, "doc", images_dir)
+
+        assert "![fig1](images/doc/img_001.png)" in result
+        assert "![fig2](images/doc/img_002.jpeg)" in result
+        assert (images_dir / "img_001.png").exists()
+        assert (images_dir / "img_002.jpeg").exists()
+
+    def test_invalid_base64_leaves_original(self, tmp_path, caplog):
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+        bad = "NOT_VALID_BASE64!!!"
+        md = f"![alt](data:image/png;base64,{bad})"
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="openkb.images"):
+            result = extract_base64_images(md, "doc", images_dir)
+        assert result == md  # unchanged
+        # No files created
+        assert list(images_dir.iterdir()) == []
+
+    def test_mixed_valid_invalid_base64(self, tmp_path, caplog):
+        """Valid image extracted; invalid image left in place."""
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+        b64 = _make_b64(FAKE_PNG)
+        bad = "BADBAD!!!"
+        md = f"![good](data:image/png;base64,{b64})\n![bad](data:image/png;base64,{bad})"
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="openkb.images"):
+            result = extract_base64_images(md, "doc", images_dir)
+        assert "![good](images/doc/img_001.png)" in result
+        assert f"data:image/png;base64,{bad}" in result
+
+
+# ---------------------------------------------------------------------------
+# copy_relative_images
+# ---------------------------------------------------------------------------
+
+
+class TestCopyRelativeImages:
+    def test_existing_relative_image_copied_and_rewritten(self, tmp_path):
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        img_file = source_dir / "diagram.png"
+        img_file.write_bytes(FAKE_PNG)
+
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        md = "![diagram](diagram.png)"
+        result = copy_relative_images(md, source_dir, "doc", images_dir)
+
+        assert "![diagram](images/doc/diagram.png)" == result
+        assert (images_dir / "diagram.png").read_bytes() == FAKE_PNG
+
+    def test_missing_relative_image_leaves_original(self, tmp_path, caplog):
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        md = "![missing](missing.png)"
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="openkb.images"):
+            result = copy_relative_images(md, source_dir, "doc", images_dir)
+        assert result == md  # unchanged
+        assert list(images_dir.iterdir()) == []
+
+    def test_http_url_not_processed(self, tmp_path):
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        md = "![logo](https://example.com/logo.png)"
+        result = copy_relative_images(md, source_dir, "doc", images_dir)
+        assert result == md  # HTTP URLs left untouched
+
+    def test_data_url_not_processed(self, tmp_path):
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        b64 = _make_b64(FAKE_PNG)
+        md = f"![img](data:image/png;base64,{b64})"
+        result = copy_relative_images(md, source_dir, "doc", images_dir)
+        assert result == md  # data URIs left untouched
+
+    def test_multiple_relative_images_all_copied(self, tmp_path):
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        (source_dir / "a.png").write_bytes(FAKE_PNG)
+        (source_dir / "b.jpg").write_bytes(FAKE_JPG)
+
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        md = "![a](a.png)\n![b](b.jpg)"
+        result = copy_relative_images(md, source_dir, "doc", images_dir)
+
+        assert "![a](images/doc/a.png)" in result
+        assert "![b](images/doc/b.jpg)" in result
+        assert (images_dir / "a.png").exists()
+        assert (images_dir / "b.jpg").exists()
+
+    def test_same_basename_different_dirs_no_overwrite(self, tmp_path):
+        # Two distinct images sharing a basename must not overwrite each other
+        # (which would lose one image and point both links at the survivor).
+        source_dir = tmp_path / "source"
+        (source_dir / "a").mkdir(parents=True)
+        (source_dir / "b").mkdir(parents=True)
+        (source_dir / "a" / "logo.png").write_bytes(FAKE_PNG)
+        (source_dir / "b" / "logo.png").write_bytes(FAKE_JPG)
+
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        md = "![a](a/logo.png)\n![b](b/logo.png)"
+        result = copy_relative_images(md, source_dir, "doc", images_dir)
+
+        saved = sorted(p.name for p in images_dir.iterdir())
+        assert len(saved) == 2  # both copied, neither overwritten
+        assert {(images_dir / n).read_bytes() for n in saved} == {FAKE_PNG, FAKE_JPG}
+        links = sorted(line.split("](")[1].rstrip(")") for line in result.strip().splitlines())
+        assert links[0] != links[1]  # links point at different files
+
+    def test_same_image_referenced_twice_is_copied_once(self, tmp_path):
+        # Identical source referenced twice: copy once, both links agree.
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        (source_dir / "logo.png").write_bytes(FAKE_PNG)
+        images_dir = tmp_path / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        md = "![x](logo.png)\n![y](logo.png)"
+        result = copy_relative_images(md, source_dir, "doc", images_dir)
+
+        assert [p.name for p in images_dir.iterdir()] == ["logo.png"]
+        assert result.count("images/doc/logo.png") == 2
+
+
+# ---------------------------------------------------------------------------
+# Note-relative resolution (Obsidian / GitHub compatibility)
+# ---------------------------------------------------------------------------
+
+
+class TestNoteRelativeResolution:
+    """Generated ``![...](...)`` links must resolve relative to the note.
+
+    Source pages live at ``wiki/sources/<doc>.md`` and their images at
+    ``wiki/sources/images/<doc>/`` — renderers that resolve links relative
+    to the containing file (Obsidian, GitHub, VS Code) must find the image.
+    A wiki-root-relative link (``sources/images/...``) would resolve to the
+    non-existent ``wiki/sources/sources/images/...`` from those notes.
+    """
+
+    @staticmethod
+    def _link_paths(markdown: str) -> list[str]:
+        import re
+
+        return re.findall(r"!\[[^\]]*\]\(([^)]+)\)", markdown)
+
+    def test_base64_image_ref_resolves_from_sources_note(self, tmp_path):
+        wiki = tmp_path / "wiki"
+        note = wiki / "sources" / "doc.md"
+        images_dir = wiki / "sources" / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        md = f"![alt](data:image/png;base64,{_make_b64(FAKE_PNG)})"
+        result = extract_base64_images(md, "doc", images_dir)
+        note.write_text(result, encoding="utf-8")
+
+        for rel in self._link_paths(result):
+            assert (note.parent / rel).exists(), rel
+
+    def test_copied_image_ref_resolves_from_sources_note(self, tmp_path):
+        source_dir = tmp_path / "clip"
+        source_dir.mkdir()
+        (source_dir / "figure.png").write_bytes(FAKE_PNG)
+
+        wiki = tmp_path / "wiki"
+        note = wiki / "sources" / "doc.md"
+        images_dir = wiki / "sources" / "images" / "doc"
+        images_dir.mkdir(parents=True)
+
+        result = copy_relative_images("![f](figure.png)", source_dir, "doc", images_dir)
+        note.write_text(result, encoding="utf-8")
+
+        for rel in self._link_paths(result):
+            assert (note.parent / rel).exists(), rel

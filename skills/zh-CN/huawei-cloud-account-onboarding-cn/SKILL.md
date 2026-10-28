@@ -29,7 +29,7 @@ metadata:
 2. **递二维码** —— 仅当未实名、且用户此刻能拿手机时才取码，交 `scripts/render-qr.ts` 渲染。地址是一次性凭据：不落盘、不转发、不复用。
 3. **盯落地** —— 用 waiter 轮询至已实名；超时先问用户再重取，不自动重发。
 
-命令、响应字段与取值一律抄 `references/commands.md`，不用 `--help` 现场发现、不自拼参数。无 hcloud profile 时停下，请用户自行配置，不代写凭证。
+命令、响应字段与取值一律抄 `references/commands.md`，不用 `--help` 现场发现、不自拼参数。无 hcloud profile 时停下，请用户自行配置，不接收聊天凭证，不代写凭证。
 
 ## 红线
 

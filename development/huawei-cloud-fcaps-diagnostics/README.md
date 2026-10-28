@@ -1,5 +1,5 @@
-# 开发状态
+# 华为云 FCAPS 诊断
 
-华为云 FCAPS 诊断技能草案。使用入口：[SKILL.md](SKILL.md)；维护职责：[STRUCTURE.md](STRUCTURE.md)。
+使用入口：[SKILL.md](SKILL.md)；维护职责：[STRUCTURE.md](STRUCTURE.md)。
 
-包含原 hcloud 完整清单，以及 Linux、Windows 和可选 Kubernetes 的事实查询。真实覆盖按[验证摘要](references/verification/index.md)判断；受阻和未执行不视为通过。Recipe 仅规划。尚未注册或发布到技能目录。
+按 FCAPS 组织 hcloud、Linux、Windows 和可选 Kubernetes 的查询契约，场景步骤见[场景索引](references/recipes/index.md)。当前环境的可用性依据实际帮助与响应判断；历史验证记录归档在技能外的本地 QA 目录。

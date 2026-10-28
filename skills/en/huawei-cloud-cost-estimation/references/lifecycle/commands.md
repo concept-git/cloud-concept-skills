@@ -102,3 +102,13 @@ Read current runtime help before read-only queries too. Parameters are not speci
 | PARENT | `CCE/ListClusters`, `GaussDB/ListGaussMySqlInstances`; service-specific `List*` operations | Parent cluster, instance, or gateway |
 | STACK | `CloudIDE/ListStacks` | CodeArts IDE Online stacks and available specifications |
 | H | `hcloud <Service> <Operation> --help` | Runtime discovery; stop if help fails |
+
+## ECS, EVS, and EIP payment fields
+
+KooCLI 7.2.12 snapshot, 2026-10-27. Recheck current help. Payment defaults, conditional fields and order pitfalls are in `../gotchas.md` G09–G11.
+
+| Operation | Field prefix | Mode; period unit/count | Auto-pay / auto-renew |
+| --- | --- | --- | --- |
+| `ECS/CreateServers` | `server.extendparam` | `chargingMode`; `periodType` / `periodNum` | `isAutoPay` / `isAutoRenew` (strings) |
+| `EVS/CreateVolume` | `bssParam` | `chargingMode`; `periodType` / `periodNum` | `isAutoPay` / `isAutoRenew` (strings) |
+| `EIP/CreatePrePaidPublicip` | `extendParam` | `charge_mode`; `period_type` / `period_num` | `is_auto_pay` / `is_auto_renew` (booleans) |

@@ -51,10 +51,10 @@ context; `billing-ontology.yml` defines facts, grain, money basis, and `source_o
 
 ## Evidence Path
 
-Before matching the catalog, require an explicit Huawei Cloud/BSS context or confirmation that the
-current hcloud profile is the intended account. Otherwise ask one question: “Should I inspect the
-currently configured Huawei Cloud account for this billing period?” Do not query before
-confirmation. Refuse other-cloud billing without collecting evidence.
+Before matching the catalog, establish Huawei Cloud/BSS billing context and the intended account
+from the request or conversation. Reuse an unambiguous account choice; otherwise ask one question:
+“Should I inspect the currently configured Huawei Cloud account for this billing period?” Do not
+query while the target remains ambiguous. Refuse other-cloud billing without collecting evidence.
 
 | Stage    | Task                                                 | Source                      | Constraint                                            |
 | -------- | ---------------------------------------------------- | --------------------------- | ----------------------------------------------------- |

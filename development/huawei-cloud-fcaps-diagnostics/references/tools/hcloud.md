@@ -7,10 +7,11 @@
 - 数组参数使用 `.1`、`.2`；分页、枚举与时间单位按所选操作帮助。毫秒时间戳与 ISO 8601 时间不互换。
 - GET 也可能发起检测，POST 也可能只查询。同步、检测、安装、发送和生成登录地址按实际影响处理；已有任务直接查询结果。
 - 资源衔接按 Helper 的类型、选择条件和输出字段；多结果先定位目标。异步请求被接受不等于任务完成。
+- COC 使用华为云对应操作的参数与脚本标识，不套用其他云平台的云助手参数。
 
 ## 工具入口
 
-下表命令接在 `rtk proxy hcloud` 后。需要核验历史时查[验证记录](../verification/cloud.md#cli-元工具)。
+下表命令接在 `rtk proxy hcloud` 后。
 
 | 命令 | 作用 | 输入与来源 | 约束 |
 | --- | --- | --- | --- |
@@ -43,8 +44,8 @@
 
 共享查询见[共享分册](../commands/common/hcloud.md)。
 
-## 维护入口
+## 契约入口
 
 操作形式：`hcloud Service Operation/version`；这是华为云 KooCLI，不是 Hetzner 的同名工具。通用约束见[主入口规则](../../SKILL.md#安全规则)。
 
-[A 计量计费／hcloud](../commands/accounting/hcloud.md) · [共享查询／hcloud](../commands/common/hcloud.md) · [C 配置／hcloud-network](../commands/configuration/hcloud-network.md) · [C 配置／hcloud](../commands/configuration/hcloud.md) · [扩展／hcloud](../commands/extensions/hcloud.md) · [F 故障／hcloud](../commands/fault/hcloud.md) · [P 性能／hcloud](../commands/performance/hcloud.md) · [S 安全／hcloud-host](../commands/security/hcloud-host.md) · [S 安全／hcloud](../commands/security/hcloud.md)
+[A 计量计费／hcloud](../commands/accounting/hcloud.md) · [共享查询／hcloud](../commands/common/hcloud.md) · [C 配置／hcloud-network](../commands/configuration/hcloud-network.md) · [C 配置／hcloud](../commands/configuration/hcloud.md) · [F 故障／hcloud](../commands/fault/hcloud.md) · [P 性能／hcloud](../commands/performance/hcloud.md) · [S 安全／hcloud-host](../commands/security/hcloud-host.md) · [S 安全／hcloud](../commands/security/hcloud.md)

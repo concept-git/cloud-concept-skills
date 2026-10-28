@@ -17,7 +17,7 @@ facts:
       period_num: {meaning: "Number of purchase periods."}
       fee_installment_mode: {meaning: "Installment option; applicable products and defaults are in the command contract."}
 invariants:
-  - "Price annual and repeated monthly purchases separately; label monthly extrapolation as an estimate."
+  - "Behavioral limits: ../../gotchas.md G03–G06."
 contract_sections:
   - BSS/ListRateOnPeriodDetail
   - "Capacity and units"

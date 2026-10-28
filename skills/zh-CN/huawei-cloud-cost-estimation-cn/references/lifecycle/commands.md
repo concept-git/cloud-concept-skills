@@ -102,3 +102,13 @@ KooCLI 7.2.2 证据快照。这里只保存可执行开通命令的主体与精�
 | PARENT | `CCE/ListClusters`, `GaussDB/ListGaussMySqlInstances`; 服务自身 `List*` | 父集群、父实例或父网关 |
 | STACK | `CloudIDE/ListStacks` | CodeArts IDE Online 技术栈与可用规格 |
 | H | `hcloud <Service> <Operation> --help` | 运行时发现；help 失败即停止 |
+
+## ECS、EVS、EIP 支付字段
+
+KooCLI 7.2.12，2026-10-27核验。使用前重查当前帮助；支付默认值、条件字段和订单陷阱见 `../gotchas.md` G09–G11。
+
+| 操作 | 字段前缀 | 模式；周期单位／数量 | 自动支付／自动续费 |
+| --- | --- | --- | --- |
+| `ECS/CreateServers` | `server.extendparam` | `chargingMode`；`periodType` / `periodNum` | `isAutoPay` / `isAutoRenew`（字符串） |
+| `EVS/CreateVolume` | `bssParam` | `chargingMode`；`periodType` / `periodNum` | `isAutoPay` / `isAutoRenew`（字符串） |
+| `EIP/CreatePrePaidPublicip` | `extendParam` | `charge_mode`；`period_type` / `period_num` | `is_auto_pay` / `is_auto_renew`（布尔值） |

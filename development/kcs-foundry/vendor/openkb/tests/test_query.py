@@ -1,0 +1,325 @@
+"""Tests for openkb.agent.query (Task 11)."""
+
+from __future__ import annotations
+
+import io
+import sys
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+
+from openkb.agent.query import build_query_agent, run_query
+from openkb.schema import SCHEMA_MD
+
+
+class TestBuildQueryAgent:
+    def test_agent_name(self, tmp_path):
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert agent.name == "wiki-query"
+
+    def test_agent_has_three_tools(self, tmp_path):
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert len(agent.tools) == 3
+
+    def test_agent_tool_names(self, tmp_path):
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        names = {t.name for t in agent.tools}
+        assert "read_file" in names
+        assert "get_page_content" in names
+        assert "get_image" in names
+
+    def test_instructions_mention_get_page_content(self, tmp_path):
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert "get_page_content" in agent.instructions
+        assert "pageindex_retrieve" not in agent.instructions
+
+    def test_schema_in_instructions(self, tmp_path):
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert SCHEMA_MD in agent.instructions
+
+    def test_agent_model(self, tmp_path):
+        agent = build_query_agent(str(tmp_path), "my-model")
+        assert agent.model == "litellm/my-model"
+
+
+class TestRunQuery:
+    @pytest.mark.asyncio
+    async def test_run_query_returns_final_output(self, tmp_path):
+        (tmp_path / "wiki").mkdir()
+        (tmp_path / ".openkb").mkdir()
+
+        mock_result = MagicMock()
+        mock_result.final_output = "The answer is 42."
+
+        with patch("openkb.agent.query.Runner.run", new_callable=AsyncMock) as mock_run:
+            mock_run.return_value = mock_result
+            answer = await run_query("What is the answer?", tmp_path, "gpt-4o-mini")
+
+        assert answer == "The answer is 42."
+
+    @pytest.mark.asyncio
+    async def test_run_query_passes_question_to_agent(self, tmp_path):
+        (tmp_path / "wiki").mkdir()
+        (tmp_path / ".openkb").mkdir()
+
+        captured = {}
+
+        async def fake_run(agent, message, **kwargs):
+            captured["message"] = message
+            return MagicMock(final_output="answer")
+
+        with patch("openkb.agent.query.Runner.run", side_effect=fake_run):
+            await run_query("How does attention work?", tmp_path, "gpt-4o-mini")
+
+        assert "How does attention work?" in captured["message"]
+
+
+def test_query_strategy_mentions_entities():
+    """Task 10: query agent must direct who/what questions to entities/."""
+    from openkb.agent import query as query_mod
+
+    text = query_mod._QUERY_INSTRUCTIONS_TEMPLATE
+    assert "entities/" in text
+
+
+class TestResolveToolCallId:
+    """Fix 3: call-side and output-side keys must be derived identically so the
+    ``output/*.html`` artifact card correlates and fires (mirrors the Agents
+    SDK's ToolCallItem/ToolCallOutputItem.call_id: prefer call_id, fall back to
+    id, dict-aware)."""
+
+    def test_object_with_call_id(self):
+        from types import SimpleNamespace
+
+        from openkb.agent.query import _resolve_tool_call_id
+
+        assert _resolve_tool_call_id(SimpleNamespace(call_id="c1", id="i1")) == "c1"
+
+    def test_object_falls_back_to_id(self):
+        from types import SimpleNamespace
+
+        from openkb.agent.query import _resolve_tool_call_id
+
+        # ChatCompletions/LiteLLM path: only ``id`` is present.
+        assert _resolve_tool_call_id(SimpleNamespace(id="i1")) == "i1"
+
+    def test_dict_with_call_id(self):
+        from openkb.agent.query import _resolve_tool_call_id
+
+        assert _resolve_tool_call_id({"call_id": "c1", "id": "i1"}) == "c1"
+
+    def test_dict_falls_back_to_id(self):
+        from openkb.agent.query import _resolve_tool_call_id
+
+        assert _resolve_tool_call_id({"id": "i1"}) == "i1"
+
+    def test_call_and_output_sides_agree_on_litellm_path(self):
+        """The bug: call-side raw_item is an object with only ``id`` while the
+        output-side raw_item is a dict with only ``id`` — both must resolve to
+        the same key or ``pending_calls.pop`` misses."""
+        from types import SimpleNamespace
+
+        from openkb.agent.query import _resolve_tool_call_id
+
+        call_side = _resolve_tool_call_id(SimpleNamespace(id="abc123"))
+        output_side = _resolve_tool_call_id({"id": "abc123"})
+        assert call_side == output_side == "abc123"
+
+    def test_none_when_no_identifier(self):
+        from openkb.agent.query import _resolve_tool_call_id
+
+        assert _resolve_tool_call_id({}) is None
+
+
+class TestFmtFallback:
+    """Regression tests for issue #34.
+
+    `_fmt` must not invoke prompt_toolkit's `print_formatted_text` when the
+    output stream cannot drive a console (non-TTY stdout, or `NO_COLOR=1`).
+    On Windows, `print_formatted_text` constructs a `Win32Output` that
+    requires a real console handle and crashes with `NoConsoleScreenBufferError`
+    when stdout is a pipe, file, or captured subprocess stream.
+    """
+
+    @staticmethod
+    def _boom(*_args, **_kwargs):
+        raise AssertionError("print_formatted_text must not run when output is not a TTY")
+
+    def test_fmt_falls_back_when_stdout_is_not_tty(self, monkeypatch):
+        from openkb.agent import chat
+
+        monkeypatch.setattr(chat, "print_formatted_text", self._boom)
+        buf = io.StringIO()  # StringIO.isatty() returns False
+        monkeypatch.setattr(sys, "stdout", buf)
+
+        style = chat._build_style(use_color=False)
+        chat._fmt(style, ("class:tool", "hello"), ("class:tool", " world\n"))
+
+        assert buf.getvalue() == "hello world\n"
+
+    def test_fmt_falls_back_when_no_color_env(self, monkeypatch):
+        from openkb.agent import chat
+
+        monkeypatch.setattr(chat, "print_formatted_text", self._boom)
+
+        fake_tty = io.StringIO()
+        fake_tty.isatty = lambda: True  # type: ignore[method-assign]
+        monkeypatch.setattr(sys, "stdout", fake_tty)
+        monkeypatch.setenv("NO_COLOR", "1")
+
+        style = chat._build_style(use_color=False)
+        chat._fmt(style, ("class:error", "boom\n"))
+
+        assert fake_tty.getvalue() == "boom\n"
+
+    def test_fmt_uses_prompt_toolkit_on_real_tty(self, monkeypatch):
+        from openkb.agent import chat
+
+        called = {"count": 0}
+
+        def fake_print(*_args, **_kwargs):
+            called["count"] += 1
+
+        monkeypatch.setattr(chat, "print_formatted_text", fake_print)
+
+        fake_tty = io.StringIO()
+        fake_tty.isatty = lambda: True  # type: ignore[method-assign]
+        monkeypatch.setattr(sys, "stdout", fake_tty)
+        monkeypatch.delenv("NO_COLOR", raising=False)
+
+        style = chat._build_style(use_color=True)
+        chat._fmt(style, ("class:header", "hi\n"))
+
+        assert called["count"] == 1
+        assert fake_tty.getvalue() == ""
+
+
+class TestQueryAgentExtraHeaders:
+    """Config-driven extra headers reach the agents-SDK model settings."""
+
+    def test_extra_headers_applied_from_stash(self, tmp_path):
+        from openkb.config import set_extra_headers
+
+        set_extra_headers({"Editor-Version": "vscode/1.95.0"})
+        agent = build_query_agent(str(tmp_path), "github_copilot/gpt-5-mini")
+        assert agent.model_settings.extra_headers == {"Editor-Version": "vscode/1.95.0"}
+
+    def test_no_extra_headers_by_default(self, tmp_path):
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert agent.model_settings.extra_headers is None
+
+
+class TestQueryAgentParallelToolCalls:
+    """The resolved parallel_tool_calls value (stash) reaches the model settings.
+
+    Default is False (force sequential — unchanged historical behavior). A
+    config value of null resolves to None, which the agents-SDK omits from the
+    request — the escape hatch for Amazon Bedrock, whose Claude models reject
+    the request when parallel_tool_calls is sent at all (issue #175).
+    """
+
+    def test_unset_stash_still_defaults_to_false(self, tmp_path):
+        # No _setup_llm_key has run in this test (stash at its own raw
+        # "not configured" default) — build_query_agent must still land on
+        # the historical default, not on some other arbitrary value.
+        from openkb.config import set_parallel_tool_calls
+
+        set_parallel_tool_calls(None, False)
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert agent.model_settings.parallel_tool_calls is False
+
+    def test_null_stash_is_omitted(self, tmp_path):
+        from openkb.config import set_parallel_tool_calls
+
+        set_parallel_tool_calls(None, True)
+        agent = build_query_agent(str(tmp_path), "bedrock/eu.anthropic.claude-sonnet-4-6")
+        assert agent.model_settings.parallel_tool_calls is None
+
+    def test_false_stash_forces_sequential(self, tmp_path):
+        from openkb.config import set_parallel_tool_calls
+
+        set_parallel_tool_calls(False, True)
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert agent.model_settings.parallel_tool_calls is False
+
+    def test_true_stash_allows_parallel(self, tmp_path):
+        from openkb.config import set_parallel_tool_calls
+
+        set_parallel_tool_calls(True, True)
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert agent.model_settings.parallel_tool_calls is True
+
+    def test_bundle_does_not_read_process_global_settings(self, tmp_path):
+        """REST requests use the bundle instead of another KB's global settings."""
+        from openkb.config import LlmCredentialBundle, set_parallel_tool_calls
+
+        set_parallel_tool_calls(True, True)
+        bundle = LlmCredentialBundle(parallel_tool_calls=False, parallel_tool_calls_explicit=True)
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini", bundle=bundle)
+        assert agent.model_settings.parallel_tool_calls is False
+
+
+class TestQueryAgentTimeout:
+    """Config-driven timeout reaches the agents-SDK model settings via extra_args.
+
+    ModelSettings has no ``timeout`` field, so it is forwarded through
+    ``extra_args`` (which the LiteLLM provider passes on to the completion call).
+    """
+
+    def test_timeout_applied_from_stash(self, tmp_path):
+        from openkb.config import set_timeout
+
+        set_timeout(1200.0)
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert agent.model_settings.extra_args == {"timeout": 1200.0}
+
+    def test_no_timeout_by_default(self, tmp_path):
+        agent = build_query_agent(str(tmp_path), "gpt-4o-mini")
+        assert agent.model_settings.extra_args is None
+
+
+class TestBuildRunConfigFromBundle:
+    """The per-KB RunConfig must pass the model string to litellm verbatim.
+
+    Regression: build_run_config_from_bundle prefixed the model with
+    litellm/ (an Agent-layer convention to select the LiteLLM backend),
+    producing litellm/openai/deepseek-v4-flash -- which litellm.acompletion
+    rejects with BadRequestError("LLM Provider NOT provided"). LitellmModel
+    feeds its model straight to litellm.acompletion, so it must be the
+    raw litellm provider/model string, with no prefix.
+    """
+
+    def test_none_bundle_returns_none(self):
+        """CLI path (bundle=None) returns None so the SDK uses the agent model."""
+        from openkb.agent.query import build_run_config_from_bundle
+
+        assert build_run_config_from_bundle("openai/gpt-4o", None) is None
+
+    def test_bundle_model_has_no_litellm_prefix(self):
+        from openkb.agent.query import build_run_config_from_bundle
+        from openkb.config import LlmCredentialBundle
+
+        bundle = LlmCredentialBundle(api_key="k", base_url=None)
+        run_config = build_run_config_from_bundle("openai/deepseek-v4-flash", bundle)
+        assert run_config is not None
+        # The model reaches litellm.acompletion as-is; the agent-layer prefix
+        # must not leak in.
+        assert run_config.model.model == "openai/deepseek-v4-flash"
+        assert not run_config.model.model.startswith("litellm/")
+
+
+def test_chat_session_agent_has_write_file(tmp_path):
+    from openkb.agent.chat import build_chat_session_agent
+    from openkb.agent.chat_session import ChatSession
+
+    kb_dir = tmp_path / "kb"
+    (kb_dir / "wiki").mkdir(parents=True)
+    (kb_dir / ".openkb").mkdir(parents=True)
+    (kb_dir / "wiki" / "index.md").write_text("# Index\n", encoding="utf-8")
+
+    session = ChatSession.new(kb_dir, model="openai/gpt-4o", language="en")
+    agent = build_chat_session_agent(kb_dir, session)
+
+    tool_names = {getattr(t, "name", "") for t in agent.tools}
+    assert "write_file" in tool_names
+    assert "read_file" in tool_names  # still a superset of the query agent

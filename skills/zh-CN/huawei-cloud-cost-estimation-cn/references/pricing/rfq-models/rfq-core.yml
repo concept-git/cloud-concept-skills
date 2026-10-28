@@ -17,7 +17,7 @@ line_fields:
   region: {dimension: Dim_Region}
   subscription_num: {meaning: "购买数量，与单份容量及使用量分别表达。"}
   available_zone: {dimension: Dim_AvailabilityZone, meaning: "可选 AZ 筛选；未指定不代表所有 AZ 可用。"}
-  resource_size: {meaning: "单份订购容量或规模，与 size_measure_id 配对；按产品合同判断是否需要。"}
+  resource_size: {meaning: "单份订购容量或规模，与 size_measure_id 配对；按产品契约判断是否需要。"}
   size_measure_id: {dimension: Dim_MeasureUnit, role: capacity_unit}
 
 dimensions:
@@ -46,13 +46,13 @@ dimensions:
   Dim_ResourceSpec:
     business_key: [cloud_service_type, resource_type, region_code, charge_mode, resource_spec]
     source_operations: [BSS/ListResourceSpecs]
-    source_documents: [https://support.huaweicloud.com/api-oce/qct_00008.html]
+    source_documents: [https://support.huaweicloud.com/api-oce/qct_00008.md]
 
 relations:
   field_binding: "dimension 将字段绑定到该维度的 business_key；名称仅用于识别，规格按下述五项共同匹配。"
-  project_scope: "project_id 属于当前身份可访问且与目标区域对应的项目。"
-  specification: "请求行的服务、资源类型、规格及 region 与候选五项身份匹配；region 对应 region_code，charge_mode 由模型计费方式映射，编码见命令合同。"
+  project_scope: "BSS询价的project_id须为当前询价客户名下有效且可访问的项目，无须与产品region一致。"
+  specification: "请求行的服务、资源类型、规格及 region 与候选五项身份匹配；region 对应 region_code，charge_mode 由模型计费方式映射，编码见命令契约。"
   availability_zone: "指定 AZ 时校验其区域归属；ECS 的 AZ 查询不替代其他服务的可用性证据。"
-  units: "单位字典证明单位存在，产品合同证明字段适用性；容量单位与用量单位不互换。"
-  response: "按请求行 id 对应响应分项；金额路径、折扣及合计核对见命令合同，不预设通用金额乘法公式。"
-evidence_boundary: "拟购买或使用条件不代表历史消费；目录匹配、成功报价与可开通分别取证。"
+  units: "单位适用边界见 ../../gotchas.md G04。"
+  response: "按请求行 id 对应响应分项；金额路径、折扣及合计核对见命令契约，不预设通用金额乘法公式。"
+evidence_boundary: "响应与报价边界见 ../../gotchas.md G01–G06。"

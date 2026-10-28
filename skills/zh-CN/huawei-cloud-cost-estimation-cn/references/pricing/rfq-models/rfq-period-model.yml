@@ -15,9 +15,9 @@ facts:
     attributes:
       period_type: {meaning: "订购周期类型，与 period_num 共同解释。"}
       period_num: {meaning: "订购周期数量。"}
-      fee_installment_mode: {meaning: "费用分期选项；适用产品及默认值见命令合同。"}
+      fee_installment_mode: {meaning: "费用分期选项；适用产品及默认值见命令契约。"}
 invariants:
-  - "包年购买与逐月购买分别询价；按月外推必须明确标为估算。"
+  - "行为边界见 ../../gotchas.md G03–G06。"
 contract_sections:
   - BSS/ListRateOnPeriodDetail
   - "容量和单位"

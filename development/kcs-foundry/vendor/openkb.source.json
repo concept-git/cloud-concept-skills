@@ -1,0 +1,13 @@
+{
+  "name": "OpenKB",
+  "repository": "https://github.com/VectifyAI/OpenKB.git",
+  "directory": "vendor/openkb",
+  "branch": "main",
+  "commit": "ff54396e575ee6feb0113b631a34caa082b441cc",
+  "commit_date": "2026-07-22T11:44:01+08:00",
+  "retrieved_at": "2026-10-28T11:08:17+08:00",
+  "retrieval_method": "git clone --depth 1",
+  "shallow": true,
+  "license": "Apache-2.0",
+  "license_file": "vendor/openkb/LICENSE"
+}

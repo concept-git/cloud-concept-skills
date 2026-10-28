@@ -57,7 +57,7 @@ skills:
   - provisioning
   summary: "Estimate Huawei Cloud pre-order costs, provision allowlisted resources through hcloud, and guide unsubscribe requests through the console. Use for Huawei Cloud pricing, budgets, resource creation, unsubscribe guidance, or hcloud readiness checks."
   summary_zh: "估算华为云下单前费用，通过 hcloud 开通白名单内资源，并引导用户通过控制台处理退订。 适用于华为云询价、预算、资源创建、退订指引或 hcloud 可用性检查。"
-  version: 3.2.7
+  version: 3.3.0
   agents: &id005
   - cursor
   - claude-code
@@ -83,7 +83,7 @@ skills:
   subdomains: *id004
   summary: "估算华为云下单前费用，通过 hcloud 开通白名单内资源，并引导用户通过控制台处理退订。 适用于华为云询价、预算、资源创建、退订指引或 hcloud 可用性检查。"
   summary_zh: "估算华为云下单前费用，通过 hcloud 开通白名单内资源，并引导用户通过控制台处理退订。 适用于华为云询价、预算、资源创建、退订指引或 hcloud 可用性检查。"
-  version: 3.2.7
+  version: 3.3.0
   agents: *id005
   compatibility: hcloud KooCLI 7.2+, IAM permissions matching requested read/create operations, outbound network; no agent auto-install
   marketplaces: *id006

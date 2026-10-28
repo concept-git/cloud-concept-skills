@@ -1,6 +1,6 @@
 # S 安全 · windows
 
-首次使用本环境或工具不匹配时读 [windows](../../tools/windows.md)。缺输入才读 [Helper](../../helpers.md)；核验适用范围时读 [验证记录](../../verification/windows.md)。
+首次使用本环境或工具不匹配时读 [windows](../../tools/windows.md)。缺输入才读 [Helper](../../helpers.md)。
 
 | 命令 | 作用 | 输入与来源 | 约束 |
 | --- | --- | --- | --- |

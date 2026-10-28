@@ -11,7 +11,7 @@ metadata:
   language: en
   translation_of: huawei-cloud-cost-estimation-cn
   author: concept-git
-  version: "3.2.7"
+  version: "3.3.0"
   openclaw:
     requires:
       bins: [hcloud]
@@ -23,45 +23,43 @@ metadata:
       - { name: HUAWEICLOUD_SDK_REGION, required: false }
 ---
 
-# Huawei Cloud Quotes and Resource Provisioning
+# Huawei Cloud Quotes and Provisioning
 
-Community-maintained, not an official Huawei Cloud skill. Use current hcloud responses for prices and status, and current command help for parameters.
+Community-maintained, not an official Huawei Cloud skill. Use current API evidence and command help.
 
-## Choose the workflow
+## Read by task
 
-- hcloud readiness: read the readiness section of `references/cli-installation.md` and report only the capabilities checked.
-- Quotes, budgets, or price comparisons: follow Pricing.
-- Purchases or resource creation: follow Provisioning.
-- Unsubscribe or stop using a resource: follow the console guidance in `references/lifecycle/concepts.md`. Never generate or execute unsubscribe commands.
-- Historical bills, balances, or reconciliation: route to Cost Center or a read-only billing skill. For other clouds or operations outside the allowlist, explain the scope and point to the appropriate console.
+Before deciding or calling hcloud, read the matching categories in `references/gotchas.md`. Paths below are relative to `references/`; read relevant sections and reuse prior reads.
 
-## Pricing
+| Task | Read | Gotchas |
+| --- | --- | --- |
+| Check hcloud | `cli-installation.md` | A |
+| Quote/compare | `pricing/commands.md` | A, B |
+| Check compatibility | `lifecycle/concepts.md`: relevant checks | A, C |
+| Check existing orders/errors | Current help for the relevant read-only API | A, D |
+| Prepare login | `lifecycle/concepts.md`: login selection | E |
+| Prepare provisioning | `lifecycle/concepts.md`; selected operation, dependencies and payment fields in `lifecycle/commands.md` | A–D; add E for credentials |
+| Unsubscribe/stop | `lifecycle/concepts.md`: unsubscribe section, console guidance only | — |
 
-Read `references/pricing/commands.md`, then:
+For provisioning, read pricing files only for unresolved or changed quotes. Route bills/balances to the read-only billing skill or Cost Center; other clouds and non-allowlisted writes to their consoles.
 
-1. **Clarify the request.** Establish service, region, specification, quantity, billing mode, and period or usage; include capacity where the product requires it. Ask about missing inputs and materially different candidates together. If the user delegates selection, choose against their budget and purpose and explain the choice. For quotes only, disclose before using Linux, an empty AZ, or installment mode NA. Do not default the billing mode or duration.
-2. **Find the matching specification.** Query resource types for the service, then specifications for the selected region and billing mode. Preserve the candidate's service type, resource type, region, charge mode, and specification code. Identical names do not permit reuse across regions or modes. For pay-per-use, also resolve the usage factor and unit. Follow the pricing reference for capacity and pagination.
-3. **Query and check.** Use the appropriate period or pay-per-use pricing API. Match the selected specification, period or usage, quantity, and capacity. If a product's capacity or unit meaning remains unresolved, stop pricing that line and mark it unverified. Keep returned facts, errors, and hypotheses separate; an amount alone establishes neither a verified quote nor provisionability.
-4. **Explain the quote.** Itemize service, specification, region, billing mode, quantity × period or usage, and amount. Check totals, currency, and exclusions. Show only returned discounts and state that this is not a final bill. Only rows with verified configuration, billing units, and response contribute to the verified subtotal. Keep unverified rows outside it even if they returned an amount; do not present a partial subtotal as the complete budget. Apply the quote-delivery rules in the pricing reference.
+## Quote
 
-## Provisioning
+1. Establish service, region, configuration, quantity, billing mode and period/usage. Ask missing decision-relevant inputs together. When delegated, choose for the user's budget and purpose. Disclose Linux/empty-AZ/NA assumptions for quotes; obtain billing mode and duration from the user.
+2. Resolve the candidate and product billing mapping using the pricing contract. Submit only lines eligible under G03–G06; retain their configuration, source, exact request and matched response.
+3. Itemize verified prices and missing items, reconcile totals/currency and state the query date. Reuse the same evidence and line states in exported quotes; this is not a final bill.
 
-Read `references/lifecycle/concepts.md` and `references/lifecycle/commands.md`, then complete these steps in order:
+## Provision
 
-1. **Check the operation.** Confirm that it is allowlisted and run its current `--help`. Stop if help fails or lacks parameter definitions.
-2. **Check the configuration.** Use read-only APIs to verify the target region, AZ, specification sales status and billing support, account restrictions, and image, network, and other dependencies. Finding a specification or price is only part of this check; do not call it available inventory.
-3. **Check the cost.** Quote the complete proposed configuration, including associated paid resources. If a reliable price is unavailable, disclose that the price is unknown and charges may apply, and obtain separate consent. This does not replace provisioning checks.
-4. **Check the request.** Add global `--dryrun` to the complete command and inspect the constructed request. Correct failures first. Success establishes only that the request can be constructed locally.
-5. **Confirm and execute.** Show the configuration, quantity, billing mode, period, cost, and execution order. Obtain explicit confirmation for that configuration. Make the real call separately, removing only `--dryrun`. Execute batches in order; stop writes on failure and report each item's status.
+1. Find the operation in the allowlist and read its current help. Verify dependencies through read-only calls; classify each as supported, incompatible, or unresolved with evidence.
+2. Quote the complete configuration and associated costs. For an unverified cost, disclose that charges may apply and obtain separate consent; known incompatibility remains blocking.
+3. Build the final request with explicit payment, renewal and login choices. Inspect conditional fields and run global `--dryrun`, following G09/G12. Keep the checked request revision with its evidence.
+4. Show the configuration, cost and execution order; associate confirmation with that request. Execute it separately with only global `--dryrun` removed. Follow G09–G11 for edits or failures.
+5. Query order/payment and resource outcomes. Report verified results and unresolved items, retaining their IDs with the checked request and confirmation.
 
-A configuration change requires fresh checks, pricing, dry run, and confirmation. After a create failure, investigate read-only; do not try successive flavors through real create calls or automatically roll back. A task or order ID means accepted, not completed: use read-only queries to establish the final status.
+## Communication and lookup
 
-## Communication and supporting references
+Match the user's language; give the conclusion, evidence and next step plainly. Complete clear read-only work without repeated permission requests. Ask only for missing decisions and purchase confirmation; report progress on long tasks.
 
-Use natural Chinese in user-facing replies: give the conclusion, evidence, and next step in that order. Prefer short paragraphs and itemized details; honor a requested format. Complete clear read-only steps without repeated permission questions and briefly report progress during longer work. Pause for missing decision-relevant inputs or the required cost and write confirmations.
-
-Every BSS call uses `--cli-region=cn-north-1`; the resource's deployment region remains the user's selected region. Do not accept AK, SK, or tokens in chat, or expose credentials in output or logs.
-
-- hcloud unavailable or configuration needed: read `references/cli-installation.md` and have the user configure it.
-- Permission errors such as 403: read `references/iam-policies.md`.
-- Field relationships unclear: read `references/pricing/rfq-models/rfq-core.yml` and the model for the current billing mode; for shared-dimension lookup, read only the core.
+- Permission failure: `references/iam-policies.md`.
+- Field relationships unclear: `references/pricing/rfq-models/rfq-core.yml` and only the relevant billing-mode model.

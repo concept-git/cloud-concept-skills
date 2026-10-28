@@ -25,8 +25,7 @@ dimensions:
     source_operations: [BSS/ListUsageTypes]
     scope_binding: {service_type_code: cloud_service_type, resource_type_code: resource_type}
 invariants:
-  - "usage_factor 取匹配服务及资源类型的 code；该因子与当前规格的适配仍需产品依据。"
-  - "因子、用量、用量单位共同解释；订购容量独立保存。容量乘时长等换算仅在产品合同确认后进行。"
+  - "行为边界见 ../../gotchas.md G03–G06。"
 contract_sections:
   - BSS/ListOnDemandResourceRatings
   - "容量和单位"

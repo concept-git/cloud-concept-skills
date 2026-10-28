@@ -46,13 +46,13 @@ dimensions:
   Dim_ResourceSpec:
     business_key: [cloud_service_type, resource_type, region_code, charge_mode, resource_spec]
     source_operations: [BSS/ListResourceSpecs]
-    source_documents: [https://support.huaweicloud.com/api-oce/qct_00008.html]
+    source_documents: [https://support.huaweicloud.com/api-oce/qct_00008.md]
 
 relations:
   field_binding: "dimension binds a field to that dimension business_key; names are labels, and specifications require the five-part match below."
-  project_scope: "project_id belongs to an accessible project corresponding to the target region."
+  project_scope: "For BSS quotes, project_id must be a valid accessible project of the quoted customer; it need not match the product region."
   specification: "Match line service, resource type, specification and region with the candidate identity; region maps to region_code and charge_mode derives from the model billing mode using the command contract."
   availability_zone: "Check region membership when an AZ is supplied; an ECS AZ lookup does not establish another service availability."
-  units: "The unit dictionary establishes existence; the product contract establishes field applicability. Capacity and usage unit roles are not interchangeable."
+  units: "Unit applicability: ../../gotchas.md G04."
   response: "Match response items by request-line id; amount paths, discounts and reconciliation belong to the command contract, without a universal price multiplication formula."
-evidence_boundary: "Proposed purchase or usage is not historical consumption; directory match, successful pricing and provisionability require separate evidence."
+evidence_boundary: "Response and quote limits: ../../gotchas.md G01–G06."

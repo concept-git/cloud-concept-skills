@@ -29,8 +29,6 @@
 
 公网 IP 用于 [EIP/ShowPublicip/v3](commands/configuration/hcloud-network.md#eip)，带宽用于 [EIP/ShowBandwidth/v2](commands/configuration/hcloud-network.md#eip)。绑定关系不证明公网服务可达。
 
-需要确认这些衔接的实测范围时，读[验证记录](verification/cloud.md)。
-
 ## H-unit
 
 | 输入 | 获取命令 | 选择条件 | 输出绑定 |
@@ -52,7 +50,7 @@
 - 已核验分支：VBD／virtio。保留 UUID 连字符，取 volumeId 前 20 字符，与整盘的 ID_SERIAL 严格相等；该前缀在实例全部挂载盘中必须唯一。
 - 主机 DEVTYPE 必须为 disk，设备父链须包含 virtio。云端 pciAddress 非空时，与主机 PCI 路径再核对；by-id 链接只作辅助，分区链接不能充当整盘。
 - SCSI／WWN、XEN、缺字段、前缀冲突或多匹配保持未解析；不按容量、设备顺序或文件系统 UUID 猜测。克隆文件系统可拥有相同 UUID。
-- 依据：[华为云磁盘映射说明](https://support.huaweicloud.com/ecs_faq/zh-cn_topic_0103285575.html)。本分支的实际覆盖见 [Linux 验证](verification/linux.md)。
+- 依据：[华为云磁盘映射说明](https://support.huaweicloud.com/ecs_faq/zh-cn_topic_0103285575.html)。历史实测仅覆盖 Ubuntu 24.04.4 LTS 上的 virtio/VBD 整盘，不外推其他分支。
 
 ## H-win-service
 

@@ -25,8 +25,7 @@ dimensions:
     source_operations: [BSS/ListUsageTypes]
     scope_binding: {service_type_code: cloud_service_type, resource_type_code: resource_type}
 invariants:
-  - "usage_factor is a code matching the service and resource type; compatibility with the selected specification still requires product evidence."
-  - "Interpret factor, usage and usage unit together, retaining purchased capacity separately. Convert capacity times duration only when the product contract establishes it."
+  - "Behavioral limits: ../../gotchas.md G03–G06."
 contract_sections:
   - BSS/ListOnDemandResourceRatings
   - "Capacity and units"

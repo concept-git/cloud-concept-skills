@@ -84,9 +84,9 @@
 | `COC/CreateScheduledTask/v1` | 新建定时运维 | `associated_task_id` | — |
 | `COC/DisableScheduledTask/v1` | 禁用ScheduledTask | `task_id` | 复用已有任务标识 |
 | `COC/EnableScheduledTask/v1` | 启用ScheduledTask | `task_id` | 复用已有任务标识 |
-| `COC/ExecuteDocument/v1` | 执行作业：执行自定义作业 | `document_id` | — |
-| `COC/ExecutePublicScript/v1` | 主机执行：执行公共脚本 | `script_uuid`、`execute_batches.[N].target_instances.[N].region_id`、`execute_batches.[N].target_instances.[N].resource_id` | — |
-| `COC/ExecuteScript/v1` | 主机执行：执行自定义脚本 | `script_uuid`、`execute_batches.[N].target_instances.[N].region_id`、`execute_batches.[N].target_instances.[N].resource_id` | — |
+| `COC/ExecuteDocument/v1` | 执行作业：执行自定义作业 | `document_id` | 确认目标及 UniAgent 就绪，核对作业或脚本内容、参数与授权；按返回的任务标识查询最终状态与输出 |
+| `COC/ExecutePublicScript/v1` | 主机执行：执行公共脚本 | `script_uuid`、`execute_batches.[N].target_instances.[N].region_id`、`execute_batches.[N].target_instances.[N].resource_id` | 确认目标及 UniAgent 就绪，核对作业或脚本内容、参数与授权；按返回的任务标识查询最终状态与输出 |
+| `COC/ExecuteScript/v1` | 主机执行：执行自定义脚本 | `script_uuid`、`execute_batches.[N].target_instances.[N].region_id`、`execute_batches.[N].target_instances.[N].resource_id` | 确认目标及 UniAgent 就绪，核对作业或脚本内容、参数与授权；按返回的任务标识查询最终状态与输出 |
 | `COC/GetDocument/v1` | 读取自定义作业详情 | `document_id` | — |
 | `COC/GetDocumentAtomicInfo/v1` | 读取原子能力详情 | `atomic_unique_key` | — |
 | `COC/GetExecution/v1` | 读取作业工单详情 | `execution_id` | 复用已有任务标识 |
