@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.5.0 - 2026-10-28
+
+### Features
+- Improve bilingual cost-estimation guidance for pricing evidence, provisioning checks, order outcomes and credential handling.
+- Add KCS Foundry with the OpenKB upstream source snapshot and provenance.
+
+### Improvements
+- Reorganize the FCAPS diagnostics draft and its KCS recipes.
+- Add validation for estimation gotchas and context budgets.
+
 ## 1.4.0 - 2026-10-27
 
 ### Fixes
