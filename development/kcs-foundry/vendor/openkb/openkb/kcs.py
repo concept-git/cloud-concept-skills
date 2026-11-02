@@ -64,7 +64,7 @@ PAGE_RULES = "\n\n" + RULES + """
 Return JSON with description, content, knowledge_kind, cause_status and evidence.
 knowledge_kind must agree with the plan. cause_status is unknown or source_supported.
 evidence is a nonempty list of objects with section (one of the four KCS headings),
-claim (specific supported statement), source (summaries/<document>.md), locator
+claim (specific supported statement), source_ref (S0/S1/... from the supplied source map), locator
 (original line range, heading/paragraph or ticket message/attachment locator), and basis
 (source_guidance, recorded_observation, confirmed_in_source, extraction_inference).
 Cover each of the four sections; an unknown Cause is justified by the absence of
@@ -73,6 +73,7 @@ entry with confirmed_in_source and clear conditions; it is not this run's measur
 For updates retain earlier evidence that still supports the rewritten page, remove or
 qualify superseded claims, and explain unresolved contradictions in Resolution.
 Use only the current source and the existing page's source summaries for evidence.
+The program resolves source_ref into a canonical source path; do not construct paths.
 Do not emit YAML frontmatter or claim that generation performed runtime verification.
 """
 
@@ -82,6 +83,46 @@ def resolve_profile(config: dict) -> str:
     if value not in ("generic", "kcs"):
         raise ValueError("knowledge_profile must be generic or kcs")
     return value
+
+
+def evidence_source_map(current: str, sources: set[str]) -> dict[str, str]:
+    """Stable per-page aliases; S0 always denotes the current document."""
+    return {f"S{i}": source for i, source in enumerate([current, *sorted(sources - {current})])}
+
+
+def bind_evidence_sources(payload: dict, source_map: dict[str, str]) -> dict:
+    """Bind model aliases, without guessing between multiple source documents.
+
+    Legacy canonical paths remain accepted. Persist only canonical `source`, so
+    source fingerprints, audits and existing pages keep their original contract.
+    """
+    if not isinstance(payload, dict) or not isinstance(payload.get("evidence"), list):
+        raise ValueError("KCS evidence is required")
+    allowed = set(source_map.values())
+    bound = []
+    for item in payload["evidence"]:
+        if not isinstance(item, dict):
+            raise ValueError("Invalid KCS evidence")
+        entry = dict(item)
+        ref = entry.pop("source_ref", None)
+        source = entry.get("source")
+        if ref is not None:
+            if not isinstance(ref, str) or ref not in source_map:
+                raise ValueError("Unknown KCS source_ref")
+            resolved = source_map[ref]
+            if source not in (None, "", ref, resolved):
+                raise ValueError("Conflicting KCS source and source_ref")
+        elif isinstance(source, str) and source in source_map:
+            resolved = source_map[source]
+        elif isinstance(source, str) and source in allowed:
+            resolved = source
+        elif source in (None, "") and len(allowed) == 1:
+            resolved = next(iter(allowed))
+        else:
+            raise ValueError("Missing, ambiguous or invalid KCS evidence source")
+        entry["source"] = resolved
+        bound.append(entry)
+    return {**payload, "evidence": bound}
 
 
 def core_body(content: str) -> str:

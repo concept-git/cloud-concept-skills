@@ -146,6 +146,34 @@ def test_cause_and_sources_require_evidence():
         kcs.validate_payload(body(), data, {"summaries/a.md"})
 
 
+@pytest.mark.asyncio
+async def test_compiler_binds_aliases_and_retains_previous_sources(wiki):
+    first = payload("a")
+    for item in first["evidence"]:
+        item.pop("source")  # A single document has an unambiguous binding.
+    await compile_fixture(wiki, "a", {"create": [{"name": "case", "knowledge_kind": "case"}]},
+                          {"case": first})
+    second = payload("b", previous=["summaries/a.md"])
+    for item in second["evidence"]:
+        item["source_ref"] = "S0" if item.pop("source") == "summaries/b.md" else "S1"
+    await compile_fixture(wiki, "b", {"update": [{"name": "case", "knowledge_kind": "case"}]},
+                          {"case": second})
+    data = frontmatter.parse((wiki / "concepts/case.md").read_text())
+    assert {e["source"] for e in data["evidence"]} == {"summaries/a.md", "summaries/b.md"}
+    assert all("source_ref" not in e for e in data["evidence"])
+    assert kcs.audit_wiki(wiki)["valid"]
+
+
+@pytest.mark.parametrize("item", [
+    {}, {"source_ref": "S9"}, {"source": "invented.md"},
+    {"source_ref": "S0", "source": "summaries/a.md"},
+])
+def test_ambiguous_or_wrong_bindings_are_rejected(item):
+    mapping = kcs.evidence_source_map("summaries/b.md", {"summaries/a.md", "summaries/b.md"})
+    with pytest.raises(ValueError):
+        kcs.bind_evidence_sources({"evidence": [item]}, mapping)
+
+
 def test_removing_a_source_invalidates_previous_validation(wiki):
     for name in ("a", "b"):
         atomic_write_text(wiki / "sources" / f"{name}.md", name)

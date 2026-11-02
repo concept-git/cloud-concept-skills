@@ -1892,15 +1892,30 @@ async def _compile_concepts(
         ),
     }
 
-    def accept_kcs(concept: dict, content: str, obj: dict | None) -> None:
-        if profile != "kcs":
-            return
+    def kcs_sources(concept: dict) -> dict[str, str]:
         slug = _sanitize_concept_name(concept["name"])
         previous = wiki_dir / "concepts" / f"{slug}.md"
         sources = {source_file}
         if previous.exists():
             sources.update(frontmatter.parse(previous.read_text(encoding="utf-8")).get("sources", []))
-        kcs.validate_payload(content, obj or {}, sources)
+        return kcs.evidence_source_map(source_file, sources)
+
+    def kcs_source_prompt(concept: dict) -> str:
+        if profile != "kcs":
+            return ""
+        return ("\nEvidence source map (use source_ref; S0 is the current document):\n"
+                + json.dumps(kcs_sources(concept), ensure_ascii=False)
+                + '\nExample evidence: {"section":"Issue", "claim":"...", '
+                '"source_ref":"S0", "locator":"L1-L2", "basis":"recorded_observation"}. '
+                'Select the actual supporting document for each claim; never default old claims to S0.')
+
+    def accept_kcs(concept: dict, content: str, obj: dict | None) -> None:
+        if profile != "kcs":
+            return
+        slug = _sanitize_concept_name(concept["name"])
+        source_map = kcs_sources(concept)
+        obj = kcs.bind_evidence_sources(obj or {}, source_map)
+        kcs.validate_payload(content, obj, set(source_map.values()))
         if obj["knowledge_kind"] != concept["knowledge_kind"]:
             raise ValueError("KCS page kind differs from its plan")
         _, ghosts = strip_ghost_wikilinks(content, known_targets)
@@ -1928,7 +1943,7 @@ async def _compile_concepts(
                             title=title,
                             doc_name=doc_name,
                             update_instruction="",
-                        ) + page_suffix + (f"\nPlanned knowledge_kind: {concept['knowledge_kind']}" if profile == "kcs" else ""),
+                        ) + page_suffix + kcs_source_prompt(concept) + (f"\nPlanned knowledge_kind: {concept['knowledge_kind']}" if profile == "kcs" else ""),
                     },
                 ],
                 f"concept: {name}",
@@ -1965,7 +1980,7 @@ async def _compile_concepts(
                             title=title,
                             doc_name=doc_name,
                             existing_content=existing_content,
-                        ) + page_suffix + (f"\nPlanned knowledge_kind: {concept['knowledge_kind']}" if profile == "kcs" else ""),
+                        ) + page_suffix + kcs_source_prompt(concept) + (f"\nPlanned knowledge_kind: {concept['knowledge_kind']}" if profile == "kcs" else ""),
                     },
                 ],
                 f"update: {name}",
