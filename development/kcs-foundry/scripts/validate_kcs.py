@@ -210,9 +210,24 @@ def validate(output: Path, manifest: dict) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--materials", type=Path, required=True, help="Trusted package outside model write zone")
+    parser.add_argument("--kb", type=Path, help="Audit native KCS wiki and cross-batch provenance")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--materials", type=Path, help="For legacy export: trusted material package")
     args = parser.parse_args()
+    if args.kb:
+        if args.output or args.materials:
+            parser.error("Use --kb for native audit, or --output with --materials for legacy exports")
+        try:
+            from native_kcs import validate_native
+
+            report = validate_native(args.kb.expanduser().resolve())
+        except (FoundryError, OSError, ValueError) as exc:
+            print(f"Native KCS validation failed: {exc}", file=sys.stderr)
+            return 1
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0 if report["valid"] else 1
+    if not args.output or not args.materials:
+        parser.error("Legacy export validation needs both --output and --materials")
     try:
         manifest = load_package(args.materials.expanduser().resolve())
         report = validate(args.output.expanduser(), manifest)

@@ -33,6 +33,7 @@ description: 按 FCAPS 选择华为云 hcloud、Linux、Windows 及可选 Kubern
 - 已知问题：按 [FCAPS 地图](references/commands/index.md) 选择类别和环境；目标不明时读[分诊](references/triage.md)。
 - 切换工具或环境时，只读对应工具入口；在目标内核验环境和命令结果。
 - 场景诊断按[场景索引](references/recipes/index.md)只读匹配的 KCS 文章，再按当前步骤读取所需契约和依赖；已知文章可直接读取。文章为草稿，原因须由当前证据确认。
+- 特殊报错、版本组合或通用流程解释不了的观测，按[知识外挂入口](knowledge/README.md)读取本地 wiki，核对案例条件和来源后再用于当前诊断；常规问题不必检索全库。读取不启动 OpenKB、不自动回写知识。
 
 ## 输出
 

@@ -29,7 +29,7 @@ from pathlib import Path
 
 import litellm
 
-from openkb import frontmatter
+from openkb import frontmatter, kcs
 from openkb.config import (
     DEFAULT_ENTITY_TYPES,
     get_extra_headers,
@@ -973,7 +973,8 @@ _parse_yaml_list_value = frontmatter.parse_list_value
 
 
 def _write_concept(
-    wiki_dir: Path, name: str, content: str, source_file: str, is_update: bool, brief: str = ""
+    wiki_dir: Path, name: str, content: str, source_file: str, is_update: bool, brief: str = "",
+    *, profile: str = "generic", kcs_payload: dict | None = None,
 ) -> None:
     """Write or update a concept page, managing the sources frontmatter."""
     concepts_dir = wiki_dir / "concepts"
@@ -982,6 +983,18 @@ def _write_concept(
     path = (concepts_dir / f"{safe_name}.md").resolve()
     if not path.is_relative_to(concepts_dir.resolve()):
         logger.warning("Concept name escapes concepts dir: %s", name)
+        return
+
+    if profile == "kcs":
+        if path.is_symlink():
+            raise ValueError("KCS concept symlink is not allowed")
+        previous = path.read_text(encoding="utf-8") if path.exists() else ""
+        old_sources = frontmatter.parse(previous).get("sources", [])
+        if not isinstance(old_sources, list) or not all(isinstance(s, str) for s in old_sources):
+            raise ValueError("Invalid existing KCS sources")
+        rendered = kcs.render_page(wiki_dir, content, kcs_payload or {},
+                                  [source_file, *old_sources], brief, previous)
+        atomic_write_text(path, rendered)
         return
 
     if is_update and path.exists():
@@ -1194,7 +1207,15 @@ def _remove_source_from_frontmatter(text: str, source_file: str) -> tuple[str, b
             return text, False
         items.remove(source_file)
         fm_lines[i] = _yaml_list_line("sources", items)
-        return "\n".join(fm_lines) + closing + body, len(items) == 0
+        updated = "\n".join(fm_lines) + closing + body
+        if frontmatter.parse(text).get("knowledge_profile") == "kcs":
+            parts = frontmatter.split(updated)
+            header = frontmatter.set_line(parts[0], "status", "draft")
+            header = frontmatter.drop_line(frontmatter.drop_line(header, "validation_hash"), "validation")
+            updated = header + parts[1]
+            # Do not silently rewrite claims after withdrawing their source.
+            # The native audit will require recompilation/source review.
+        return updated, len(items) == 0
 
     return text, False
 
@@ -1219,6 +1240,17 @@ def _add_related_link(
 
     text = path.read_text(encoding="utf-8")
     link = f"[[summaries/{doc_name}]]"
+    metadata = frontmatter.parse(text)
+    if page_dir == "concepts" and metadata.get("knowledge_profile") == "kcs":
+        # A new supporting reference must refresh the source binding, not retain
+        # a prior reviewed/validated status after changing its evidence context.
+        if source_file not in metadata.get("sources", []):
+            _write_concept(wiki_dir, slug, text, source_file, True,
+                           brief=metadata.get("description", ""), profile="kcs", kcs_payload=metadata)
+            text = path.read_text(encoding="utf-8")
+        if link not in text:
+            atomic_write_text(path, text + f"\n\nSee also: {link}\n")
+        return True
     if link in text:
         return True
 
@@ -1278,6 +1310,9 @@ def _backlink_pages(
             continue
         text = path.read_text(encoding="utf-8")
         if link in text:
+            continue
+        if page_dir == "concepts" and frontmatter.parse(text).get("knowledge_profile") == "kcs":
+            atomic_write_text(path, text + f"\n\nSee also: {link}\n")
             continue
         lines = text.split("\n")
         _ensure_h2_section(lines, "## Related Documents", quiet=True)
@@ -1615,6 +1650,12 @@ async def _compile_concepts(
     wikilinks reflect the actual concept pages on disk.
     """
     source_file = f"summaries/{doc_name}.md"
+    from openkb.config import resolve_effective_config
+
+    profile = kcs.resolve_profile(resolve_effective_config(kb_dir)[0])
+    plan_suffix = kcs.PLAN_RULES if profile == "kcs" else ""
+    page_suffix = kcs.PAGE_RULES if profile == "kcs" else ""
+    generated_kcs: dict[str, dict] = {}
 
     # Effective entity types for this compile (config-driven; defaults to the
     # canonical enum when unset, keeping behavior byte-identical to today).
@@ -1642,7 +1683,7 @@ async def _compile_concepts(
                 "content": _CONCEPTS_PLAN_USER.format(
                     concept_briefs=concept_briefs,
                     entity_briefs=entity_briefs,
-                ).replace("__ENTITY_TYPES__", types_str),
+                ).replace("__ENTITY_TYPES__", types_str) + plan_suffix,
             },
         ],
         "concepts-plan",
@@ -1674,6 +1715,8 @@ async def _compile_concepts(
     try:
         parsed = _parse_json(plan_raw)
     except (json.JSONDecodeError, ValueError) as exc:
+        if profile == "kcs":
+            raise ValueError("KCS concepts plan is invalid; no pages committed") from exc
         preview = plan_raw[:500] + ("..." if len(plan_raw) > 500 else "")
         logger.warning(
             "Failed to parse concepts plan: %s. Raw output (first 500 chars): %r",
@@ -1696,6 +1739,8 @@ async def _compile_concepts(
     # an "entities" key; the legacy flat shape (create/update/related at top
     # level) is still honored by falling back to ``parsed`` itself.
     if not isinstance(parsed, (list, dict)):
+        if profile == "kcs":
+            raise ValueError("KCS concepts plan must be an object or array")
         # A JSON scalar (int/str/None/bool) is valid JSON but not a usable
         # plan. ``_parse_json`` normally rejects scalars, but guard here too
         # so ``parsed.get(...)`` can never raise AttributeError and abort the
@@ -1731,6 +1776,22 @@ async def _compile_concepts(
     entity_create = entities_plan["create"]
     entity_update = entities_plan["update"]
     entity_related = entities_plan["related"]
+
+    if profile == "kcs":
+        seen = set()
+        normalized_create, normalized_update = [], []
+        for item in create_items + update_items:
+            slug = _sanitize_concept_name(item["name"])
+            if slug in seen or item.get("knowledge_kind") not in kcs.KINDS:
+                raise ValueError("Duplicate KCS concept or invalid knowledge_kind in plan")
+            seen.add(slug)
+            if (wiki_dir / "concepts" / f"{slug}.md").exists():
+                normalized_update.append(item)
+            elif item in update_items:
+                raise ValueError("KCS update target does not exist")
+            else:
+                normalized_create.append(item)
+        create_items, update_items = normalized_create, normalized_update
 
     # "related" must reference pages that ALREADY exist on disk (the plan
     # prompt asks for existing slugs). The LLM sometimes lists non-existent
@@ -1774,6 +1835,8 @@ async def _compile_concepts(
         + len(entity_related)
     )
     if original_total > 0 and post_filter_total == 0:
+        if profile == "kcs":
+            raise ValueError("All KCS plan items were malformed")
         sys.stdout.write(
             f"    [WARN] plan for {doc_name} had {original_total} "
             f"item(s), all dropped as malformed — see log (stderr).\n"
@@ -1829,6 +1892,22 @@ async def _compile_concepts(
         ),
     }
 
+    def accept_kcs(concept: dict, content: str, obj: dict | None) -> None:
+        if profile != "kcs":
+            return
+        slug = _sanitize_concept_name(concept["name"])
+        previous = wiki_dir / "concepts" / f"{slug}.md"
+        sources = {source_file}
+        if previous.exists():
+            sources.update(frontmatter.parse(previous.read_text(encoding="utf-8")).get("sources", []))
+        kcs.validate_payload(content, obj or {}, sources)
+        if obj["knowledge_kind"] != concept["knowledge_kind"]:
+            raise ValueError("KCS page kind differs from its plan")
+        _, ghosts = strip_ghost_wikilinks(content, known_targets)
+        if ghosts:
+            raise ValueError("KCS page contains unresolved wikilinks")
+        generated_kcs[slug] = obj
+
     # --- Step 3: Generate/update concept pages concurrently (A cached) ---
     semaphore = asyncio.Semaphore(max_concurrency)
 
@@ -1849,15 +1928,16 @@ async def _compile_concepts(
                             title=title,
                             doc_name=doc_name,
                             update_instruction="",
-                        ),
+                        ) + page_suffix + (f"\nPlanned knowledge_kind: {concept['knowledge_kind']}" if profile == "kcs" else ""),
                     },
                 ],
                 f"concept: {name}",
                 response_format=_JSON_RESPONSE_FORMAT,
                 bundle=bundle,
             )
-        brief, content, _ = _page_fields(raw)
+        brief, content, obj = _page_fields(raw)
         _require_nonempty_content(content, name)
+        accept_kcs(concept, content, obj)
         return name, content, False, brief
 
     async def _gen_update(concept: dict) -> tuple[str, str, bool, str]:
@@ -1867,7 +1947,8 @@ async def _compile_concepts(
         if concept_path.exists():
             raw_text = concept_path.read_text(encoding="utf-8")
             ex_parts = frontmatter.split(raw_text)
-            existing_content = ex_parts[1].strip() if ex_parts is not None else raw_text
+            existing_content = (raw_text if profile == "kcs" else
+                                ex_parts[1].strip() if ex_parts is not None else raw_text)
         else:
             existing_content = "(page not found — create from scratch)"
         async with semaphore:
@@ -1884,15 +1965,16 @@ async def _compile_concepts(
                             title=title,
                             doc_name=doc_name,
                             existing_content=existing_content,
-                        ),
+                        ) + page_suffix + (f"\nPlanned knowledge_kind: {concept['knowledge_kind']}" if profile == "kcs" else ""),
                     },
                 ],
                 f"update: {name}",
                 response_format=_JSON_RESPONSE_FORMAT,
                 bundle=bundle,
             )
-        brief, content, _ = _page_fields(raw)
+        brief, content, obj = _page_fields(raw)
         _require_nonempty_content(content, name)
+        accept_kcs(concept, content, obj)
         return name, content, True, brief
 
     async def _gen_entity_create(ent: dict) -> tuple[str, str, str, str]:
@@ -2020,6 +2102,8 @@ async def _compile_concepts(
         # Include exception type names inline so the stdout line is
         # self-contained — per-failure WARNINGs go to stderr.
         written = len(pending_writes)
+        if profile == "kcs" and failure_types:
+            raise ValueError("KCS page generation failed; refusing partial compilation")
         if written < total:
             reason = ", ".join(sorted(set(failure_types))) if failure_types else "see log (stderr)"
             sys.stdout.write(
@@ -2039,6 +2123,8 @@ async def _compile_concepts(
             entity_pending.append((name, page_content, brief, etype))
 
         ewritten = len(entity_pending)
+        if profile == "kcs" and entity_failure_types:
+            raise ValueError("KCS entity generation failed; refusing partial compilation")
         if ewritten < etotal:
             reason = (
                 ", ".join(sorted(set(entity_failure_types)))
@@ -2161,6 +2247,8 @@ async def _compile_concepts(
             source_file,
             is_update,
             brief=brief,
+            profile=profile,
+            kcs_payload=generated_kcs.get(_sanitize_concept_name(name)),
         )
 
     # --- Step 3b: Process related items (code only, no LLM) ---

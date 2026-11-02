@@ -90,7 +90,7 @@ class PipelineTests(unittest.TestCase):
 
     def run_fixture(self, mode="valid"):
         backend = FakeBackend(self.manifest, mode)
-        state = run_pipeline(self.package, self.kb, "run-one", "连接失败", backend=backend)
+        state = run_pipeline(self.package, self.kb, "run-one", "连接失败", backend=backend, mode="export")
         return backend, state
 
     def test_snapshot_preserves_source_and_excludes_hidden_credentials(self):
@@ -173,13 +173,13 @@ class PipelineTests(unittest.TestCase):
     def test_import_failure_prevents_generation_and_no_retry(self):
         backend = FakeBackend(self.manifest, "import-failed")
         with self.assertRaises(FoundryError):
-            run_pipeline(self.package, self.kb, "run-one", "连接失败", backend=backend)
+            run_pipeline(self.package, self.kb, "run-one", "连接失败", backend=backend, mode="export")
         self.assertEqual(backend.extract_calls, 0)
         self.assertEqual(len(backend.imports), 1)
         state = json.loads((self.kb / ".openkb/kcs-foundry/run-one/state.json").read_text())
         self.assertEqual(state["phase"], "failed")
         with self.assertRaises(FoundryError):
-            run_pipeline(self.package, self.kb, "run-one", "连接失败", backend=backend)
+            run_pipeline(self.package, self.kb, "run-one", "连接失败", backend=backend, mode="export")
         self.assertEqual(len(backend.imports), 1)
 
     def test_empty_generator_success_is_not_pipeline_success(self):
@@ -205,7 +205,7 @@ class PipelineTests(unittest.TestCase):
             plan_run(self.package, self.kb, "run-one", "连接失败", None)
         (self.kb / "skills/kcs-extractor/SKILL.md").write_text("local modification", encoding="utf-8")
         with self.assertRaises(FoundryError):
-            run_pipeline(self.package, self.kb, "run-two", "连接失败", backend=FakeBackend(self.manifest))
+            run_pipeline(self.package, self.kb, "run-two", "连接失败", backend=FakeBackend(self.manifest), mode="export")
 
     def test_validator_rejects_false_runtime_claim_and_broken_link(self):
         output = self.root / "drafts"
@@ -244,7 +244,7 @@ class PipelineTests(unittest.TestCase):
         backend = FakeBackend(self.manifest)
         (self.kb / ".openkb/config.yaml").unlink()
         with self.assertRaises(FoundryError):
-            run_pipeline(self.package, self.kb, "run-one", "连接失败", backend=backend)
+            run_pipeline(self.package, self.kb, "run-one", "连接失败", backend=backend, mode="export")
         self.assertFalse(hasattr(backend, "kb"))
         with self.assertRaises(FoundryError):
             plan_run(self.package, self.kb, "../escape", "连接失败", None)

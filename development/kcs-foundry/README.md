@@ -6,7 +6,7 @@
 
 已引入 OpenKB 上游源码，并新增独立的 [KCS 提炼元技能](skills/kcs-extractor/SKILL.md)。技能覆盖外部 skill／recipe 与工单输入，交付四字段 KCS 草稿和来源记录。
 
-已新增材料整理、OpenKB 调用及 KCS 校验程序，使用方式见 [接入说明](USAGE.md)。离线测试覆盖文件流转与失败边界；尚未安装 OpenKB 依赖、启动服务或调用真实模型。工单分支与实际模型链路需要在内部环境验证。
+已在 vendored OpenKB 增加原生 KCS profile，默认由编译器维护四字段 case／pattern 与 wiki 关系，来源和复核状态由程序绑定。知识外挂位于诊断技能的 `knowledge/ecs-kb/`。使用方式见 [运行指导](USAGE.md)。已在独立临时环境安装依赖并进行无模型回归；尚未调用真实模型，内部工单与内网接口仍需试点验收。
 
 ## 目录
 
@@ -32,7 +32,7 @@ kcs-foundry/
 - 提交时间：2026-07-22T11:44:01+08:00
 - 许可证：Apache-2.0，原文保留在 `vendor/openkb/LICENSE`。
 
-上游代码与 KCS Foundry 实现分目录维护。
+此提交是本地修改的基线，当前 vendored 源码包含 KCS 改造，不再是未经修改的上游快照。修改范围和模型能力要求见 [KCS profile](vendor/openkb/KCS_PROFILE.md)，来源记录保留上游基线与本地变更说明。
 
 ## 独立使用与内部移交
 
@@ -58,6 +58,8 @@ kcs-foundry/
 
 ## OpenKB 接入边界
 
-外层 `extract_kcs.py` 编排“导入材料 → 编译 wiki → 显式调用 `run_skill()` → 校验输出”。技能不会因为放入目录就自动进入 `openkb add` 流程。
+默认 `native` 模式为“导入材料 → 原生 KCS wiki 编译 → 跨批次来源审计”，不运行 `run_skill()`。编译器通过普通模型调用获取 JSON，保留 sources、summaries、concepts、entities、索引、反向链接与概念更新能力。通用 profile 保持原有行为。
 
-程序为技能提供参考文件路径、带原行号的原文快照和可信来源清单；生成后核对原文哈希与输出引用。草稿先写入知识库的 `output/kcs/<run-id>/`，不自动同步到正式诊断技能。真实模型对工具的使用、KCS 内容质量及移动文章后的链接仍需验收。没有修改 `vendor/openkb/`。
+卡片直接保存在诊断技能的 `knowledge/ecs-kb/wiki/concepts/`，通过 wikilinks 构建关联；原文快照与 provenance 随获准的内部知识一起提交。排障按需读取本地文件，新的工单由后续显式 Foundry 任务导入，不自动回写。
+
+独立元技能继续可用。显式 `--mode export` 保留原来的 `run_skill()` 导出方式，需要模型支持 function calling；默认原生编译不需要该能力，但要求接口接受 JSON 响应模式，详见运行指导。两种模式的机械检查都不能替代来源语义复核和真实排障验证。

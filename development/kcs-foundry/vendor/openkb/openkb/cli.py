@@ -77,7 +77,8 @@ from openkb.indexer import (
 from openkb.locks import atomic_write_json, atomic_write_text, kb_ingest_lock, kb_read_lock
 from openkb.log import append_log
 from openkb.mutation import publish_staged_tree
-from openkb.schema import AGENTS_MD, INDEX_SEED, PAGE_CONTENT_DIRS
+from openkb.schema import AGENTS_MD, INDEX_SEED, PAGE_CONTENT_DIRS, agents_md_for_profile
+from openkb.kcs import resolve_profile
 
 # Suppress warnings after all imports — markitdown overrides filters at import time
 import warnings
@@ -475,7 +476,13 @@ def _add_single_file_locked(
     from openkb.state import HashRegistry
 
     openkb_dir = kb_dir / ".openkb"
-    config = resolve_effective_config(kb_dir)[0]
+    config, config_sources = resolve_effective_config(kb_dir)
+    if resolve_profile(config) == "kcs" and (
+        config_sources.get("model") != "kb" or not isinstance(config.get("model"), str)
+        or not config["model"].strip()
+    ):
+        click.echo("  [ERROR] Set an explicit KB-local model before KCS ingestion.")
+        return "failed"
     # The REST API passes a per-KB credential bundle so it never pollutes
     # process-wide state; only the CLI path needs the legacy global setup.
     if bundle is None:
@@ -983,7 +990,9 @@ def _stdin_is_tty() -> bool:
     callback=_language_option_callback,
     help="Wiki output language (e.g. 'en', 'ko'). Skips the interactive prompt when set.",
 )
-def init(model, language):
+@click.option("--knowledge-profile", type=click.Choice(["generic", "kcs"]), default="generic",
+              help="Concept content profile; existing KBs need explicit schema migration.")
+def init(model, language, knowledge_profile="generic"):
     """Initialise a new knowledge base in the current directory."""
     openkb_dir = Path(".openkb")
     if openkb_dir.exists():
@@ -1032,7 +1041,7 @@ def init(model, language):
     Path("wiki/entities").mkdir(parents=True, exist_ok=True)
 
     # Write wiki files
-    atomic_write_text(Path("wiki/AGENTS.md"), AGENTS_MD)
+    atomic_write_text(Path("wiki/AGENTS.md"), agents_md_for_profile(knowledge_profile))
     atomic_write_text(Path("wiki/index.md"), INDEX_SEED)
     atomic_write_text(Path("wiki/log.md"), "# Operations Log\n\n")
 
@@ -1043,6 +1052,8 @@ def init(model, language):
         "language": language,
         "pageindex_threshold": DEFAULT_CONFIG["pageindex_threshold"],
     }
+    if knowledge_profile != "generic":
+        config["knowledge_profile"] = knowledge_profile
     save_config(openkb_dir / "config.yaml", config)
     atomic_write_json(openkb_dir / "hashes.json", {})
 
@@ -1809,12 +1820,13 @@ def _refresh_schema(wiki_dir: Path) -> bool:
         # bundled AGENTS_MD default at runtime, so there is nothing to refresh.
         return False
     current = agents_file.read_text(encoding="utf-8")
-    if current == AGENTS_MD:
+    desired = agents_md_for_profile(resolve_profile(resolve_effective_config(wiki_dir.parent)[0]))
+    if current == desired:
         return False
     backup = wiki_dir / "AGENTS.md.bak"
-    backup.write_text(current, encoding="utf-8")
+    atomic_write_text(backup, current)
     click.echo(f"  Backed up existing schema to {backup.relative_to(wiki_dir.parent)}")
-    agents_file.write_text(AGENTS_MD, encoding="utf-8")
+    atomic_write_text(agents_file, desired)
     click.echo("  Refreshed wiki/AGENTS.md to the current schema.")
     return True
 
@@ -2484,6 +2496,29 @@ async def run_lint(kb_dir: Path) -> Path | None:
         append_log(kb_dir / "wiki", "lint", f"report → {report_path.name}")
     click.echo(f"\nReport written to {report_path}")
     return report_path
+
+
+@cli.command(name="kcs-audit")
+@click.pass_context
+def kcs_audit(ctx):
+    """Check KCS fields, evidence and links without a model or changing knowledge."""
+    from openkb.kcs import audit_wiki
+    from openkb.schema import get_agents_md
+
+    kb_dir = _find_kb_dir(ctx.obj.get("kb_dir_override"))
+    if kb_dir is None:
+        raise click.ClickException("No knowledge base found")
+    try:
+        if resolve_profile(resolve_effective_config(kb_dir)[0]) != "kcs":
+            raise ValueError("This knowledge base does not use the KCS profile")
+        with kb_read_lock(kb_dir / ".openkb"):
+            get_agents_md(kb_dir / "wiki")
+            report = audit_wiki(kb_dir / "wiki")
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+    if not report["valid"]:
+        ctx.exit(1)
 
 
 @cli.command()
@@ -3533,6 +3568,7 @@ def initialize_kb(
     model: str | None = None,
     api_key: str | None = None,
     openai_api_base: str | None = None,
+    knowledge_profile: str | None = None,
 ) -> dict[str, Any]:
     """Initialize a knowledge base at an explicit directory (REST ``/init``).
 
@@ -3541,6 +3577,8 @@ def initialize_kb(
     optionally writes LLM credentials to a KB-local ``.env``. Raises
     ``FileExistsError`` if the KB is already initialized.
     """
+    if knowledge_profile is not None:
+        resolve_profile({"knowledge_profile": knowledge_profile})
     kb_dir = kb_dir.expanduser().resolve()
     openkb_dir = kb_dir / ".openkb"
     if openkb_dir.exists():
@@ -3579,6 +3617,13 @@ def initialize_kb(
             "pageindex_threshold": DEFAULT_CONFIG["pageindex_threshold"],
         }
         save_config(openkb_dir / "config.yaml", config)
+    # Respect template profiles, and seed the matching schema for new KBs.
+    if knowledge_profile is not None:
+        configured = resolve_effective_config(kb_dir)[0]
+        configured["knowledge_profile"] = knowledge_profile
+        save_config(openkb_dir / "config.yaml", configured)
+    profile = resolve_profile(resolve_effective_config(kb_dir)[0])
+    atomic_write_text(kb_dir / "wiki" / "AGENTS.md", agents_md_for_profile(profile))
     atomic_write_json(openkb_dir / "hashes.json", {})
 
     # Seed KB-local .env: inherit LLM credentials from the project-root .env so

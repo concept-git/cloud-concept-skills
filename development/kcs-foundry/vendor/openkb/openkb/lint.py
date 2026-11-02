@@ -646,4 +646,13 @@ def run_structural_lint(kb_dir: Path) -> str:
     else:
         lines.append("All knowledge pages carry required OKF fields.")
 
+    from openkb.config import resolve_effective_config
+    from openkb.kcs import audit_wiki, resolve_profile
+
+    if resolve_profile(resolve_effective_config(kb_dir)[0]) == "kcs":
+        result = audit_wiki(wiki)
+        lines.append(f"\n### KCS Contract Issues ({len(result['errors'])})")
+        lines.extend(f"- {error}" for error in result["errors"])
+        if result["valid"]:
+            lines.append("KCS contracts and source bindings are consistent; runtime validation not performed.")
     return "\n".join(lines)

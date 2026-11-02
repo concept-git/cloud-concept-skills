@@ -15,6 +15,9 @@
 | references/documents/index.md | 文档读取与来源核对规则 |
 | references/documents/huaweicloud.md | FCAPS 主题到官方来源及契约的指引 |
 | references/documents/catalog.jsonl | 仅含元数据，按关键词搜索命中项 |
+| knowledge/README.md | 特殊案例的检索时机、wiki 路径与证据使用规则 |
+| knowledge/ecs-kb/wiki/ | 原生 KCS 案例、综合模式、实体、摘要和来源，按需读取 |
+| knowledge/ecs-kb/provenance/ | 跨批次原始来源身份、版本与哈希映射 |
 
 F/C/A/P/S 对应 fault/configuration/accounting/performance/security；common 放共享查询。没有命令的类别／环境组合不建空文件。hcloud 网络配置与主机安全分别成册。
 
@@ -24,4 +27,4 @@ KCS 遵循 [Article Structure](https://library.serviceinnovation.org/KCS/KCS_v6/
 
 本地 QA 位于仓库的 `qa/development/huawei-cloud-fcaps-diagnostics/`，历史验证归档在其 `verification/` 下，不随技能分发。维护时先核验帮助及适用查询，再从最终契约复核；结果绑定相应修订，历史通过不沿用为当前修订通过。无适用环境时保留受阻。
 
-文档正文、图片、真实目标、凭据和原始日志留在技能外。文档索引由 QA 的 `documents.py` 生成与检查；补充来源和来源散列分别由 `documents-links.json`、`documents-source.json` 管理。Markdown／HTML 共用文档身份；读取规则仅在文档入口定义。
+官方文档镜像、真实目标、凭据和原始现场日志仍留在技能外。知识外挂可随内部技能交付获准的知识与来源快照，读取入口集中在 knowledge/README.md；生成过程不授予现场操作权限。文档索引由 QA 的 `documents.py` 生成与检查；补充来源和来源散列分别由 `documents-links.json`、`documents-source.json` 管理。Markdown／HTML 共用文档身份；读取规则仅在文档入口定义。

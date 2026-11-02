@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from openkb.kcs import MARKER, SCHEMA as KCS_SCHEMA, resolve_profile
+
 # The compiled page-type subdirectories under wiki/. Shared source of truth
 # for surfaces that enumerate page content (list, lint, status, skill gate).
 PAGE_CONTENT_DIRS = ("summaries", "concepts", "entities")
@@ -63,7 +65,16 @@ Operations: ingest, query, lint
 SCHEMA_MD = AGENTS_MD
 
 
-def get_agents_md(wiki_dir: Path) -> str:
+def agents_md_for_profile(profile: str) -> str:
+    resolve_profile({"knowledge_profile": profile})
+    if profile == "generic":
+        return AGENTS_MD
+    return AGENTS_MD.replace(
+        "Cross-document topic synthesis", "Reusable KCS cases and cross-case patterns"
+    ) + "\n" + KCS_SCHEMA
+
+
+def get_agents_md(wiki_dir: Path, profile: str | None = None) -> str:
     """Return the AGENTS.md content, reading from disk if available.
 
     Args:
@@ -73,7 +84,15 @@ def get_agents_md(wiki_dir: Path) -> str:
         Content of wiki_dir/AGENTS.md if it exists, otherwise the hardcoded
         AGENTS_MD default.
     """
+    if profile is None:
+        from openkb.config import resolve_effective_config
+
+        profile = resolve_profile(resolve_effective_config(wiki_dir.parent)[0])
+    default = agents_md_for_profile(profile)
     agents_file = wiki_dir / "AGENTS.md"
     if agents_file.exists():
-        return agents_file.read_text(encoding="utf-8")
-    return AGENTS_MD
+        current = agents_file.read_text(encoding="utf-8")
+        if (MARKER in current) != (profile == "kcs"):
+            raise ValueError("Knowledge profile/schema mismatch; explicitly refresh wiki/AGENTS.md before compiling")
+        return current
+    return default

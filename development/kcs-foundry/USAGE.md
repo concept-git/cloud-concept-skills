@@ -1,129 +1,318 @@
-# KCS Foundry 接入程序
+# KCS Foundry 新版部署与运行指南
 
-本层调用仓库固定快照的 OpenKB，不修改 `vendor/openkb/`。流程为：选取获准材料 → 原文快照及带行号文本 → OpenKB 编译 wiki → 显式调用 `kcs-extractor` → 检查 KCS 草稿。
+本文只介绍新版原生 KCS 流程，适用于把当前代码移交到另一台电脑、在内网提炼工单，以及后续维护知识库。命令默认从 `cloud-concept-skills` 仓库根目录执行。
 
-## 运行边界
+## 一、这次修改了什么
 
-- 整理、预演、校验和离线测试只需要 Python 3.10+ 标准库。
-- 真正编译和提炼需要安装 OpenKB 的固定依赖，并配置可以处理这些材料的模型。调用的是 Python 接口，不需要启动 Web 服务。
-- 当前版本输入为 UTF-8 文本及代码文件。工单先在内部导出为 Markdown／文本／JSON／CSV 等；PDF、Word、Excel、图片等附件会列入 skipped，需另行转换或明确记录缺口。
-- 材料目录应是已获准处理的选定范围。工具会保留文本原文，不负责自动识别或清除其中的敏感信息。隐藏文件、常见依赖目录不采集，符号链接拒绝跟随。
-- 不执行源材料脚本。真实运行会将材料发送给所配置的模型；内部资料须使用内部获准部署。
+新版流程：**选定工单／外部 skill → 原文快照与带行号文本 → OpenKB 原生 KCS 编译 → 结构和来源校验 → 人工复核 → 内部 Git 提交**。
 
-## 1. 准备材料包
+| 部分 | 主要文件／目录 | 新行为 |
+| --- | --- | --- |
+| 原生 KCS 定义 | `vendor/openkb/openkb/kcs.py`、`schema.py`、`config.py` | 增加 KB 级 `knowledge_profile: kcs`；区分历史案例 `case` 与复用模式 `pattern`；正文采用 Issue、Environment、Resolution、Cause 四字段 |
+| OpenKB 编译 | `vendor/openkb/openkb/agent/compiler.py` | 直接生成／更新 KCS 概念，保留 sources、summaries、entities、索引及 wikilinks；更新时保留旧证据，内容或来源变化使旧复核状态失效 |
+| 命令与校验 | `vendor/openkb/openkb/cli.py`、`lint.py` | 支持 KCS 初始化、schema 刷新和无模型 `kcs-audit`；通用 profile 保留原有行为 |
+| Foundry 接入 | `scripts/extract_kcs.py`、`native_kcs.py`、`validate_kcs.py` | 默认直接编译原生 KCS，保存跨批次来源映射并校验；不再二次调用 `run_skill()` 导出另一套卡片 |
+| 诊断技能外挂 | `../huawei-cloud-fcaps-diagnostics/knowledge/`、该技能 `SKILL.md` | 特殊案例和模式放入 `knowledge/ecs-kb/`，排障时按需读取本地文件 |
+| 构建与测试 | `vendor/openkb/pyproject.toml`、两层 `tests/` | 提供无上游 Git 元数据时的构建版本回退；增加原生编译、来源追溯及协议边界测试 |
 
-以下命令从仓库根目录执行，路径按实际环境替换。目录只需提供一次明确的输入范围；不要将整个 source 仓库默认作为一次处理任务。
+表中未以 `../` 开头的路径相对本 Foundry 目录。独立元技能 `skills/kcs-extractor/` 仍可移交给 Agent 使用；本指南的新版默认流程由编译器直接执行 KCS 规则，不需要 Agent 自动触发元技能。
+
+## 二、先确认运行条件
+
+- Python 3.10+，建议先在目标环境用小包试点。
+- 提炼机器能够访问获准的模型接口；安装依赖需使用可用的包源或预先准备的离线包。
+- 输入先整理为 UTF-8 的 Markdown、文本、JSON、CSV 或支持的代码文件。PDF、Word、Excel、图片附件需另行转换；脚本不负责识图或附件转换。
+- 仅使用获准处理的材料与内部模型。真实运行会把选中材料发送给配置的模型，程序不自动脱敏，也不执行材料里的脚本。
+
+### 模型能力要求
+
+| 使用场景 | 需要的能力 |
+| --- | --- |
+| 本指南的工单／skill 短文本编译 | 普通 chat completion，接受 `response_format: {type: json_object}`，能按提示输出 JSON；不传工具定义，不要求 function calling |
+| OpenKB 自带问答、聊天、技能执行、语义 lint | function calling / tools；`parallel_tool_calls: false` 只是关闭并行，仍然需要工具调用 |
+| 诊断技能读取已生成的本地 wiki | 不需要启动 OpenKB 服务，也不需要调用 OpenKB 的模型 |
+| 材料整理、`--dry-run` 预演 | 无模型，只需 Python 标准库 |
+| 原生结构和来源审计 | 无模型，需要安装 OpenKB 相关依赖 |
+
+**不支持 function calling 不妨碍先试新版编译链路，但仍要验证 JSON 响应模式。** 如果内网接口拒绝 `response_format`，当前版本会报错，需另做兼容适配；不要把关闭工具并行当作修复方案。模型名、网关路径和鉴权方式需由目标部署确认。
+
+## 三、换电脑首次部署
+
+### 1. 移交完整代码
+
+推荐移交整个 `cloud-concept-skills` 仓库，至少保留：
+
+```text
+cloud-concept-skills/
+└── development/
+    ├── kcs-foundry/
+    │   ├── scripts/
+    │   ├── skills/kcs-extractor/
+    │   ├── tests/
+    │   └── vendor/openkb/          # 必须是本仓库中已改造的版本
+    └── huawei-cloud-fcaps-diagnostics/
+        ├── SKILL.md
+        └── knowledge/
+            ├── README.md
+            ├── .gitignore
+            └── ecs-kb/
+                ├── .openkb/config.yaml
+                ├── .openkb/hashes.json
+                └── wiki/          # 包括 AGENTS.md、index.md、log.md
+```
+
+若用 Git 拉取，先确保这批修改及新增文件已提交并同步到目标可访问的仓库。**仅 clone 远端无法获得本机尚未提交的代码。** 内网无法访问远端时，按内部允许的方式移交当前工作目录快照，包含新增文件和隐藏目录。不要只复制诊断技能，也不要用官方 OpenKB 安装包替代这里的修改版。
+
+已有知识时，完整保留 KB 的 wiki、raw、provenance 和 `.openkb/hashes.json`。凭据 `.env` 不随仓库迁移，由目标电脑重新配置。Python 虚拟环境不直接复制，在新电脑重建。
+
+### 2. 创建环境并安装依赖
+
+macOS／Linux 的 Bash 或 Zsh：
 
 ```bash
-python3 development/kcs-foundry/scripts/prepare_materials.py \
+cd /path/to/cloud-concept-skills
+python3 --version
+python3 -m venv workspaces/kcs-env
+source workspaces/kcs-env/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e development/kcs-foundry/vendor/openkb
+openkb --version
+```
+
+后续命令的 `python`、`openkb` 均指这个已激活的环境。重新打开终端后，先回到仓库根目录并重新激活。
+
+Windows PowerShell 可用 `py -3 -m venv workspaces/kcs-env` 创建环境，然后执行 `workspaces\kcs-env\Scripts\Activate.ps1`。不能激活时直接使用该目录下的 `python.exe`，例如 `& .\workspaces\kcs-env\Scripts\python.exe -m pip install -e development/kcs-foundry/vendor/openkb`。下面的多行命令使用 Bash 的反斜杠续行；在 PowerShell 中合并成一行执行。当前离线回归在 macOS／Python 3.10 环境完成，Windows 需在目标机验证。
+
+#### 内网不能访问包源时
+
+优先使用内部镜像。需要离线包时，在与目标机**操作系统、CPU 架构和 Python 版本一致**的可联网环境，用同一份新版源码准备 wheel：
+
+```bash
+python -m pip wheel --wheel-dir /path/to/kcs-wheels ./development/kcs-foundry/vendor/openkb
+```
+
+该命令构建修改版 OpenKB 及其依赖；完成后移交 `kcs-wheels/` 和上述代码目录。目标机新建并激活虚拟环境，再执行：
+
+```bash
+python -m pip install --no-index --find-links /path/to/kcs-wheels openkb
+openkb --version
+```
+
+离线安装使用构建好的 wheel，不再执行需要临时下载构建依赖的 editable 安装。若某个依赖在目标平台没有可用 wheel，需在相同目标环境完成构建后补齐；不要用其他平台的虚拟环境替代。完整隔离网络的离线安装尚需在目标机验收。
+
+### 3. 配置知识库模型
+
+仓库已提供知识库骨架：
+
+```text
+development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb/
+```
+
+直接编辑它的 `.openkb/config.yaml`，无需重新 init，也不要覆盖已有知识：
+
+```yaml
+knowledge_profile: kcs
+language: zh
+model: openai/实际模型名
+pageindex_threshold: 20
+```
+
+`openai/` 是 OpenAI 兼容接口的 LiteLLM provider 前缀，替换实际模型名；其他协议按部署调整。模型必须明确配置在这个 KB 的文件中；初始 `model: null` 会阻止真实导入，避免误用全局默认模型。
+
+在同一个 `ecs-kb/` 根目录创建 `.env`：
+
+```dotenv
+LLM_API_KEY=目标环境的实际凭据
+OPENAI_API_BASE=https://内部网关地址/v1
+```
+
+按网关实际要求填写，地址示例不代表所有网关都使用 `/v1`。不要把密钥放到命令行或 Git。配置模型文件后，提交前也检查模型标识是否属于允许同步的信息。
+
+### 4. 先做无模型检查
+
+```bash
+python -m unittest discover -s development/kcs-foundry/tests -v
+python development/kcs-foundry/scripts/validate_kcs.py \
+  --kb development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
+```
+
+预期测试通过；初始空 KB 的校验可返回 `valid: true`，同时提醒没有 KCS 卡片。这只证明骨架通过机械检查，**不代表模型连接正常或萃取成功**。模型连接与输出能力由下面的小批真实试点验证。
+
+## 四、首次小批运行
+
+### 1. 准备工单或外部 skill
+
+建议先用 1～3 份同类工单，或一个明确范围的外部 skill。工单导出应保留症状、环境／版本、处理过程、实际操作、恢复反馈及原因确认；缺少的信息允许未知，不要补造。
+
+工单示例：
+
+```bash
+python development/kcs-foundry/scripts/prepare_materials.py \
+  --source /path/to/approved-tickets \
+  --kind ticket \
+  --source-name internal-ticket-pilot \
+  --output /path/to/material-pack-01
+```
+
+外部 skill 示例（二选一；若两者都跑，使用不同包目录）：
+
+```bash
+python development/kcs-foundry/scripts/prepare_materials.py \
   --source /path/to/approved-skill \
   --kind skill \
   --source-name vendor/repository \
   --revision source-commit \
   --include SKILL.md \
   --include 'references/*.md' \
-  --include 'references/utils/*.md' \
-  --output /path/to/material-pack
+  --output /path/to/skill-pack-01
 ```
 
-`--include` 可重复，匹配相对输入根目录的路径；没有该选项时采集支持的非隐藏文本文件。默认最多 200 个文件、每个文件 1 MiB；超限时报错，先缩小范围或显式调整限额。排除和不支持的文件写入清单，不假装完整读取。工单使用 `--kind ticket --source-name approved-ticket-alias`；版本不明时省略 `--revision`。
+`--revision` 已知时填写实际版本，否则省略。`--include` 可重复，按相对输入根目录的路径匹配；不填时采集支持的非隐藏文本文件，包含目录下的支持文件。默认最多 200 文件、每文件 1 MiB，超限先缩小范围，也可显式设置 `--max-files`、`--max-file-bytes`。
 
-产物：
+原文包必须放在输入目录和知识库之外，已有包不覆盖。检查命令输出和 `manifest.json` 的 `skipped`，确认附件、不支持格式和排除项是否需要补充转换。
 
 ```text
-material-pack/
-├── manifest.json          # 来源别名、版本、原路径、原文/导入文本哈希、遗漏项
-├── sources/               # 保持原目录关系的逐字节快照
-└── documents/             # 供 OpenKB 导入的带原行号 Markdown
+material-pack-01/
+├── manifest.json       # 来源别名、版本、原路径及两种哈希
+├── sources/            # 逐字节原文快照，保留目录关系
+└── documents/          # 带原行号的 Markdown 导入文本
 ```
 
-包必须放在原始材料目录之外，已有包不覆盖。原文哈希与转换后文档哈希分开保存；不同目录同名文件不会互相覆盖。脚本也包装成文本供静态阅读，源内链接通过清单解析，不要求编译后的 wiki 保留原目录关系。
+隐藏文件、常见依赖目录不采集；选中范围内的符号链接拒绝跟随。原始材料包是独立核对依据，运行中不要改写它。
 
-## 2. 无模型预演
+### 2. 预演
+
+以下使用上面的工单包；若使用 skill 包，替换 `--materials`：
 
 ```bash
-python3 development/kcs-foundry/scripts/extract_kcs.py \
-  --materials /path/to/material-pack \
-  --kb /path/to/ecs-kb \
+python development/kcs-foundry/scripts/extract_kcs.py \
+  --mode native \
+  --materials /path/to/material-pack-01 \
+  --kb development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb \
   --run-id ssh-pilot-01 \
-  --scenario 'SSH 建连超时' \
+  --scenario 'SSH 建连超时试点' \
   --dry-run
 ```
 
-检查材料哈希、路径、任务 ID，并输出调用计划。此模式不导入 OpenKB、不写文件、不调用模型，知识库可以尚未创建。材料包必须与知识库分开，不能放进模型可写的 `output/`；原始包是独立校验依据。
+预演检查材料哈希、路径和任务 ID，打印调用计划；不写文件、不调用模型。检查 `mode`、材料列表、目标 KB 和 run-id 是否符合预期。
 
-## 3. 在目标环境安装并初始化 OpenKB
+**`--scenario` 只是本次任务标签，不是筛选器。** 导入范围由材料包决定，只想提炼 SSH 故障，就先选取对应工单／文件。默认保留来源平台；不通过 `--target-platform` 自动跨云改写，平台适配需有额外来源证据。
 
-下面是部署操作示例，本次实现未执行安装。使用独立环境；源码快照的包版本采用明确的本地标记，避免构建工具误用外层仓库版本。OpenKB 依赖仍按其 pyproject 中的版本安装。
+### 3. 正式编译
 
-```bash
-python3 -m venv workspaces/kcs-env
-SETUPTOOLS_SCM_PRETEND_VERSION_FOR_OPENKB=0.0.0+vendored \
-  workspaces/kcs-env/bin/python -m pip install -e development/kcs-foundry/vendor/openkb
-```
-
-在选定的知识库目录执行该虚拟环境中的 `openkb init --model 'provider/model-id' --language zh`，模型名称换为实际部署的 LiteLLM 标识。初始化前确认终端的当前目录是知识库目录。按内部方式配置知识库 `.env`，不要在命令参数中传密钥。OpenAI 兼容网关可通过 `OPENAI_API_BASE` 指定地址，凭据使用 `LLM_API_KEY`。
-
-模型须明确配置在此知识库的 `.openkb/config.yaml`，接入程序不会仅靠全局默认模型开始生成。凭据和其他设置按固定 OpenKB 的加载规则解析：使用知识库自己的配置可以避免误用其他任务的模型。不要将 `.env` 提交 Git。
-
-知识库可以放在内部仓库的 `knowledge/ecs-kb/`；当前仓库的临时试点也可以放在被忽略的 `workspaces/`。原文包、wiki 和 KCS 草稿是否提交，按内部内容范围决定；接入程序不会自动提交或推送。
-
-## 4. 执行编译与提炼
+使用同一条命令，去掉 `--dry-run`：
 
 ```bash
-workspaces/kcs-env/bin/python development/kcs-foundry/scripts/extract_kcs.py \
-  --materials /path/to/material-pack \
-  --kb /path/to/ecs-kb \
+python development/kcs-foundry/scripts/extract_kcs.py \
+  --mode native \
+  --materials /path/to/material-pack-01 \
+  --kb development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb \
   --run-id ssh-pilot-01 \
-  --scenario 'SSH 建连超时'
+  --scenario 'SSH 建连超时试点'
 ```
 
-这条命令会：
+此步骤会实际请求配置的模型。程序逐份导入文本，生成摘要、创建／更新 KCS 概念和知识关联，记录原文来源，再校验全库。预期输出 `Run phase: completed`；其他状态或非零退出都需检查，不能仅凭 wiki 文件已生成判断成功。
 
-1. 核对材料，安装完整元技能到 `<kb>/skills/kcs-extractor/`。已有同名技能内容不同时停止，由维护者先归档／更名旧版后再更新。
-2. 为本次任务建立原文及清单的可读副本；只复制清单列出的文件。
-3. 用 OpenKB `add_single_file()` 导入每份带行号文档。返回 failed 时停止，不把它当成导入完成，也不开始生成。
-4. 调用 `run_skill()`，告知参考文件、原文映射、来源身份、场景及输出根目录。默认保留来源平台；可用 `--target-platform` 明确目标，但缺少目标契约时仍需记录适配缺口。
-5. 验证输入副本未被改写，检查生成结果；不向正式 `recipes/kcs` 自动同步。
+## 五、产物在哪里，如何复核
 
-目录：
+所有 KB 路径均在诊断技能内：
 
 ```text
-ecs-kb/
-├── .openkb/kcs-foundry/<run-id>/  # 程序维护的计划、可信清单与运行状态
-├── skills/kcs-extractor/         # 元技能及三份参考规则
-├── wiki/                        # OpenKB 编译维护
-└── output/
-    ├── kcs-inputs/<run-id>/      # 模型可读原文与来源映射
-    └── kcs/<run-id>/
-        ├── articles/
-        ├── evidence/
-        ├── extraction-report.md
-        └── validation.json      # 外层程序生成的校验结果
+huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb/
+├── .openkb/
+│   ├── config.yaml、hashes.json
+│   └── kcs-foundry/ssh-pilot-01/   # 计划、逐文档结果及 state.json
+├── raw/kcs-inputs/ssh-pilot-01/    # 清单、原文及导入文本的持久快照
+├── provenance/batches/
+│   └── ssh-pilot-01.json          # 原文→导入文本→wiki来源的哈希映射
+├── wiki/
+│   ├── AGENTS.md                 # KCS schema
+│   ├── index.md、log.md           # 索引和维护日志
+│   ├── sources/                  # 编译器读取的来源文本
+│   ├── summaries/                # 文档摘要与来源入口
+│   ├── concepts/                 # case／pattern，四字段 KCS 卡片
+│   └── entities/                 # 产品、组件等实体
+└── output/kcs/ssh-pilot-01/
+    ├── extraction-report.md      # 本次变化节点与检查说明
+    └── validation.json           # 程序生成的校验结果
 ```
 
-现有 OpenKB runner 的写权限覆盖知识库 `output/` 与 `wiki/explorations/`，不是按 run-id 隔离的文件沙盒；程序要求只写本次输出，并在生成后重新核对输入副本。需要更强任务隔离时，为任务使用独立知识库和运行账号。
+**可检索的知识正文在 `wiki/concepts/`，运行报告在 `output/`。** 案例与模式通过 wikilinks 关联；不需要再复制一套案例到 `references/recipes/kcs/`。某份材料可能没有可复用排障知识，零卡片提示需人工检查材料与模型输出。
 
-已有 run-id 不覆盖，不自动重试。失败时保留现场，查看 `.openkb/kcs-foundry/<run-id>/state.json` 的 phase 与逐文档结果；修复原因后用新 run-id 重跑。OpenKB 对已导入且未变更的文档可返回 skipped。模型异常只记录异常类型，不将请求内容或凭据异常正文写入运行状态。
-
-## 5. 独立校验与纳入知识库
+### 1. 独立校验
 
 ```bash
-python3 development/kcs-foundry/scripts/validate_kcs.py \
-  --materials /path/to/material-pack \
-  --output /path/to/ecs-kb/output/kcs/ssh-pilot-01
+python development/kcs-foundry/scripts/validate_kcs.py \
+  --kb development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
 ```
 
-必须传入原始可信材料包，不能用模型可写的输入副本替代。检查四字段、编号步骤、草稿状态、文章与证据配对、来源路径／哈希／版本、claim 引用关系和输出内文件链接。非零退出表示未通过；生成器正常返回但没有文章，也判失败。
+此命令不调用模型，跨批次检查四字段、证据结构、原文快照、来源哈希、内容哈希、索引和 wiki 链接；非零退出或 `valid: false` 表示未通过。
 
-`valid: true` 只表示上述机械检查通过。`partial` 草稿会给出提醒，仍须核对诊断逻辑、来源段落是否真的支持结论、平台差异及敏感信息。运行验证固定为 not_run，不会凭生成过程升级可信状态。
-
-第一版手动选定文章后纳入诊断技能的 `references/recipes/kcs/`，更新索引、重算移动后的相对链接；来源和验证记录放在权限合适的内部 Git 目录。自动同步、对外发布、内部工单附件转换均不在本版实现中。
-
-## 离线测试
+仅查 OpenKB wiki 内部绑定时，也可运行：
 
 ```bash
-python3 -m unittest discover -s development/kcs-foundry/tests -v
+openkb --kb-dir development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb kcs-audit
 ```
 
-测试使用临时目录和替代后端，覆盖真实文件流转、错误退出与来源篡改等边界；不需要模型或云账号。它们不证明模型提炼质量，也不代替目标部署的真实 OpenKB 集成试点。
+后者不包含 Foundry 原始材料的跨批次追溯检查。模型不支持工具调用时，用上述结构审计；OpenKB 的语义 lint 还需要工具调用能力。
+
+### 2. 人工核对
+
+优先阅读 `wiki/index.md` 和本次报告中的变化卡片，再对照原文与证据检查：
+
+- 工单实际发生的事与来源中的操作建议是否区分清楚。
+- 环境、版本、处理分支和恢复验证是否保留，失败尝试是否被误写为有效方案。
+- Cause 是否确有来源确认，未知原因是否仍写为未知。
+- 多份工单的共同模式是否有证据支撑，矛盾或平台差异是否明确说明。
+- 原文、正文及追溯信息是否适合当前内部仓库的权限范围。
+
+`valid: true` 只表示机械检查通过；报告中的来源语义复核和运行验证仍为 `not_run`。新生成／有变化的卡片默认为 `draft`，不自动提升为已验证。已有的 `reviewed`／`validated` 状态仅在内容、来源及其 `validation_hash` 仍匹配时保留；不要只手改状态冒充复核完成。
+
+### 3. 提交到内部 Git
+
+复核后将技能与知识库作为一个版本提交，至少保留 wiki、raw、provenance、`.openkb/config.yaml` 及 `.openkb/hashes.json`。原文包可按内部材料保留要求单独归档，KB 内持久快照用于后续追溯。
+
+在仓库根目录检查：
+
+```bash
+git status --short
+git diff -- development/huawei-cloud-fcaps-diagnostics
+git add development/huawei-cloud-fcaps-diagnostics
+git diff --cached --stat
+```
+
+确认内容和内部权限后，再按团队流程 commit／push。密钥 `.env`、锁、缓存、临时状态和 `output/` 已有忽略规则，不应提交。本指南展示命令，Foundry 本身不会自动执行 Git 操作；改造程序本身需随首次代码移交一并提交。
+
+## 六、后续如何使用与维护
+
+### 排障电脑只消费已有知识
+
+如果只需要运行诊断技能并读取现有知识，移交完整的诊断技能目录和其中的知识库即可。遵循 `knowledge/README.md` 按“索引 → 少量相关 case／pattern → 必要的来源”读取，无需安装 Foundry 的 Python 依赖或启动 OpenKB。运行诊断技能本身所需的 Agent／云工具按技能原有部署要求准备。
+
+历史案例提供线索，不证明当前故障原因。一次排障不会自动回写 OpenKB；有值得沉淀的新工单后，再显式运行提炼任务。
+
+### 提炼电脑增量导入新材料
+
+继续使用同一 KB，重复“准备新包 → 预演 → 编译 → 校验 → 人工复核 → Git 提交”。不必每次安装依赖，也不重新 init。相同内容可跳过，新增材料会参与相关概念更新。
+
+每次正式运行使用新的 `--run-id`，如 `ssh-pilot-02`；材料包也使用新目录。只在新增／修订材料或明确需要重编译时运行，不需要为读取知识定时运行 OpenKB。
+
+## 七、常见问题与失败处理
+
+| 现象 | 检查与处理 |
+| --- | --- |
+| 提示 OpenKB dependencies unavailable | 确认已激活正确虚拟环境，并安装仓库内修改版 OpenKB；不要混用系统 Python |
+| 提示 Set an explicit KB-local model | 检查目标 KB 的 `.openkb/config.yaml`；`model` 不能为空或仅存在于全局配置 |
+| 请求被网关拒绝／鉴权失败 | 在内部检查该 KB 的 `.env`、模型名、接口路径和凭据；不要向公开报告粘贴密钥或工单请求正文 |
+| 接口不认识 `response_format` | 内网接口的 JSON 模式需适配，当前版本不能靠关闭 function calling 解决 |
+| 只有 ask/chat 或技能执行失败 | 核实模型工具调用能力；它们不属于本指南默认的原生编译链路 |
+| run-id 已存在 | 不覆盖旧任务；检查状态后选新 ID。`--dry-run` 不占用 ID |
+| source hash／snapshot／provenance 校验失败 | 检查来源文件是否被改动、漏拷贝或缺少跨批次记录；不要删除哈希来让检查通过 |
+| 生成失败或校验失败 | 查看 `.openkb/kcs-foundry/<run-id>/state.json`、运行终端及已有报告；保留现场，修复原因后用新 ID 重跑 |
+| schema/profile 不一致 | 确认移交的是新版 KB 骨架与源码；已有通用 KB 的迁移需单独备份、刷新 schema 并重编译，不能只换配置标识 |
+
+**单文档编译失败可回滚该文档；整批不是一个事务。** 后面某份失败时，前面成功的知识和来源映射仍会保留。程序不自动重试；运行状态只记录异常类型，避免将可能含请求资料的异常正文写入报告。重跑前检查已完成范围，相同内容可由 OpenKB 去重。
+
+## 八、验证范围
+
+本次改造在独立环境完成安装验证和 387 项无真实模型测试，覆盖原生编译、更新合并、校验状态失效、wiki 关系、跨批次来源、输入篡改及调用协议边界。测试使用替代模型／后端；实际内网网关、真实工单提炼质量、Windows 及完全离线安装尚需目标环境试点验收。
