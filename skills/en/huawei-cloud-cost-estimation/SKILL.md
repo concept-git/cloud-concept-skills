@@ -62,4 +62,3 @@ For provisioning, read pricing files only for unresolved or changed quotes. Rout
 Match the user's language; give the conclusion, evidence and next step plainly. Complete clear read-only work without repeated permission requests. Ask only for missing decisions and purchase confirmation; report progress on long tasks.
 
 - Permission failure: `references/iam-policies.md`.
-- Field relationships unclear: `references/pricing/rfq-models/rfq-core.yml` and only the relevant billing-mode model.

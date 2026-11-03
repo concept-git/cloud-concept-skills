@@ -1,6 +1,6 @@
 # 询价命令与字段
 
-调用前读 `../gotchas.md` G01–G06。使用 `--cli-output=json` 和当前操作帮助。本文件定义命令字段，`rfq-models/rfq-core.yml` 定义字段关系。 CLI数组用`product_infos.1.*`；报错中的`productInfos`不改变CLI拼写。
+调用前读 `../gotchas.md` G01–G06。使用 `--cli-output=json` 和当前操作帮助。本文件定义命令字段。 CLI数组用`product_infos.1.*`；报错中的`productInfos`不改变CLI拼写。
 
 ## 查资源类型与规格
 

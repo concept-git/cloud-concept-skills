@@ -8,7 +8,6 @@ export PYTHONDONTWRITEBYTECODE=1
 }
 python3 "$ROOT/tools/check-repository-hygiene.py" --repo "$ROOT"
 python3 "$ROOT/tools/validate-localization.py"
-python3 "$ROOT/tools/validate-rfq-semantics.py"
 python3 "$ROOT/tools/validate-gotchas.py"
 python3 "$ROOT/tools/check-context-budget.py"
 if [[ ${1:-} == --local-qa ]]; then
