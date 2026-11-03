@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.7.0 - 2026-11-03
+
+### Fixes
+- Clarify investigation in the FCAPS diagnostics draft: handle simple questions directly, delegate independent investigations in parallel, sequence dependent checks, and let the main agent continue investigation and explanation when subagents are unavailable. (by @AgenticWeb4)
+- Make follow-up steps conditional on remaining work across diagnostic completion, explanation, and output requirements; allow completed tasks to conclude without unnecessary extra steps. (by @AgenticWeb4)
+
+### Documentation
+- Clarify the draft's Huawei Cloud SRE role and remove automatic KCS revision or article drafting from diagnostic completion. (by @AgenticWeb4)
+
+## 1.6.0 - 2026-11-03
+
+### Features
+- Expand the FCAPS diagnostics draft with staged investigation, scoped parallel exploration, hypothesis checks, mitigation and recovery verification, evidence-backed handoffs, and action logs. Require approval of a concrete plan before on-site changes. The draft remains under `development/`, outside the installable catalog. (by @AgenticWeb4)
+
+### Fixes
+- Synchronize both billing scout editions at 2.3.12 for the existing account-selection clarification: establish Huawei Cloud/BSS billing context and the intended account from the request or conversation, reuse an unambiguous account choice, and ask only while the target remains ambiguous. Billing remains read-only. (by @AgenticWeb4)
+
+### Documentation
+- Align the English and Chinese README version tables with billing scout 2.3.12 and cost estimation 3.3.0. (by @AgenticWeb4)
+
 ## 1.5.0 - 2026-10-28
 
 ### Features

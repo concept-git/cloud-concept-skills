@@ -13,8 +13,8 @@ English: [README.md](README.md).
 
 | 技能 | 版本 | 用途 |
 | -------------------------------------------------------------------------------------------- | ----- | ------------------------------------ |
-| [`huawei-cloud-billing-scout-cn`](skills/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.11 | 只读查询余额、消费、扣费归因和对账。 |
-| [`huawei-cloud-cost-estimation-cn`](skills/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.2.7 | 当次响应询价与受控资源开通。 |
+| [`huawei-cloud-billing-scout-cn`](skills/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.12 | 只读查询余额、消费、扣费归因和对账。 |
+| [`huawei-cloud-cost-estimation-cn`](skills/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.3.0 | 当次响应询价与受控资源开通。 |
 | [`huawei-cloud-account-onboarding-cn`](skills/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | 只读查询实名状态并引导人脸扫码。 |
 
 ## 开发中
