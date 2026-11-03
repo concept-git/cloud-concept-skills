@@ -1,9 +1,15 @@
 # Changelog
 
-## Unreleased
+## 1.6.0 - 2026-11-03
+
+### Features
+- Expand the FCAPS diagnostics draft with staged investigation, scoped parallel exploration, hypothesis checks, mitigation and recovery verification, evidence-backed handoffs, and action logs. Require approval of a concrete plan before on-site changes. The draft remains under `development/`, outside the installable catalog. (by @AgenticWeb4)
 
 ### Fixes
-- Prepare billing scout 2.3.12 in both languages to sync the account-selection clarification to ClawHub: establish Huawei Cloud/BSS billing context and the intended account from the request or conversation, reuse an unambiguous account choice, and ask only while the target remains ambiguous. Billing remains read-only.
+- Synchronize both billing scout editions at 2.3.12 for the existing account-selection clarification: establish Huawei Cloud/BSS billing context and the intended account from the request or conversation, reuse an unambiguous account choice, and ask only while the target remains ambiguous. Billing remains read-only. (by @AgenticWeb4)
+
+### Documentation
+- Align the English and Chinese README version tables with billing scout 2.3.12 and cost estimation 3.3.0. (by @AgenticWeb4)
 
 ## 1.5.0 - 2026-10-28
 
