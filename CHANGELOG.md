@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.0 - 2026-11-03
+
+### Fixes
+- Clarify investigation in the FCAPS diagnostics draft: handle simple questions directly, delegate independent investigations in parallel, sequence dependent checks, and let the main agent continue investigation and explanation when subagents are unavailable. (by @AgenticWeb4)
+- Make follow-up steps conditional on remaining work across diagnostic completion, explanation, and output requirements; allow completed tasks to conclude without unnecessary extra steps. (by @AgenticWeb4)
+
+### Documentation
+- Clarify the draft's Huawei Cloud SRE role and remove automatic KCS revision or article drafting from diagnostic completion. (by @AgenticWeb4)
+
 ## 1.6.0 - 2026-11-03
 
 ### Features
