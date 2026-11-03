@@ -1,6 +1,6 @@
 # Pricing commands and fields
 
-Read `../gotchas.md` G01–G06 before calling these APIs. Use `--cli-output=json` and current operation help. This file defines command fields. CLI arrays use `product_infos.1.*`; an API error naming `productInfos` does not change CLI spelling.
+Read `../gotchas.md` G01–G06 before calling these APIs. Use `--cli-output=json` and current operation help. This file owns command fields; `rfq-models/rfq-core.yml` owns their relationships. CLI arrays use `product_infos.1.*`; an API error naming `productInfos` does not change CLI spelling.
 
 ## Resolve resource types and specifications
 

@@ -59,3 +59,4 @@ metadata:
 按用户语言通俗说明结论、依据和下一步。明确的只读工作连续完成，不反复求许可；长流程报告进度。仅询问缺失的决策和必要的购买确认。
 
 - 权限失败：`references/iam-policies.md`。
+- 字段关系不清：`references/pricing/rfq-models/rfq-core.yml`，再读当前计费模式对应模型。
