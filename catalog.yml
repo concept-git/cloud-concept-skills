@@ -11,7 +11,7 @@ skills:
   - finops
   summary: "Analyze Huawei Cloud BSS bills read-only: balances, spending, charge attribution, reconciliation, coupons, and enterprise or partner billing. Use to explain cloud charges and spending; excludes pricing quotes and financial write operations."
   summary_zh: "只读分析华为云 BSS 账单：余额、支出、扣费归因、对账、券包及企业或伙伴账务。适合解释云费用与支出，不提供询价或财务写操作。"
-  version: 2.3.11
+  version: 2.3.12
   agents: &id002
   - cursor
   - claude-code
@@ -37,7 +37,7 @@ skills:
   subdomains: *id001
   summary: "只读分析华为云 BSS 账单：余额、支出、扣费归因、对账、券包及企业或伙伴账务。适合解释云费用与支出，不提供询价或财务写操作。"
   summary_zh: "只读分析华为云 BSS 账单：余额、支出、扣费归因、对账、券包及企业或伙伴账务。适合解释云费用与支出，不提供询价或财务写操作。"
-  version: 2.3.11
+  version: 2.3.12
   agents: *id002
   compatibility: hcloud KooCLI 7.2+, read-only BSS IAM, outbound network; no agent auto-install
   marketplaces: *id003

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+- Prepare billing scout 2.3.12 in both languages to sync the account-selection clarification to ClawHub: establish Huawei Cloud/BSS billing context and the intended account from the request or conversation, reuse an unambiguous account choice, and ask only while the target remains ambiguous. Billing remains read-only.
+
 ## 1.5.0 - 2026-10-28
 
 ### Features

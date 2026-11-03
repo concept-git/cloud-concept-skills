@@ -8,7 +8,7 @@ description:
 metadata:
   language: en
   translation_of: huawei-cloud-billing-scout-cn
-  version: "2.3.11"
+  version: "2.3.12"
   openclaw:
     requires:
       bins: [hcloud]

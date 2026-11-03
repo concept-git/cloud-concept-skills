@@ -4,7 +4,7 @@ description: "Huawei Cloud BSS billing read-only only (not AWS/Azure/other cloud
 metadata:
   language: zh-CN
   translation_of: huawei-cloud-billing-scout
-  version: "2.3.11"
+  version: "2.3.12"
   openclaw:
     requires:
       bins: [hcloud]
