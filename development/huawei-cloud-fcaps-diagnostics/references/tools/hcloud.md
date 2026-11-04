@@ -46,6 +46,6 @@
 
 ## 契约入口
 
-操作形式：`hcloud Service Operation/version`；这是华为云 KooCLI，不是 Hetzner 的同名工具。通用约束见[主入口规则](../../SKILL.md#安全规则)。
+操作形式：`hcloud Service Operation/version`；这是华为云 KooCLI，不是 Hetzner 的同名工具。通用约束见[主入口规则](../../SKILL.md#通用规则)。
 
 [A 计量计费／hcloud](../commands/accounting/hcloud.md) · [共享查询／hcloud](../commands/common/hcloud.md) · [C 配置／hcloud-network](../commands/configuration/hcloud-network.md) · [C 配置／hcloud](../commands/configuration/hcloud.md) · [F 故障／hcloud](../commands/fault/hcloud.md) · [P 性能／hcloud](../commands/performance/hcloud.md) · [S 安全／hcloud-host](../commands/security/hcloud-host.md) · [S 安全／hcloud](../commands/security/hcloud.md)

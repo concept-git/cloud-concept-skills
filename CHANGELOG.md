@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.9.0 - 2026-11-04
+
+### Documentation
+- Consolidate the FCAPS diagnostics draft into workflow, on-demand reading, records and replies, and shared rules. Reuse the FCAPS and KCS indexes, load only the current step's references, and align investigation records with the KCS article structure. (by @AgenticWeb4)
+- Shorten safety and evidence rules, specify sensitive-data redaction and credential handling, and repair three links to renamed sections. (by @AgenticWeb4)
+
+## 1.8.0 - 2026-11-04
+
+### Fixes
+- Answer simple FCAPS knowledge questions directly when reliable information is already available. Query tools or the knowledge base only when needed, and stop once the evidence is sufficient. (by @AgenticWeb4)
+
+### Documentation
+- Use plain Chinese for diagnostic instructions, investigation reports and evidence checks. Add patient listening and considerate, understandable replies to the Huawei Cloud SRE role. (by @AgenticWeb4)
+
 ## 1.7.0 - 2026-11-03
 
 ### Fixes
