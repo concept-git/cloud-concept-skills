@@ -15,4 +15,4 @@ F：事件、故障状态；C：配置、对象关系；A：实际计量和费�
 
 命令四列：完整操作或模式、直接取得的事实、关键输入及缺失来源、必要约束。hcloud ID 保留服务／操作／版本；系统 ID 区分环境和操作模式。详细参数查帮助；决定范围、采样口径或影响的参数保留在契约中。
 
-按工具维护：[hcloud](../tools/hcloud.md) · [Linux](../tools/linux.md) · [Windows](../tools/windows.md) · [Kubernetes](../tools/kubernetes.md)。执行遵守[主入口规则](../../SKILL.md#安全规则)；依赖绑定只在 [Helper](../helpers.md) 定义。
+按工具维护：[hcloud](../tools/hcloud.md) · [Linux](../tools/linux.md) · [Windows](../tools/windows.md) · [Kubernetes](../tools/kubernetes.md)。执行遵守[主入口规则](../../SKILL.md#通用规则)；依赖绑定只在 [Helper](../helpers.md) 定义。

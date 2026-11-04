@@ -19,7 +19,7 @@ status: draft
 2. 用 [ECS/ShowServer/v2](../../commands/configuration/hcloud.md#ecs) 查询实例状态；已有异步任务时用 [ECS/ShowJob/v2](../../commands/fault/hcloud.md#ecs) 核对最终结果。请求被接受不表示启动完成。
 3. 读取 [ECS/ShowServerConsoleOutput/v2](../../commands/fault/hcloud.md#ecs) 的已有控制台日志，按时间定位最后可见的启动阶段。日志缺失记为缺口，不触发重启或重装来补证据。
 4. 目标系统可访问时，经已确认的执行通道读取 Linux 的 [LINUX/kernel-journal](../../commands/fault/linux.md) 或 Windows 的 [WINDOWS/events](../../commands/fault/windows.md)。主机不可访问时保留云侧证据；系统已启动但登录失败则转到[登录诊断](login.md)。
-5. 结合[官方文档指引](../../documents/huaweicloud.md#f-故障)核对适用条件，按[输出要求](../../../SKILL.md#输出)记录失败阶段、支持证据及缺口。后续修复应验证实例状态、系统启动完成和目标业务可用性。
+5. 结合[官方文档指引](../../documents/huaweicloud.md#f-故障)核对适用条件，按[输出要求](../../../SKILL.md#记录与答复)记录失败阶段、支持证据及缺口。后续修复应验证实例状态、系统启动完成和目标业务可用性。
 
 ## Cause
 

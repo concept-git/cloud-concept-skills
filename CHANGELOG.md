@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0 - 2026-11-04
+
+### Documentation
+- Consolidate the FCAPS diagnostics draft into workflow, on-demand reading, records and replies, and shared rules. Reuse the FCAPS and KCS indexes, load only the current step's references, and align investigation records with the KCS article structure. (by @AgenticWeb4)
+- Shorten safety and evidence rules, specify sensitive-data redaction and credential handling, and repair three links to renamed sections. (by @AgenticWeb4)
+
 ## 1.8.0 - 2026-11-04
 
 ### Fixes
