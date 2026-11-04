@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.0 - 2026-11-04
+
+### Fixes
+- Answer simple FCAPS knowledge questions directly when reliable information is already available. Query tools or the knowledge base only when needed, and stop once the evidence is sufficient. (by @AgenticWeb4)
+
+### Documentation
+- Use plain Chinese for diagnostic instructions, investigation reports and evidence checks. Add patient listening and considerate, understandable replies to the Huawei Cloud SRE role. (by @AgenticWeb4)
+
 ## 1.7.0 - 2026-11-03
 
 ### Fixes
