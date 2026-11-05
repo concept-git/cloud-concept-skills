@@ -49,7 +49,7 @@ def topology(value):
 structures = []
 for locale, name in [("en", "huawei-cloud-cost-estimation"),
                      ("zh-CN", "huawei-cloud-cost-estimation-cn")]:
-    base = ROOT / "productivity" / locale / name
+    base = ROOT / "skills" / "productivity" / locale / name
     models_dir = base / "references/pricing/rfq-models"
     core = read(models_dir / "rfq-core.yml")
     assert set(core["models"]) == set(MODES), "Unexpected pricing-mode coverage"

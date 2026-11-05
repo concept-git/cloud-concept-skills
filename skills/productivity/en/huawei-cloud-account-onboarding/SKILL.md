@@ -13,7 +13,7 @@ metadata:
     requires:
       bins: [hcloud]
     primaryEnv: HUAWEICLOUD_SDK_AK
-    homepage: https://github.com/concept-git/cloud-concept-skills/tree/main/productivity/en/huawei-cloud-account-onboarding
+    homepage: https://github.com/concept-git/cloud-concept-skills/tree/main/skills/productivity/en/huawei-cloud-account-onboarding
     envVars:
       - { name: HUAWEICLOUD_SDK_AK, required: false }
       - { name: HUAWEICLOUD_SDK_SK, required: false }

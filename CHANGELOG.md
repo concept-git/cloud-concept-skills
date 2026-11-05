@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Place all four skill categories under `skills/` and update documentation, catalog entries, skill homepages, installer configuration, and validation paths.
+- Mark the FCAPS draft as internal so default installer discovery continues to list only the six published language editions.
+
 ## 1.10.0 - 2026-11-05
 
 ### Improvements

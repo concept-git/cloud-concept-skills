@@ -13,15 +13,16 @@ PUBLISHED = ("engineering", "productivity", "misc")
 
 
 def validate(root):
+    skills = root / "skills"
     for name in CATEGORIES:
-        if not (root / name).is_dir():
-            raise ValueError(f"missing category directory: {name}")
-    for name in ("skills", "development"):
+        if not (skills / name).is_dir():
+            raise ValueError(f"missing category directory: skills/{name}")
+    for name in (*CATEGORIES, "development"):
         if (root / name).exists():
             raise ValueError(f"legacy directory remains: {name}")
 
     config = json.loads((root / "skills.sh.json").read_text())
-    if config.get("paths") != [f"./{name}" for name in PUBLISHED]:
+    if config.get("paths") != [f"./skills/{name}" for name in PUBLISHED]:
         raise ValueError("skills.sh.json paths must list the published categories")
     catalog = yaml.safe_load((root / "catalog.yml").read_text())["skills"]
     grouped = [name for group in config["groupings"] for name in group["skills"]]
@@ -34,11 +35,16 @@ def validate(root):
         if homepage != f"https://github.com/concept-git/cloud-concept-skills/tree/main/{item['path']}":
             raise ValueError(f"skill homepage differs from catalog path: {item['id']}")
 
+    for skill_md in (skills / "in-progress").glob("*/SKILL.md"):
+        meta = yaml.safe_load(skill_md.read_text().split("---", 2)[1])
+        if (meta.get("metadata") or {}).get("internal") is not True:
+            raise ValueError(f"draft must set metadata.internal: true: {skill_md.relative_to(root)}")
+
     documents = [root / name for name in ("README.md", "README-CN.md", "CLAUDE.md")]
     for category in CATEGORIES:
-        documents.extend(path for path in (root / category).rglob("*.md")
+        documents.extend(path for path in (skills / category).rglob("*.md")
                          if not {"vendor", "node_modules", "__pycache__"}
-                         & set(path.relative_to(root / category).parts))
+                         & set(path.relative_to(skills / category).parts))
     for document in documents:
         for target in re.findall(r"\]\(([^\s)]+)\)", document.read_text()):
             url = urlsplit(target)
