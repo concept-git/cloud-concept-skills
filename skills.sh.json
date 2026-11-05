@@ -1,9 +1,10 @@
 {
   "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "paths": ["./engineering", "./productivity", "./misc"],
   "notGrouped": "bottom",
   "groupings": [
     {
-      "title": "Huawei Cloud",
+      "title": "Productivity",
       "description": "Community-maintained billing, quoting, controlled provisioning, and real-name onboarding via KooCLI/BSS.",
       "skills": [
         "huawei-cloud-billing-scout",

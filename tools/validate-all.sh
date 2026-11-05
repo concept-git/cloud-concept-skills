@@ -7,6 +7,7 @@ export PYTHONDONTWRITEBYTECODE=1
   printf 'Usage: %s [--local-qa]\n' "$0" >&2; exit 2;
 }
 python3 "$ROOT/tools/check-repository-hygiene.py" --repo "$ROOT"
+python3 "$ROOT/tools/validate-layout.py"
 python3 "$ROOT/tools/validate-localization.py"
 python3 "$ROOT/tools/validate-rfq-semantics.py"
 python3 "$ROOT/tools/validate-gotchas.py"

@@ -8,7 +8,7 @@ An intentional expansion must review these ceilings and the behavior evals.
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1] / "skills"
+ROOT = Path(__file__).resolve().parents[1] / "productivity"
 LIMITS = {
     "en": {"entry": 4500, "gotchas": 7500, "quote": 20000, "create": 36000, "package": 45000},
     "zh-CN": {"entry": 4000, "gotchas": 6500, "quote": 18000, "create": 35000, "package": 43000},

@@ -16,11 +16,11 @@ credentials/*.json
 .env
 .env.*
 
-# Skill Creator / protocol eval output (repo root or under skills|qa)
+# Skill Creator / protocol eval output (repo root or under a skill category or qa)
 .workspaces/
 *-workspace/
 
-# skill-targeted-audit reports (repo root or skills/)
+# skill-targeted-audit reports (repo root or a skill category)
 skill-gate-report-*.txt
 
 # Maintainer sandboxes
@@ -58,5 +58,5 @@ __pycache__/
 /qa/
 
 # Preserve tracked OpenKB upstream examples and dependency lockfile.
-!/development/kcs-foundry/vendor/openkb/.env.example
-!/development/kcs-foundry/vendor/openkb/frontend/package-lock.json
+!/in-progress/kcs-foundry/vendor/openkb/.env.example
+!/in-progress/kcs-foundry/vendor/openkb/frontend/package-lock.json

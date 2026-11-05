@@ -13,7 +13,7 @@ def validate(root):
     manifests = []
     for locale, name in [("en", "huawei-cloud-cost-estimation"),
                          ("zh-CN", "huawei-cloud-cost-estimation-cn")]:
-        base = root / "skills" / locale / name
+        base = root / "productivity" / locale / name
         gotchas = base / "references/gotchas.md"
         text = gotchas.read_text()
         assert re.findall(r"^- \*\*(G\d{2})", text, re.M) == expected, gotchas

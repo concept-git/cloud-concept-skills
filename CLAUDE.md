@@ -14,15 +14,18 @@ Community-maintained Huawei Cloud skills; this is not an official Huawei Cloud p
 
 | Directory | Contract |
 | --- | --- |
-| `skills/en/<name>/`, `skills/zh-CN/<name>-cn/` | Self-contained install payloads, including required `references/`, assets and runtime scripts. |
+| `productivity/en/<name>/`, `productivity/zh-CN/<name>-cn/` | Self-contained install payloads, including required `references/`, assets and runtime scripts. |
+| `engineering/`, `misc/` | Reserved categories for engineering and other skills. |
+| `in-progress/` | Draft skills and projects, outside the public catalog and default installation list. |
 | `qa/` | Private local validation, fixtures and reports; ignored by Git and absent from public checkouts. |
 | `catalog.yml` | Tracked discovery metadata used by QA and publishing tools. |
+| `skills.sh.json` | Published skill containers and installer groupings; exclude `in-progress/`. |
 | `docs/` | Concise local notes and examples; ignored by Git and never required by QA or distribution. |
 | `tools/`, `.githooks/`, `.github/` | Repository tooling, local commit/push gates and CI. |
 
 Learning copies, downloaded repositories, process notes, raw outputs and generated eval workspaces
 belong outside the checkout, normally in a task-specific temporary directory. Delete them when no
-longer needed. Preserve runtime `skills/**/references/` and maintained fixtures/examples.
+longer needed. Preserve runtime `productivity/**/references/` and maintained fixtures/examples.
 
 ## Change and release rules
 
@@ -43,7 +46,7 @@ longer needed. Preserve runtime `skills/**/references/` and maintained fixtures/
 
 ## Cloud-specific rules
 
-- Keep active drafts under `development/` with optional private `qa/development/`; they are outside the
+- Keep active drafts under `in-progress/` with optional private `qa/in-progress/`; they are outside the
   installable catalog until explicitly promoted. Source-document routing is runtime data, not a study archive.
 - Do not auto-install `hcloud` or collect credentials. Real BSS tests require the skill-specific
   opt-in variable; defaults stay offline. Billing and onboarding remain read-only. Provisioning

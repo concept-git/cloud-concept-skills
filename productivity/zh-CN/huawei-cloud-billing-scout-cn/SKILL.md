@@ -9,7 +9,7 @@ metadata:
     requires:
       bins: [hcloud]
     primaryEnv: HUAWEICLOUD_SDK_AK
-    homepage: https://github.com/concept-git/cloud-concept-skills/tree/main/skills/zh-CN/huawei-cloud-billing-scout-cn
+    homepage: https://github.com/concept-git/cloud-concept-skills/tree/main/productivity/zh-CN/huawei-cloud-billing-scout-cn
     envVars:
       - {name: HUAWEICLOUD_SDK_AK, required: false}
       - {name: HUAWEICLOUD_SDK_SK, required: false}
