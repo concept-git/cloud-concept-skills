@@ -18,7 +18,7 @@ All four categories live under `skills/`.
 | Directory | Purpose |
 | --- | --- |
 | `skills/engineering/` | Engineering skills. Reserved for future additions. |
-| `skills/in-progress/` | Draft skills and projects, including FCAPS diagnostics and KCS Foundry. |
+| `skills/drafts/` | Draft skills and projects, including FCAPS diagnostics and KCS Foundry. |
 | `skills/productivity/` | Published billing, cost-estimation, and account-onboarding skills in English and Simplified Chinese. |
 | `skills/misc/` | Other skills. Reserved for future additions. |
 
@@ -36,12 +36,12 @@ Discovery metadata: [catalog.yml](catalog.yml).
 
 ## In development
 
-[`huawei-cloud-fcaps-diagnostics`](skills/in-progress/huawei-cloud-fcaps-diagnostics/README.md)
+[`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md)
 contains verified diagnostic command contracts and resource helpers for Huawei Cloud
-ECS and related services. Recipes remain planned. It stays under `skills/in-progress/`
+ECS and related services. Recipes remain planned. It stays under `skills/drafts/`
 and is not published as an installable skill.
 
-[`kcs-foundry`](skills/in-progress/kcs-foundry/README.md) contains the KCS knowledge-extraction project and its OpenKB upstream source snapshot.
+[`kcs-foundry`](skills/drafts/kcs-foundry/README.md) contains the KCS knowledge-extraction project and its OpenKB upstream source snapshot.
 
 ## Install
 

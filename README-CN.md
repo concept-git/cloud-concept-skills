@@ -16,7 +16,7 @@ English: [README.md](README.md).
 | 目录 | 用途 |
 | --- | --- |
 | `skills/engineering/` | 工程类技能，当前预留。 |
-| `skills/in-progress/` | 开发中的技能与项目，包括 FCAPS 诊断和 KCS Foundry。 |
+| `skills/drafts/` | 开发中的技能与项目，包括 FCAPS 诊断和 KCS Foundry。 |
 | `skills/productivity/` | 已发布的账单分析、成本估算与账号实名认证技能，保留中英文版本。 |
 | `skills/misc/` | 其他技能，当前预留。 |
 
@@ -32,11 +32,11 @@ English: [README.md](README.md).
 
 ## 开发中
 
-[`huawei-cloud-fcaps-diagnostics`](skills/in-progress/huawei-cloud-fcaps-diagnostics/README.md)
+[`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md)
 已完成华为云 ECS 及关联服务的诊断命令契约与资源衔接 Helper，场景 Recipe 仅规划。
-当前独立存放在 `skills/in-progress/`，尚未发布为可安装技能。
+当前独立存放在 `skills/drafts/`，尚未发布为可安装技能。
 
-[`kcs-foundry`](skills/in-progress/kcs-foundry/README.md) 存放 KCS 知识提炼项目及 OpenKB 上游源码快照。
+[`kcs-foundry`](skills/drafts/kcs-foundry/README.md) 存放 KCS 知识提炼项目及 OpenKB 上游源码快照。
 
 ## 安装
 

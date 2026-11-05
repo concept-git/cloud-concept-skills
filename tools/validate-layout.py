@@ -8,7 +8,7 @@ from urllib.parse import unquote, urlsplit
 
 import yaml
 
-CATEGORIES = ("engineering", "in-progress", "productivity", "misc")
+CATEGORIES = ("engineering", "drafts", "productivity", "misc")
 PUBLISHED = ("engineering", "productivity", "misc")
 
 
@@ -17,9 +17,11 @@ def validate(root):
     for name in CATEGORIES:
         if not (skills / name).is_dir():
             raise ValueError(f"missing category directory: skills/{name}")
-    for name in (*CATEGORIES, "development"):
+    for name in (*CATEGORIES, "development", "in-progress"):
         if (root / name).exists():
             raise ValueError(f"legacy directory remains: {name}")
+    if (skills / "in-progress").exists():
+        raise ValueError("legacy directory remains: skills/in-progress")
 
     config = json.loads((root / "skills.sh.json").read_text())
     if config.get("paths") != [f"./skills/{name}" for name in PUBLISHED]:
@@ -35,7 +37,7 @@ def validate(root):
         if homepage != f"https://github.com/concept-git/cloud-concept-skills/tree/main/{item['path']}":
             raise ValueError(f"skill homepage differs from catalog path: {item['id']}")
 
-    for skill_md in (skills / "in-progress").glob("*/SKILL.md"):
+    for skill_md in (skills / "drafts").glob("*/SKILL.md"):
         meta = yaml.safe_load(skill_md.read_text().split("---", 2)[1])
         if (meta.get("metadata") or {}).get("internal") is not True:
             raise ValueError(f"draft must set metadata.internal: true: {skill_md.relative_to(root)}")

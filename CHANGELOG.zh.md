@@ -3,6 +3,7 @@
 ## 未发布
 
 ### 改进
+- 将 `skills/in-progress/` 改名为 `skills/drafts/`，统一采用 `engineering`、`drafts`、`productivity`、`misc` 四个分类名称。
 - 将四个技能分类统一放在 `skills/` 下，同步更新文档、目录索引、技能主页、安装配置和校验路径。
 - 将 FCAPS 草稿标记为内部技能，默认安装列表继续保持六个已发布的中英文版本。
 

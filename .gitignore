@@ -64,3 +64,5 @@ __pycache__/
 !/in-progress/kcs-foundry/vendor/openkb/frontend/package-lock.json
 !/skills/in-progress/kcs-foundry/vendor/openkb/.env.example
 !/skills/in-progress/kcs-foundry/vendor/openkb/frontend/package-lock.json
+!/skills/drafts/kcs-foundry/vendor/openkb/.env.example
+!/skills/drafts/kcs-foundry/vendor/openkb/frontend/package-lock.json

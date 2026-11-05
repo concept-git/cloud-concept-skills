@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Improvements
+- Rename `skills/in-progress/` to `skills/drafts/`, retaining the four categories `engineering`, `drafts`, `productivity`, and `misc`.
 - Place all four skill categories under `skills/` and update documentation, catalog entries, skill homepages, installer configuration, and validation paths.
 - Mark the FCAPS draft as internal so default installer discovery continues to list only the six published language editions.
 
