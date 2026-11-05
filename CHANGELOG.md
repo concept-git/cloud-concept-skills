@@ -6,7 +6,7 @@
 - Organize skills into `engineering/`, `in-progress/`, `productivity/`, and `misc/`. Move the three bilingual cloud capabilities into `productivity/` and the existing drafts and projects into `in-progress/`. (by @AgenticWeb4)
 
 ### Fixes
-- Keep default installer discovery limited to the six published language editions. Update catalog, homepage, validation, and ignore paths for the new layout. (by @AgenticWeb4)
+- Keep default installer discovery limited to the six published language editions. Update catalog, homepage, validation, and ignore paths for the new layout, preserving historical vendor exceptions for release checks. (by @AgenticWeb4)
 
 ### Validation
 - Add checks for category directories, installer entries, skill homepages, and maintained local links to the public validation command. (by @AgenticWeb4)

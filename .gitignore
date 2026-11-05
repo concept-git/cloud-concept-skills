@@ -57,6 +57,8 @@ __pycache__/
 # Private maintainer QA; never commit or publish
 /qa/
 
-# Preserve tracked OpenKB upstream examples and dependency lockfile.
+# Preserve OpenKB examples and lockfiles at current and historical paths for release history checks.
+!/development/kcs-foundry/vendor/openkb/.env.example
+!/development/kcs-foundry/vendor/openkb/frontend/package-lock.json
 !/in-progress/kcs-foundry/vendor/openkb/.env.example
 !/in-progress/kcs-foundry/vendor/openkb/frontend/package-lock.json
