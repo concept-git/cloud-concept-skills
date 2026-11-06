@@ -129,13 +129,42 @@ class NativePipelineTests(unittest.TestCase):
             run_pipeline(package, self.kb, "failed", "SSH", backend=self.backend(manifest, fail=True))
         self.assertFalse((self.kb / "provenance/batches/failed.json").exists())
 
-    def test_native_platform_rewrite_is_not_implicit(self):
-        from extract_kcs import plan_run
+    def test_existing_run_is_not_overwritten_and_bad_profile_stops_early(self):
+        from extract_kcs import run_pipeline
         from foundry_common import FoundryError
 
-        package, _ = self.package("ticket-a")
+        package, manifest = self.package("ticket-a")
+        run_pipeline(package, self.kb, "first", "SSH", backend=self.backend(manifest))
+        previous = (self.kb / ".openkb/kcs-foundry/first/state.json").read_bytes()
         with self.assertRaises(FoundryError):
-            plan_run(package, self.kb, "test", "SSH", "another-cloud")
+            run_pipeline(package, self.kb, "first", "SSH", backend=self.backend(manifest))
+        self.assertEqual(previous, (self.kb / ".openkb/kcs-foundry/first/state.json").read_bytes())
+        backend = self.backend(manifest)
+        backend.profile = "generic"
+        with self.assertRaises(FoundryError):
+            run_pipeline(package, self.kb, "second", "SSH", backend=backend)
+        self.assertFalse((self.kb / ".openkb/kcs-foundry/second").exists())
+
+    def test_changed_input_during_compile_is_detected(self):
+        from extract_kcs import run_pipeline
+        from foundry_common import FoundryError
+
+        package, manifest = self.package("ticket-a")
+        backend = self.backend(manifest)
+        ingest = backend.ingest
+
+        def tamper(path, kb):
+            result = ingest(path, kb)
+            snapshot = kb / "raw/kcs-inputs/tampered" / manifest["sources"][0]["snapshot"]
+            snapshot.write_text("changed")
+            return result
+
+        backend.ingest = tamper
+        with self.assertRaises(FoundryError):
+            run_pipeline(package, self.kb, "tampered", "SSH", backend=backend)
+        state = json.loads((self.kb / ".openkb/kcs-foundry/tampered/state.json").read_text())
+        self.assertEqual(state["phase"], "failed")
+
 
 
 if __name__ == "__main__":

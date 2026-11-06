@@ -7,7 +7,7 @@ description: 从排障 skill、recipe 或工单中提炼可追溯的 KCS 知识�
 
 把材料中的处理知识整理为 Issue、Environment、Resolution、Cause 四字段文章，并单独交付来源和缺口记录。一次事件的结论与可复用的方法分别表达；产物保持 `status: draft`，提炼完成不代表运行验证通过。
 
-本技能用于独立提炼与显式 `--mode export` 导出。Foundry 默认 `native` 模式由 OpenKB 编译器的 KCS profile 直接维护 wiki，不会再调用本技能；原生 schema 与程序校验规则以 `openkb/kcs.py` 为准。独立导出的来源／文章契约仍按本目录的参考文件执行。
+本技能用于独立提炼。Foundry 由 OpenKB 编译器的 KCS profile 直接维护 wiki，不安装或调用本技能；原生 schema 与程序校验规则以 `openkb/kcs.py` 为准。独立导出的来源／文章契约仍按本目录的参考文件执行。
 
 ## 输入与边界
 

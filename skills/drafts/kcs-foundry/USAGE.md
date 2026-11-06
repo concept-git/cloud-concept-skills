@@ -186,7 +186,6 @@ material-pack-01/
 
 ```bash
 python skills/drafts/kcs-foundry/scripts/extract_kcs.py \
-  --mode native \
   --materials /path/to/material-pack-01 \
   --kb skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb \
   --run-id ssh-pilot-01 \
@@ -196,7 +195,7 @@ python skills/drafts/kcs-foundry/scripts/extract_kcs.py \
 
 预演检查材料哈希、路径和任务 ID，打印调用计划；不写文件、不调用模型。检查 `mode`、材料列表、目标 KB 和 run-id 是否符合预期。
 
-**`--scenario` 只是本次任务标签，不是筛选器。** 导入范围由材料包决定，只想提炼 SSH 故障，就先选取对应工单／文件。默认保留来源平台；不通过 `--target-platform` 自动跨云改写，平台适配需有额外来源证据。
+**`--scenario` 只是本次任务标签，不是筛选器。** 导入范围由材料包决定，只想提炼 SSH 故障，就先选取对应工单／文件。默认保留来源平台；平台适配需有额外来源证据，接入程序只保留来源环境。
 
 ### 3. 正式编译
 
@@ -204,7 +203,6 @@ python skills/drafts/kcs-foundry/scripts/extract_kcs.py \
 
 ```bash
 python skills/drafts/kcs-foundry/scripts/extract_kcs.py \
-  --mode native \
   --materials /path/to/material-pack-01 \
   --kb skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb \
   --run-id ssh-pilot-01 \
@@ -321,4 +319,12 @@ git diff --cached --stat
 
 ## 八、验证范围
 
-本次改造在独立环境完成安装验证和 387 项无真实模型测试，覆盖原生编译、更新合并、校验状态失效、wiki 关系、跨批次来源、输入篡改及调用协议边界。测试使用替代模型／后端；实际内网网关、真实工单提炼质量、Windows 及完全离线安装尚需目标环境试点验收。
+此前改造在独立环境完成安装验证和无真实模型测试；清理旧导出流程后的测试以当前测试集为准。覆盖原生编译、更新合并、校验状态失效、wiki 关系、跨批次来源、输入篡改及调用协议边界。测试使用替代模型／后端；实际内网网关、真实工单提炼质量、Windows 及完全离线安装尚需目标环境试点验收。
+
+## 接口收敛说明
+
+Foundry 只维护“材料 → 原生 KCS wiki → 审计”一条链路，已删除旧 export 分支。运行 extract_kcs.py 不再传 `--mode`、`--max-turns` 或 `--target-platform`；校验只使用 `validate_kcs.py --kb`，不再支持 `--output/--materials` 的独立导出校验。现有 wiki、来源映射和持久原文不迁移、不删除。
+
+独立元技能仍可手动移交内部 Agent，但不再由 Foundry 安装或执行。OpenKB 自带的 ask/chat、skill runner 和语义 lint 仍是其通用能力，未在这次清理中删除。
+
+KCS profile 默认只在显式设置了 `knowledge_profile: kcs` 的知识库生效；通用 profile 不变。已有通用 KB 需备份、显式刷新 schema 并重新编译，不能仅换配置标识。KCS 证据与来源指纹由程序绑定，新内容为 draft；移除来源会使旧复核失效，需重新整理与核对。结构审计不是语义或运行验证。

@@ -13,6 +13,6 @@
   "local_modifications": {
     "date": "2026-11-01",
     "description": "Native KCS concept profile, evidence/source bindings, offline audit, Foundry integration; generic profile retained",
-    "details": "vendor/openkb/KCS_PROFILE.md"
+    "details": "USAGE.md"
   }
 }
