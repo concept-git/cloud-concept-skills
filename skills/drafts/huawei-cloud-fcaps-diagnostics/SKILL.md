@@ -46,6 +46,7 @@ metadata:
 - 查现场事实，从 [FCAPS 地图](references/commands/index.md)选择工具和环境。
 - 查诊断步骤，从 [KCS 场景索引](references/recipes/index.md)选择文章并核对适用条件。
 - 问题不明时，读[分诊](references/triage.md)。
+- 特殊报错、版本组合或通用指引无法解释的观测，按[知识外挂入口](knowledge/README.md)读取相关案例、模式及来源；历史知识须由当前证据验证，读取不启动 OpenKB，也不自动回写。
 
 只读当前步骤所需内容，按需补读工具说明和[参数与资源映射](references/helpers.md)。需要核对产品规则或解释异常时，按[官方文档指引](references/documents/index.md)查阅华为云帮助中心的相关资料。复用仍适用的已有信息，切换工具或环境时重新核对。
 

@@ -84,6 +84,10 @@ api = ["openkb[web]"]
 [tool.hatch.version]
 source = "vcs"
 
+# This vendored snapshot intentionally has no upstream .git directory.
+[tool.hatch.version.raw-options]
+fallback_version = "0.0.0+kcs"
+
 # The Workbench web bundle (openkb/web) is git-ignored but must ship in the
 # published package. `artifacts` force-includes it into both the sdist and the
 # wheel when present (built by `npm run build`, e.g. in release CI). When it is

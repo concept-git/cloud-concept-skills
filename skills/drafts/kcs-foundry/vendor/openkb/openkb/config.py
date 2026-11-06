@@ -31,6 +31,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "model": "gpt-5.4",
     "language": "en",
     "pageindex_threshold": 20,
+    # Deliberately KB-local: a global default must not migrate unrelated wikis.
+    "knowledge_profile": "generic",
     # A GLOBAL_SCALAR_KEY like the three above, so the merged `effective` dict
     # always carries it (the layering/`sources` logic is type-agnostic). A
     # global/KB list overrides it wholesale; resolve_entity_types cleans the

@@ -9,5 +9,10 @@
   "retrieval_method": "git clone --depth 1",
   "shallow": true,
   "license": "Apache-2.0",
-  "license_file": "vendor/openkb/LICENSE"
+  "license_file": "vendor/openkb/LICENSE",
+  "local_modifications": {
+    "date": "2026-11-01",
+    "description": "Native KCS concept profile, evidence/source bindings, offline audit, Foundry integration; generic profile retained",
+    "details": "USAGE.md"
+  }
 }
