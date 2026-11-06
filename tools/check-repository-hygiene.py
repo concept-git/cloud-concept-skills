@@ -27,6 +27,7 @@ def ignored(root, files):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", default=".", help="Git worktree to inspect")
+    parser.add_argument("--remote", default="origin", help="Push destination name or URL")
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--staged", action="store_true", help="Inspect the complete proposed index")
     modes.add_argument("--revision", help="Inspect one committed tree")
@@ -35,11 +36,16 @@ def main():
     root = Path(os.fsdecode(git(args.repo, "rev-parse", "--show-toplevel").stdout).strip())
     revisions = set()
     if args.pre_push:
+        published = set()
+        for line in git(root, "ls-remote", "--refs", "--", args.remote).stdout.splitlines():
+            revision = line.split()[0].decode()
+            if git(root, "cat-file", "-e", revision + "^{commit}", check=False).returncode == 0:
+                published.add(revision)
         for line in sys.stdin:
             _, local, _, remote = line.split()
             if set(local) == {"0"}:
                 continue
-            rev_args = [local]
+            rev_args = [local, *("^" + revision for revision in sorted(published))]
             if set(remote) != {"0"} and git(root, "cat-file", "-e", remote, check=False).returncode == 0:
                 rev_args.append("^" + remote)
             revisions.update(git(root, "rev-list", *rev_args).stdout.decode().splitlines())
