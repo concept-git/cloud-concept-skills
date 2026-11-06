@@ -1,0 +1,6 @@
+[submodule "skills/misc/skills-list"]
+	path = skills/misc/frontend-design/skills-list
+	url = https://github.com/daoxianglaonong/skills-list.git
+[submodule "skills/misc/web-quality/MetaPQP"]
+	path = skills/misc/web-quality/MetaPQP
+	url = https://github.com/vi-vi-vi-vi-vivian/MetaPQP.git

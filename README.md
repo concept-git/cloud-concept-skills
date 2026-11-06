@@ -20,9 +20,17 @@ All four categories live under `skills/`.
 | `skills/engineering/` | Engineering skills. Reserved for future additions. |
 | `skills/drafts/` | Draft skills and projects, including FCAPS diagnostics and KCS Foundry. |
 | `skills/productivity/` | Published billing, cost-estimation, and account-onboarding skills in English and Simplified Chinese. |
-| `skills/misc/` | Other skills. Reserved for future additions. |
+| `skills/misc/` | Other skills and projects grouped by function, including frontend design and website quality checks. |
 
 `skills.sh.json` lists the published skill containers for installer discovery. Drafts remain outside the public catalog and default installation list.
+
+The [skills-list](https://github.com/daoxianglaonong/skills-list) submodule lives in `skills/misc/frontend-design/skills-list/`.
+It contains page themes, responsive design, and design audits.
+
+The [MetaPQP](https://github.com/vi-vi-vi-vi-vivian/MetaPQP) submodule lives in `skills/misc/web-quality/MetaPQP/`.
+It provides website experience checks and page comparisons.
+
+After cloning this repository, run `git submodule update --init` to download these submodules.
 
 ## Skills
 

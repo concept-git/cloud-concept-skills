@@ -2,6 +2,7 @@
 """Check category directories, installer metadata, and maintained local links."""
 import argparse
 import json
+import os
 import re
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -44,9 +45,12 @@ def validate(root):
 
     documents = [root / name for name in ("README.md", "README-CN.md", "CLAUDE.md")]
     for category in CATEGORIES:
-        documents.extend(path for path in (skills / category).rglob("*.md")
-                         if not {"vendor", "node_modules", "__pycache__"}
-                         & set(path.relative_to(skills / category).parts))
+        for directory, names, files in os.walk(skills / category):
+            base = Path(directory)
+            names[:] = [name for name in names
+                        if name not in {"vendor", "node_modules", "__pycache__"}
+                        and not (base / name / ".git").exists()]
+            documents.extend(base / name for name in files if name.endswith(".md"))
     for document in documents:
         for target in re.findall(r"\]\(([^\s)]+)\)", document.read_text()):
             url = urlsplit(target)

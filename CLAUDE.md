@@ -16,7 +16,8 @@ Community-maintained Huawei Cloud skills; this is not an official Huawei Cloud p
 | --- | --- |
 | `skills/` | Parent directory for all four skill categories. |
 | `skills/productivity/en/<name>/`, `skills/productivity/zh-CN/<name>-cn/` | Self-contained install payloads, including required `references/`, assets and runtime scripts. |
-| `skills/engineering/`, `skills/misc/` | Reserved categories for engineering and other skills. |
+| `skills/engineering/` | Reserved category for engineering skills. |
+| `skills/misc/` | Other skills and projects grouped by function, with Git submodules under `frontend-design/` and `web-quality/`. |
 | `skills/drafts/` | Draft skills and projects, outside the public catalog and default installation list. |
 | `qa/` | Private local validation, fixtures and reports; ignored by Git and absent from public checkouts. |
 | `catalog.yml` | Tracked discovery metadata used by QA and publishing tools. |

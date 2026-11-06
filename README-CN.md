@@ -18,9 +18,15 @@ English: [README.md](README.md).
 | `skills/engineering/` | 工程类技能，当前预留。 |
 | `skills/drafts/` | 开发中的技能与项目，包括 FCAPS 诊断和 KCS Foundry。 |
 | `skills/productivity/` | 已发布的账单分析、成本估算与账号实名认证技能，保留中英文版本。 |
-| `skills/misc/` | 其他技能，当前预留。 |
+| `skills/misc/` | 其他技能与项目，按功能分类，包含前端设计与网页质量检查子模块。 |
 
 `skills.sh.json` 声明供安装器发现的已发布技能目录。草稿不进入公开索引和默认安装列表。
+
+[skills-list](https://github.com/daoxianglaonong/skills-list) 子模块位于 `skills/misc/frontend-design/skills-list/`，主要提供页面主题、响应式设计和设计验收技能。
+
+[MetaPQP](https://github.com/vi-vi-vi-vi-vivian/MetaPQP) 子模块位于 `skills/misc/web-quality/MetaPQP/`，主要提供官网体验检查和页面对比。
+
+克隆本仓库后，运行 `git submodule update --init` 下载这些子模块。
 
 ## 技能
 
