@@ -7,26 +7,41 @@ controlled provisioning, and account real-name onboarding. Three capabilities sh
 skills: English uses the base name and Simplified Chinese adds `-cn`. This project is not an
 official Huawei Cloud product.
 
-Every skill keeps its runtime payload under `skills/<locale>/<name>/`; QA and evaluations remain private on the maintainer's machine and are not committed or installed.
+Published skills keep their runtime payload under `skills/productivity/<locale>/<name>/`; QA and evaluations remain private on the maintainer's machine and are not committed or installed.
 
 中文说明见 [README-CN.md](README-CN.md).
+
+## Directory layout
+
+All four categories live under `skills/`.
+
+| Directory | Purpose |
+| --- | --- |
+| `skills/engineering/` | Engineering skills. Reserved for future additions. |
+| `skills/drafts/` | Draft skills and projects, including FCAPS diagnostics and KCS Foundry. |
+| `skills/productivity/` | Published billing, cost-estimation, and account-onboarding skills in English and Simplified Chinese. |
+| `skills/misc/` | Other skills. Reserved for future additions. |
+
+`skills.sh.json` lists the published skill containers for installer discovery. Drafts remain outside the public catalog and default installation list.
 
 ## Skills
 
 | English | 中文 | Version | Purpose |
 | --- | --- | --- | --- |
-| [`huawei-cloud-billing-scout`](skills/en/huawei-cloud-billing-scout/SKILL.md) | [`huawei-cloud-billing-scout-cn`](skills/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.12 | Read-only billing analysis and reconciliation. |
-| [`huawei-cloud-cost-estimation`](skills/en/huawei-cloud-cost-estimation/SKILL.md) | [`huawei-cloud-cost-estimation-cn`](skills/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.3.0 | Current-response quotes and guarded provisioning. |
-| [`huawei-cloud-account-onboarding`](skills/en/huawei-cloud-account-onboarding/SKILL.md) | [`huawei-cloud-account-onboarding-cn`](skills/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | Read-only real-name status and face-scan guidance. |
+| [`huawei-cloud-billing-scout`](skills/productivity/en/huawei-cloud-billing-scout/SKILL.md) | [`huawei-cloud-billing-scout-cn`](skills/productivity/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.12 | Read-only billing analysis and reconciliation. |
+| [`huawei-cloud-cost-estimation`](skills/productivity/en/huawei-cloud-cost-estimation/SKILL.md) | [`huawei-cloud-cost-estimation-cn`](skills/productivity/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.3.0 | Current-response quotes and guarded provisioning. |
+| [`huawei-cloud-account-onboarding`](skills/productivity/en/huawei-cloud-account-onboarding/SKILL.md) | [`huawei-cloud-account-onboarding-cn`](skills/productivity/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | Read-only real-name status and face-scan guidance. |
 
 Discovery metadata: [catalog.yml](catalog.yml).
 
 ## In development
 
-[`huawei-cloud-fcaps-diagnostics`](development/huawei-cloud-fcaps-diagnostics/README.md)
+[`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md)
 contains verified diagnostic command contracts and resource helpers for Huawei Cloud
-ECS and related services. Recipes remain planned. It stays under `development/`
+ECS and related services. Recipes remain planned. It stays under `skills/drafts/`
 and is not published as an installable skill.
+
+[`kcs-foundry`](skills/drafts/kcs-foundry/README.md) contains the KCS knowledge-extraction project and its OpenKB upstream source snapshot.
 
 ## Install
 
@@ -74,7 +89,7 @@ npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-accou
 npx --yes skills add concept-git/cloud-concept-skills --list
 ```
 
-English payloads live in `skills/en/`; Simplified Chinese payloads live in `skills/zh-CN/` and keep the `-cn` skill names. ClawHub publishes English editions only.
+English payloads live in `skills/productivity/en/`; Simplified Chinese payloads live in `skills/productivity/zh-CN/` and keep the `-cn` skill names. ClawHub publishes English editions only.
 
 Billing and onboarding remain read-only. Provisioning follows the skill allowlist, cost review, and confirmation gates; unsubscribe is console-guided only.
 

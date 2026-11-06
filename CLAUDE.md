@@ -14,15 +14,19 @@ Community-maintained Huawei Cloud skills; this is not an official Huawei Cloud p
 
 | Directory | Contract |
 | --- | --- |
-| `skills/en/<name>/`, `skills/zh-CN/<name>-cn/` | Self-contained install payloads, including required `references/`, assets and runtime scripts. |
+| `skills/` | Parent directory for all four skill categories. |
+| `skills/productivity/en/<name>/`, `skills/productivity/zh-CN/<name>-cn/` | Self-contained install payloads, including required `references/`, assets and runtime scripts. |
+| `skills/engineering/`, `skills/misc/` | Reserved categories for engineering and other skills. |
+| `skills/drafts/` | Draft skills and projects, outside the public catalog and default installation list. |
 | `qa/` | Private local validation, fixtures and reports; ignored by Git and absent from public checkouts. |
 | `catalog.yml` | Tracked discovery metadata used by QA and publishing tools. |
+| `skills.sh.json` | Published skill containers and installer groupings; exclude `skills/drafts/`. |
 | `docs/` | Concise local notes and examples; ignored by Git and never required by QA or distribution. |
 | `tools/`, `.githooks/`, `.github/` | Repository tooling, local commit/push gates and CI. |
 
 Learning copies, downloaded repositories, process notes, raw outputs and generated eval workspaces
 belong outside the checkout, normally in a task-specific temporary directory. Delete them when no
-longer needed. Preserve runtime `skills/**/references/` and maintained fixtures/examples.
+longer needed. Preserve runtime `skills/productivity/**/references/` and maintained fixtures/examples.
 
 ## Change and release rules
 
@@ -43,8 +47,9 @@ longer needed. Preserve runtime `skills/**/references/` and maintained fixtures/
 
 ## Cloud-specific rules
 
-- Keep active drafts under `development/` with optional private `qa/development/`; they are outside the
+- Keep active drafts under `skills/drafts/` with optional private `qa/drafts/`; they are outside the
   installable catalog until explicitly promoted. Source-document routing is runtime data, not a study archive.
+  Set `metadata.internal: true` in draft `SKILL.md` files so default installer discovery skips them.
 - Do not auto-install `hcloud` or collect credentials. Real BSS tests require the skill-specific
   opt-in variable; defaults stay offline. Billing and onboarding remain read-only. Provisioning
   stays within the allowlist and confirmation gates; unsubscribe stays console-only.

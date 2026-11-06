@@ -10,7 +10,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ROOT / "skills"
+SKILLS = ROOT / "skills" / "productivity"
 EN_SKILLS = SKILLS / "en"
 CN_SKILLS = SKILLS / "zh-CN"
 CATALOG = ROOT / "catalog.yml"
@@ -82,7 +82,7 @@ for base in bases:
             fail(f"catalog entry missing: {expected}")
         locale = "zh-CN" if expected.endswith("-cn") else "en"
         entry = catalog_by_id[expected]
-        if entry.get("path") != f"skills/{locale}/{expected}":
+        if entry.get("path") != f"skills/productivity/{locale}/{expected}":
             fail(f"catalog path mismatch: {expected}")
         if entry.get("language") != ("zh-CN" if locale == "zh-CN" else "en"):
             fail(f"catalog language mismatch: {expected}")

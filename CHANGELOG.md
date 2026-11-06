@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+- Rename `skills/in-progress/` to `skills/drafts/`, retaining the four categories `engineering`, `drafts`, `productivity`, and `misc`.
+- Place all four skill categories under `skills/` and update documentation, catalog entries, skill homepages, installer configuration, and validation paths.
+- Mark the FCAPS draft as internal so default installer discovery continues to list only the six published language editions.
+
+## 1.10.0 - 2026-11-05
+
+### Improvements
+- Organize skills into `engineering/`, `in-progress/`, `productivity/`, and `misc/`. Move the three bilingual cloud capabilities into `productivity/` and the existing drafts and projects into `in-progress/`. (by @AgenticWeb4)
+
+### Fixes
+- Keep default installer discovery limited to the six published language editions. Update catalog, homepage, validation, and ignore paths for the new layout, preserving historical vendor exceptions for release checks. (by @AgenticWeb4)
+
+### Validation
+- Add checks for category directories, installer entries, skill homepages, and maintained local links to the public validation command. (by @AgenticWeb4)
+
+### Documentation
+- Update both directory guides and document the FCAPS draft's reference layout and lookup rules. (by @AgenticWeb4)
+
 ## 1.9.0 - 2026-11-04
 
 ### Documentation

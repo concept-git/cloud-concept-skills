@@ -1,8 +1,8 @@
-# Public skill index and per-skill versions. Keep in sync with skills/.
+# Public skill index and per-skill versions. Keep in sync with skills/productivity/.
 version: 1
 skills:
 - id: huawei-cloud-billing-scout
-  path: skills/en/huawei-cloud-billing-scout
+  path: skills/productivity/en/huawei-cloud-billing-scout
   display_name: Huawei Cloud Read-Only Billing — Spend, Charges & Reconciliation
   display_name_zh: 华为云 · 花多少为何扣 · 只读对账
   domain: cloud
@@ -30,7 +30,7 @@ skills:
     categories: ["finance", "operations"]
     topics: ["huawei-cloud", "finops", "billing", "cost-analysis", "reconciliation"]
 - id: huawei-cloud-billing-scout-cn
-  path: skills/zh-CN/huawei-cloud-billing-scout-cn
+  path: skills/productivity/zh-CN/huawei-cloud-billing-scout-cn
   display_name: 华为云 · 花多少为何扣 · 只读对账（中文）
   display_name_zh: 华为云 · 花多少为何扣 · 只读对账
   domain: cloud
@@ -46,7 +46,7 @@ skills:
   language: zh-CN
   translation_of: huawei-cloud-billing-scout
 - id: huawei-cloud-cost-estimation
-  path: skills/en/huawei-cloud-cost-estimation
+  path: skills/productivity/en/huawei-cloud-cost-estimation
   display_name: Huawei Cloud Cost Estimation & Controlled Provisioning — Quote, Create, Console-Guided Unsubscribe
   display_name_zh: 华为云成本估算与资源开通
   domain: cloud
@@ -76,7 +76,7 @@ skills:
     categories: ["finance", "operations"]
     topics: ["huawei-cloud", "cost-estimation", "cloud-pricing", "finops", "provisioning"]
 - id: huawei-cloud-cost-estimation-cn
-  path: skills/zh-CN/huawei-cloud-cost-estimation-cn
+  path: skills/productivity/zh-CN/huawei-cloud-cost-estimation-cn
   display_name: 华为云成本估算与资源开通（中文）
   display_name_zh: 华为云成本估算与资源开通
   domain: cloud
@@ -92,7 +92,7 @@ skills:
   language: zh-CN
   translation_of: huawei-cloud-cost-estimation
 - id: huawei-cloud-account-onboarding
-  path: skills/en/huawei-cloud-account-onboarding
+  path: skills/productivity/en/huawei-cloud-account-onboarding
   display_name: Huawei Cloud Account Onboarding — Real-Name Verification via Face-Scan QR
   display_name_zh: 华为云账号开通 · 人脸扫码实名认证
   domain: cloud
@@ -120,7 +120,7 @@ skills:
     categories: ["security", "operations"]
     topics: ["huawei-cloud", "account-onboarding", "identity-verification", "face-verification", "hcloud"]
 - id: huawei-cloud-account-onboarding-cn
-  path: skills/zh-CN/huawei-cloud-account-onboarding-cn
+  path: skills/productivity/zh-CN/huawei-cloud-account-onboarding-cn
   display_name: 华为云账号开通 · 人脸扫码实名认证（中文）
   display_name_zh: 华为云账号开通 · 人脸扫码实名认证
   domain: cloud

@@ -5,23 +5,38 @@
 社区维护的华为云技能仓库，覆盖账务分析、购买前成本估算与受控开通，以及账号实名认证引导。3 项能力提供 6 个中英文技能：英文使用基础名，简体中文增加
 `-cn`。本项目不是华为云官方产品。
 
-运行载荷位于 `skills/<locale>/<name>/`；校验与评估仅保留在本机 `qa/`，不提交、不发布。
+运行载荷位于 `skills/productivity/<locale>/<name>/`；校验与评估仅保留在本机 `qa/`，不提交、不发布。
 
 English: [README.md](README.md).
+
+## 目录分类
+
+四个分类目录统一放在 `skills/` 下。
+
+| 目录 | 用途 |
+| --- | --- |
+| `skills/engineering/` | 工程类技能，当前预留。 |
+| `skills/drafts/` | 开发中的技能与项目，包括 FCAPS 诊断和 KCS Foundry。 |
+| `skills/productivity/` | 已发布的账单分析、成本估算与账号实名认证技能，保留中英文版本。 |
+| `skills/misc/` | 其他技能，当前预留。 |
+
+`skills.sh.json` 声明供安装器发现的已发布技能目录。草稿不进入公开索引和默认安装列表。
 
 ## 技能
 
 | 技能 | 版本 | 用途 |
 | -------------------------------------------------------------------------------------------- | ----- | ------------------------------------ |
-| [`huawei-cloud-billing-scout-cn`](skills/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.12 | 只读查询余额、消费、扣费归因和对账。 |
-| [`huawei-cloud-cost-estimation-cn`](skills/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.3.0 | 当次响应询价与受控资源开通。 |
-| [`huawei-cloud-account-onboarding-cn`](skills/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | 只读查询实名状态并引导人脸扫码。 |
+| [`huawei-cloud-billing-scout-cn`](skills/productivity/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.12 | 只读查询余额、消费、扣费归因和对账。 |
+| [`huawei-cloud-cost-estimation-cn`](skills/productivity/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.3.0 | 当次响应询价与受控资源开通。 |
+| [`huawei-cloud-account-onboarding-cn`](skills/productivity/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | 只读查询实名状态并引导人脸扫码。 |
 
 ## 开发中
 
-[`huawei-cloud-fcaps-diagnostics`](development/huawei-cloud-fcaps-diagnostics/README.md)
+[`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md)
 已完成华为云 ECS 及关联服务的诊断命令契约与资源衔接 Helper，场景 Recipe 仅规划。
-当前独立存放在 `development/`，尚未发布为可安装技能。
+当前独立存放在 `skills/drafts/`，尚未发布为可安装技能。
+
+[`kcs-foundry`](skills/drafts/kcs-foundry/README.md) 存放 KCS 知识提炼项目及 OpenKB 上游源码快照。
 
 ## 安装
 
@@ -69,7 +84,7 @@ npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-accou
 npx --yes skills add concept-git/cloud-concept-skills --list
 ```
 
-英文载荷位于 `skills/en/`，简体中文载荷位于 `skills/zh-CN/`；中文技能名仍以 `-cn` 结尾。ClawHub 仅发布英文版。
+英文载荷位于 `skills/productivity/en/`，简体中文载荷位于 `skills/productivity/zh-CN/`；中文技能名仍以 `-cn` 结尾。ClawHub 仅发布英文版。
 
 账务和实名认证技能只读；资源开通仍受技能的白名单、费用复核和确认约束；退订仅提供控制台指引。
 

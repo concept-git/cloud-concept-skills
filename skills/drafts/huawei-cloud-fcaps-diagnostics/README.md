@@ -28,6 +28,6 @@ F/C/A/P/S 对应 fault/configuration/accounting/performance/security；common �
 
 KCS 遵循 [Article Structure](https://library.serviceinnovation.org/KCS/KCS_v6/KCS_v6_Practices_Guide/030/040/010/020)（2026-10-28 核对）：Issue 用请求者语言，Environment 写适用条件，Resolution 用编号步骤链接契约，Cause 只写已确认原因，未知或不适用时说明。统一保留四字段与 `status: draft`；验证边界集中在场景索引。
 
-本地 QA 位于仓库的 `qa/development/huawei-cloud-fcaps-diagnostics/`，历史验证归档在其 `verification/` 下，不随技能分发。维护时先核验帮助及适用查询，再从最终契约复核；结果绑定相应修订，历史通过不沿用为当前修订通过。无适用环境时保留受阻。
+本地 QA 位于仓库的 `qa/drafts/huawei-cloud-fcaps-diagnostics/`，历史验证归档在其 `verification/` 下，不随技能分发。维护时先核验帮助及适用查询，再从最终契约复核；结果绑定相应修订，历史通过不沿用为当前修订通过。无适用环境时保留受阻。
 
 文档正文、图片、真实目标、凭据和原始日志留在技能外。文档索引由 QA 的 `documents.py` 生成与检查；补充来源和来源散列分别由 `documents-links.json`、`documents-source.json` 管理。Markdown／HTML 共用文档身份；读取规则仅在文档入口定义。

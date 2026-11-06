@@ -44,7 +44,7 @@
 
 ```text
 cloud-concept-skills/
-└── development/
+└── skills/drafts/
     ├── kcs-foundry/
     │   ├── scripts/
     │   ├── skills/kcs-extractor/
@@ -75,20 +75,20 @@ python3 --version
 python3 -m venv workspaces/kcs-env
 source workspaces/kcs-env/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e development/kcs-foundry/vendor/openkb
+python -m pip install -e skills/drafts/kcs-foundry/vendor/openkb
 openkb --version
 ```
 
 后续命令的 `python`、`openkb` 均指这个已激活的环境。重新打开终端后，先回到仓库根目录并重新激活。
 
-Windows PowerShell 可用 `py -3 -m venv workspaces/kcs-env` 创建环境，然后执行 `workspaces\kcs-env\Scripts\Activate.ps1`。不能激活时直接使用该目录下的 `python.exe`，例如 `& .\workspaces\kcs-env\Scripts\python.exe -m pip install -e development/kcs-foundry/vendor/openkb`。下面的多行命令使用 Bash 的反斜杠续行；在 PowerShell 中合并成一行执行。当前离线回归在 macOS／Python 3.10 环境完成，Windows 需在目标机验证。
+Windows PowerShell 可用 `py -3 -m venv workspaces/kcs-env` 创建环境，然后执行 `workspaces\kcs-env\Scripts\Activate.ps1`。不能激活时直接使用该目录下的 `python.exe`，例如 `& .\workspaces\kcs-env\Scripts\python.exe -m pip install -e skills/drafts/kcs-foundry/vendor/openkb`。下面的多行命令使用 Bash 的反斜杠续行；在 PowerShell 中合并成一行执行。当前离线回归在 macOS／Python 3.10 环境完成，Windows 需在目标机验证。
 
 #### 内网不能访问包源时
 
 优先使用内部镜像。需要离线包时，在与目标机**操作系统、CPU 架构和 Python 版本一致**的可联网环境，用同一份新版源码准备 wheel：
 
 ```bash
-python -m pip wheel --wheel-dir /path/to/kcs-wheels ./development/kcs-foundry/vendor/openkb
+python -m pip wheel --wheel-dir /path/to/kcs-wheels ./skills/drafts/kcs-foundry/vendor/openkb
 ```
 
 该命令构建修改版 OpenKB 及其依赖；完成后移交 `kcs-wheels/` 和上述代码目录。目标机新建并激活虚拟环境，再执行：
@@ -105,7 +105,7 @@ openkb --version
 仓库已提供知识库骨架：
 
 ```text
-development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb/
+skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb/
 ```
 
 直接编辑它的 `.openkb/config.yaml`，无需重新 init，也不要覆盖已有知识：
@@ -131,9 +131,9 @@ OPENAI_API_BASE=https://内部网关地址/v1
 ### 4. 先做无模型检查
 
 ```bash
-python -m unittest discover -s development/kcs-foundry/tests -v
-python development/kcs-foundry/scripts/validate_kcs.py \
-  --kb development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
+python -m unittest discover -s skills/drafts/kcs-foundry/tests -v
+python skills/drafts/kcs-foundry/scripts/validate_kcs.py \
+  --kb skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
 ```
 
 预期测试通过；初始空 KB 的校验可返回 `valid: true`，同时提醒没有 KCS 卡片。这只证明骨架通过机械检查，**不代表模型连接正常或萃取成功**。模型连接与输出能力由下面的小批真实试点验证。
@@ -147,7 +147,7 @@ python development/kcs-foundry/scripts/validate_kcs.py \
 工单示例：
 
 ```bash
-python development/kcs-foundry/scripts/prepare_materials.py \
+python skills/drafts/kcs-foundry/scripts/prepare_materials.py \
   --source /path/to/approved-tickets \
   --kind ticket \
   --source-name internal-ticket-pilot \
@@ -157,7 +157,7 @@ python development/kcs-foundry/scripts/prepare_materials.py \
 外部 skill 示例（二选一；若两者都跑，使用不同包目录）：
 
 ```bash
-python development/kcs-foundry/scripts/prepare_materials.py \
+python skills/drafts/kcs-foundry/scripts/prepare_materials.py \
   --source /path/to/approved-skill \
   --kind skill \
   --source-name vendor/repository \
@@ -185,10 +185,10 @@ material-pack-01/
 以下使用上面的工单包；若使用 skill 包，替换 `--materials`：
 
 ```bash
-python development/kcs-foundry/scripts/extract_kcs.py \
+python skills/drafts/kcs-foundry/scripts/extract_kcs.py \
   --mode native \
   --materials /path/to/material-pack-01 \
-  --kb development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb \
+  --kb skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb \
   --run-id ssh-pilot-01 \
   --scenario 'SSH 建连超时试点' \
   --dry-run
@@ -203,10 +203,10 @@ python development/kcs-foundry/scripts/extract_kcs.py \
 使用同一条命令，去掉 `--dry-run`：
 
 ```bash
-python development/kcs-foundry/scripts/extract_kcs.py \
+python skills/drafts/kcs-foundry/scripts/extract_kcs.py \
   --mode native \
   --materials /path/to/material-pack-01 \
-  --kb development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb \
+  --kb skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb \
   --run-id ssh-pilot-01 \
   --scenario 'SSH 建连超时试点'
 ```
@@ -242,8 +242,8 @@ huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb/
 ### 1. 独立校验
 
 ```bash
-python development/kcs-foundry/scripts/validate_kcs.py \
-  --kb development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
+python skills/drafts/kcs-foundry/scripts/validate_kcs.py \
+  --kb skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
 ```
 
 此命令不调用模型，跨批次检查四字段、证据结构、原文快照、来源哈希、内容哈希、索引和 wiki 链接；非零退出或 `valid: false` 表示未通过。
@@ -251,7 +251,7 @@ python development/kcs-foundry/scripts/validate_kcs.py \
 仅查 OpenKB wiki 内部绑定时，也可运行：
 
 ```bash
-openkb --kb-dir development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb kcs-audit
+openkb --kb-dir skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb kcs-audit
 ```
 
 后者不包含 Foundry 原始材料的跨批次追溯检查。模型不支持工具调用时，用上述结构审计；OpenKB 的语义 lint 还需要工具调用能力。
@@ -282,8 +282,8 @@ openkb --kb-dir development/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb kcs-
 
 ```bash
 git status --short
-git diff -- development/huawei-cloud-fcaps-diagnostics
-git add development/huawei-cloud-fcaps-diagnostics
+git diff -- skills/drafts/huawei-cloud-fcaps-diagnostics
+git add skills/drafts/huawei-cloud-fcaps-diagnostics
 git diff --cached --stat
 ```
 
