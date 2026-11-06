@@ -125,6 +125,13 @@ class PipelineTests(unittest.TestCase):
         self.assertFalse(kb.exists())
         self.assertNotIn("must-not-copy", result.stdout)
 
+    def test_missing_kb_stops_before_backend_and_does_not_initialize(self):
+        from extract_kcs import run_pipeline
+        kb = self.root / "missing-kb"
+        with self.assertRaisesRegex(FoundryError, "Knowledge base not initialized"):
+            run_pipeline(self.package, kb, "missing", "SSH", backend=object())
+        self.assertFalse(kb.exists())
+
     def test_removed_export_flags_fail_before_any_writes(self):
         for flag, value in (
             ("--mode", "export"),

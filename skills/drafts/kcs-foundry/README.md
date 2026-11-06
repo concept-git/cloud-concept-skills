@@ -6,7 +6,7 @@
 
 已引入 OpenKB 上游源码，并新增独立的 [KCS 提炼元技能](skills/kcs-extractor/SKILL.md)。技能覆盖外部 skill／recipe 与工单输入，交付四字段 KCS 草稿和来源记录。
 
-已在 vendored OpenKB 增加原生 KCS profile，默认由编译器维护四字段 case／pattern 与 wiki 关系，来源和复核状态由程序绑定。知识外挂位于诊断技能的 `knowledge/ecs-kb/`。使用方式见 [运行指导](USAGE.md)。已在独立临时环境安装依赖并进行无模型回归；尚未调用真实模型，内部工单与内网接口仍需试点验收。
+已在 vendored OpenKB 增加原生 KCS profile，默认由编译器维护四字段 case／pattern 与 wiki 关系，来源和复核状态由程序绑定。知识外挂位于诊断技能的 `knowledge/ecs-kb/`，首次编译前由维护者初始化；仓库仅预置读取说明与忽略规则。使用方式见 [运行指导](USAGE.md)。已在独立临时环境安装依赖并进行无模型回归；尚未调用真实模型，内部工单与内网接口仍需试点验收。
 
 ## 目录
 

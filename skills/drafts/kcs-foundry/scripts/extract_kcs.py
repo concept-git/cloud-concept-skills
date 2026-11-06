@@ -98,7 +98,7 @@ def run_pipeline(package: Path, kb: Path, run_id: str, scenario: str, backend=No
     (package, kb) = (package.resolve(), kb.resolve())
     (manifest, plan) = plan_run(package, kb, run_id, scenario)
     if not relative_file(kb, ".openkb/config.yaml").is_file():
-        raise FoundryError("Initialize this KB with OpenKB and configure its model first")
+        raise FoundryError("Knowledge base not initialized: run openkb init --knowledge-profile kcs --model <approved-model> --language zh inside the target KB directory first")
     backend = backend or OpenKBBackend()
     backend.configure(kb)
     if getattr(backend, "profile", None) != "kcs":

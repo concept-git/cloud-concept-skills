@@ -54,11 +54,7 @@ cloud-concept-skills/
         ├── SKILL.md
         └── knowledge/
             ├── README.md
-            ├── .gitignore
-            └── ecs-kb/
-                ├── .openkb/config.yaml
-                ├── .openkb/hashes.json
-                └── wiki/          # 包括 AGENTS.md、index.md、log.md
+            └── .gitignore         # ecs-kb/ 在首次编译前初始化，有知识后随包维护
 ```
 
 若用 Git 拉取，先确保这批修改及新增文件已提交并同步到目标可访问的仓库。**仅 clone 远端无法获得本机尚未提交的代码。** 内网无法访问远端时，按内部允许的方式移交当前工作目录快照，包含新增文件和隐藏目录。不要只复制诊断技能，也不要用官方 OpenKB 安装包替代这里的修改版。
@@ -100,15 +96,21 @@ openkb --version
 
 离线安装使用构建好的 wheel，不再执行需要临时下载构建依赖的 editable 安装。若某个依赖在目标平台没有可用 wheel，需在相同目标环境完成构建后补齐；不要用其他平台的虚拟环境替代。完整隔离网络的离线安装尚需在目标机验收。
 
-### 3. 配置知识库模型
+### 3. 首次初始化知识库并配置模型
 
-仓库已提供知识库骨架：
+仓库不再预置空知识库。已安装并激活修改版 OpenKB 后，在仓库根目录执行以下命令；将模型标识替换为获准的实际部署：
 
-```text
-skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb/
+```bash
+mkdir -p skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
+(
+  cd skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
+  openkb init --knowledge-profile kcs --model 'openai/实际模型名' --language zh
+)
 ```
 
-直接编辑它的 `.openkb/config.yaml`，无需重新 init，也不要覆盖已有知识：
+括号内切换目录不会改变外层终端的仓库根目录。init 只建立本地结构，不编译材料或请求模型；密钥按内部要求配置，可在提示时留空，随后写入该 KB 的 `.env`。它会生成 `.openkb/config.yaml`、空的 `.openkb/hashes.json`、wiki schema、索引和日志等运行结构。
+
+如果移交的包已带有 `.openkb/config.yaml` 及实际知识，跳过初始化，仅检查配置和凭据；不要覆盖已有卡片、来源注册和追溯记录。配置应类似：
 
 ```yaml
 knowledge_profile: kcs
@@ -117,7 +119,7 @@ model: openai/实际模型名
 pageindex_threshold: 20
 ```
 
-`openai/` 是 OpenAI 兼容接口的 LiteLLM provider 前缀，替换实际模型名；其他协议按部署调整。模型必须明确配置在这个 KB 的文件中；初始 `model: null` 会阻止真实导入，避免误用全局默认模型。
+`openai/` 是 OpenAI 兼容接口的 LiteLLM provider 前缀，替换实际模型名；其他协议按部署调整。模型必须明确配置在这个 KB 的文件中；缺失或为空会阻止真实导入，避免误用全局默认模型。
 
 在同一个 `ecs-kb/` 根目录创建 `.env`：
 
@@ -136,7 +138,7 @@ python skills/drafts/kcs-foundry/scripts/validate_kcs.py \
   --kb skills/drafts/huawei-cloud-fcaps-diagnostics/knowledge/ecs-kb
 ```
 
-预期测试通过；初始空 KB 的校验可返回 `valid: true`，同时提醒没有 KCS 卡片。这只证明骨架通过机械检查，**不代表模型连接正常或萃取成功**。模型连接与输出能力由下面的小批真实试点验证。
+先完成初始化，再运行知识库校验。预期测试通过；刚初始化的空 KB 校验可返回 `valid: true`，同时提醒没有 KCS 卡片。这只证明初始化结构通过机械检查，**不代表模型连接正常或萃取成功**。模型连接与输出能力由下面的小批真实试点验证。
 
 ## 四、首次小批运行
 
@@ -306,6 +308,7 @@ git diff --cached --stat
 | 现象 | 检查与处理 |
 | --- | --- |
 | 提示 OpenKB dependencies unavailable | 确认已激活正确虚拟环境，并安装仓库内修改版 OpenKB；不要混用系统 Python |
+| 提示 Knowledge base not initialized | 先按第三节在目标 KB 目录执行 `openkb init --knowledge-profile kcs` 并显式指定模型；诊断只读知识时不自行初始化 |
 | 提示 Set an explicit KB-local model | 检查目标 KB 的 `.openkb/config.yaml`；`model` 不能为空或仅存在于全局配置 |
 | 请求被网关拒绝／鉴权失败 | 在内部检查该 KB 的 `.env`、模型名、接口路径和凭据；不要向公开报告粘贴密钥或工单请求正文 |
 | 接口不认识 `response_format` | 内网接口的 JSON 模式需适配，当前版本不能靠关闭 function calling 解决 |
@@ -313,7 +316,7 @@ git diff --cached --stat
 | run-id 已存在 | 不覆盖旧任务；检查状态后选新 ID。`--dry-run` 不占用 ID |
 | source hash／snapshot／provenance 校验失败 | 检查来源文件是否被改动、漏拷贝或缺少跨批次记录；不要删除哈希来让检查通过 |
 | 生成失败或校验失败 | 查看 `.openkb/kcs-foundry/<run-id>/state.json`、运行终端及已有报告；保留现场，修复原因后用新 ID 重跑 |
-| schema/profile 不一致 | 确认移交的是新版 KB 骨架与源码；已有通用 KB 的迁移需单独备份、刷新 schema 并重编译，不能只换配置标识 |
+| schema/profile 不一致 | 确认使用了修改版源码并以 KCS profile 初始化；已有通用 KB 的迁移需单独备份、刷新 schema 并重编译，不能只换配置标识 |
 
 **单文档编译失败可回滚该文档；整批不是一个事务。** 后面某份失败时，前面成功的知识和来源映射仍会保留。程序不自动重试；运行状态只记录异常类型，避免将可能含请求资料的异常正文写入报告。重跑前检查已完成范围，相同内容可由 OpenKB 去重。
 
