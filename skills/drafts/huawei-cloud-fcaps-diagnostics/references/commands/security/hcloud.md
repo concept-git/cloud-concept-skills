@@ -2,7 +2,7 @@
 
 核对访问控制和安全结果。规则配置与实际命中证据分别判断。
 
-表格约定见[索引](../index.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
+表格约定见[命令概览](../.overview.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
 
 目录：[AAD](hcloud.md#aad) · [Anti-DDoS](hcloud.md#anti-ddos) · [BSS](hcloud.md#bss) · [CFW](hcloud.md#cfw) · [Config](hcloud.md#config) · [IAM](hcloud.md#iam) · [IAMAccessAnalyzer](hcloud.md#iamaccessanalyzer) · [RMS](hcloud.md#rms) · [SecMaster](hcloud.md#secmaster) · [WAF](hcloud.md#waf)
 

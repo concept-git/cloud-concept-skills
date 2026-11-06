@@ -11,4 +11,4 @@
 | 用量或费用异常 | A：同范围计量、账单 | 系统利用率只作辅助证据 |
 | Pod 重启、挂载或调度失败 | 可选 Kubernetes 的 F/C/P | 绑定 context、namespace、UID；进入节点前识别 OS |
 
-已知命令或事实类别时按 [FCAPS 地图](commands/index.md) 选册。需要场景步骤时，按[场景索引](recipes/index.md)只读取匹配的 KCS 文章。
+已知命令或事实类别时按 [FCAPS 地图](commands/.overview.md) 选册。需要场景步骤时，按[场景索引](recipes/.overview.md)只读取匹配的 KCS 文章。

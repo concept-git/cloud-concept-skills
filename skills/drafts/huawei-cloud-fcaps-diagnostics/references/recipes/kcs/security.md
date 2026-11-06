@@ -17,7 +17,7 @@ status: draft
 
 1. 记录告警时间、类型和受影响对象；先区分访问被拒绝与疑似异常访问。保留事件证据，不将账号凭据、令牌或原始敏感日志写入文章。
 2. 权限拒绝时通过 [IAM 发现查询](../../commands/common/hcloud.md#iam)及[权限排查指引](../../documents/huaweicloud.md#s-安全)核对身份和授权范围；Kubernetes 使用 [KUBERNETES/permission](../../commands/security/kubernetes.md)。参数或权限问题未解决前不原样重试。
-3. 安全告警按[安全分册](../../commands/index.md)选择已有结果查询，结合 [CTS/ListTraces/v3](../../commands/common/hcloud.md#cts)；[HSS/ListHostStatus/v5](../../commands/security/hcloud-host.md#hss) 只读已有状态时使用契约要求的 `refresh=false`，不自动启动扫描。
+3. 安全告警按[安全分册](../../commands/.overview.md)选择已有结果查询，结合 [CTS/ListTraces/v3](../../commands/common/hcloud.md#cts)；[HSS/ListHostStatus/v5](../../commands/security/hcloud-host.md#hss) 只读已有状态时使用契约要求的 `refresh=false`，不自动启动扫描。
 4. Linux 结合[登录记录](../../commands/security/linux.md)与 [LINUX/connections](../../commands/configuration/linux.md)，Windows 结合 [WINDOWS/events](../../commands/fault/windows.md)、[本地用户与组](../../commands/security/windows.md)及连接信息，按同一主机和时间窗关联。文件校验扫描须另核对影响与授权。
 5. 报告已确认事实、支持的风险判断和证据缺口。需要隔离、阻断、查杀或重置凭据时交由具有相应授权的响应人员执行，并明确业务影响和复核条件；告警消失不能单独证明风险已消除。
 

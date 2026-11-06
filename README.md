@@ -1,11 +1,11 @@
-# Huawei Cloud Agent Skills
+# Cloud Operations & Automation Skills
 
 [![skills.sh](https://skills.sh/b/concept-git/cloud-concept-skills)](https://skills.sh/concept-git/cloud-concept-skills)
 
-Community-maintained Huawei Cloud skills for billing analysis, pre-order cost estimation and
-controlled provisioning, and account real-name onboarding. Three capabilities ship as six localized
-skills: English uses the base name and Simplified Chinese adds `-cn`. This project is not an
-official Huawei Cloud product.
+Community-maintained Agent Skills and related projects for cloud operations and automation.
+Published skills cover account and billing workflows, cost estimation, and controlled provisioning.
+The repository also includes diagnostic and knowledge-extraction projects in development,
+plus Git submodules for frontend design and website quality checks.
 
 Published skills keep their runtime payload under `skills/productivity/<locale>/<name>/`; QA and evaluations remain private on the maintainer's machine and are not committed or installed.
 
@@ -24,6 +24,8 @@ All four categories live under `skills/`.
 
 `skills.sh.json` lists the published skill containers for installer discovery. Drafts remain outside the public catalog and default installation list.
 
+## Related projects
+
 The [skills-list](https://github.com/daoxianglaonong/skills-list) submodule lives in `skills/misc/frontend-design/skills-list/`.
 It contains page themes, responsive design, and design audits.
 
@@ -32,7 +34,11 @@ It provides website experience checks and page comparisons.
 
 After cloning this repository, run `git submodule update --init` to download these submodules.
 
-## Skills
+## Published skills
+
+The published cloud operations skills currently support Huawei Cloud. Three capabilities ship as six
+localized skills: English uses the base name and Simplified Chinese adds `-cn`.
+These community-maintained skills are not an official Huawei Cloud product.
 
 | English | 中文 | Version | Purpose |
 | --- | --- | --- | --- |
@@ -44,18 +50,20 @@ Discovery metadata: [catalog.yml](catalog.yml).
 
 ## In development
 
+[`directory-summary`](skills/drafts/directory-summary/SKILL.md) generates directory-level `.abstract.md` and `.overview.md` summaries from existing content for relevance checks and source navigation.
+
 [`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md)
 contains verified diagnostic command contracts and resource helpers for Huawei Cloud
-ECS and related services. Recipes remain planned. It stays under `skills/drafts/`
+ECS and related services, with draft diagnostic recipes that have not completed end-to-end validation. It stays under `skills/drafts/`
 and is not published as an installable skill.
 
 [`kcs-foundry`](skills/drafts/kcs-foundry/README.md) contains the KCS knowledge-extraction project and its OpenKB upstream source snapshot.
 
-## Install
+## Install published skills
 
 Requires Node.js 22.20+ and Git. Copy a command below and run it from your project directory. These commands install to Codex in the current project.
 
-Running the cloud skills also requires [KooCLI](https://support.huaweicloud.com/intl/en-us/productdesc-hcli/hcli_01.html) 7.2+; the skills do not install it automatically.
+Running the published cloud operations skills also requires [KooCLI](https://support.huaweicloud.com/intl/en-us/productdesc-hcli/hcli_01.html) 7.2+; the skills do not install it automatically.
 
 Use `--agent claude-code` or `--agent cursor` for another agent; add `--global` to install across projects. See the [installer options](https://github.com/vercel-labs/skills/blob/main/docs/commands.md).
 

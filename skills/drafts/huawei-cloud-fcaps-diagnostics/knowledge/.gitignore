@@ -1,9 +1,0 @@
-# Keep knowledge and durable provenance, exclude per-machine execution state.
-ecs-kb/.env
-ecs-kb/.env.*
-ecs-kb/.openkb/ingest.lock
-ecs-kb/.openkb/kcs-foundry/
-ecs-kb/.openkb/files/
-ecs-kb/.openkb/*.db*
-ecs-kb/.openkb/staging*/
-ecs-kb/output/

@@ -2,7 +2,7 @@
 
 主机侧结果依赖相应 Agent、已采集数据和防护版本。执行前核对作用与约束。
 
-表格约定见[索引](../index.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
+表格约定见[命令概览](../.overview.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
 
 目录：[COC](hcloud-host.md#coc) · [HSS](hcloud-host.md#hss)
 

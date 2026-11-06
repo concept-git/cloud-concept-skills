@@ -2,7 +2,7 @@
 
 核对用量、费用和订购状态。BSS 查询按账号站点和 help 选择区域。
 
-表格约定见[索引](../index.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
+表格约定见[命令概览](../.overview.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
 
 目录：[BSS](hcloud.md#bss) · [LTS](hcloud.md#lts) · [WAF](hcloud.md#waf)
 

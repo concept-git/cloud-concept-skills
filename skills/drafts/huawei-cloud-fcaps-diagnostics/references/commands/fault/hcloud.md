@@ -2,7 +2,7 @@
 
 查询事件、诊断任务和结果。执行类操作按当前授权范围选择。
 
-表格约定见[索引](../index.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
+表格约定见[命令概览](../.overview.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
 
 目录：[AOM](hcloud.md#aom) · [APM](hcloud.md#apm) · [CBR](hcloud.md#cbr) · [CES](hcloud.md#ces) · [COC](hcloud.md#coc) · [DNS](hcloud.md#dns) · [ECS](hcloud.md#ecs) · [EIP](hcloud.md#eip) · [ELB](hcloud.md#elb) · [EVS](hcloud.md#evs) · [IMS](hcloud.md#ims) · [LTS](hcloud.md#lts) · [SMN](hcloud.md#smn) · [VPN](hcloud.md#vpn)
 

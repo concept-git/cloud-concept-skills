@@ -1,9 +1,10 @@
-# Huawei Cloud Agent Skills
+# Cloud Operations & Automation Skills
 
 [![skills.sh](https://skills.sh/b/concept-git/cloud-concept-skills)](https://skills.sh/concept-git/cloud-concept-skills)
 
-社区维护的华为云技能仓库，覆盖账务分析、购买前成本估算与受控开通，以及账号实名认证引导。3 项能力提供 6 个中英文技能：英文使用基础名，简体中文增加
-`-cn`。本项目不是华为云官方产品。
+社区维护的云运维与自动化 Agent Skills 及相关项目。
+已发布技能覆盖账号与账务流程、成本估算和受控资源开通。
+仓库还包含开发中的诊断与知识提炼项目，并通过 Git 子模块引入前端设计和网页质量检查项目。
 
 运行载荷位于 `skills/productivity/<locale>/<name>/`；校验与评估仅保留在本机 `qa/`，不提交、不发布。
 
@@ -22,13 +23,18 @@ English: [README.md](README.md).
 
 `skills.sh.json` 声明供安装器发现的已发布技能目录。草稿不进入公开索引和默认安装列表。
 
+## 相关项目
+
 [skills-list](https://github.com/daoxianglaonong/skills-list) 子模块位于 `skills/misc/frontend-design/skills-list/`，主要提供页面主题、响应式设计和设计验收技能。
 
 [MetaPQP](https://github.com/vi-vi-vi-vi-vivian/MetaPQP) 子模块位于 `skills/misc/web-quality/MetaPQP/`，主要提供官网体验检查和页面对比。
 
 克隆本仓库后，运行 `git submodule update --init` 下载这些子模块。
 
-## 技能
+## 已发布技能
+
+当前已发布的云运维技能适用于华为云。3 项能力提供 6 个中英文技能：英文使用基础名，简体中文增加 `-cn`。
+这些技能由社区维护，并非华为云官方产品。
 
 | 技能 | 版本 | 用途 |
 | -------------------------------------------------------------------------------------------- | ----- | ------------------------------------ |
@@ -38,17 +44,19 @@ English: [README.md](README.md).
 
 ## 开发中
 
+[`directory-summary`](skills/drafts/directory-summary/SKILL.md) 根据已有资料生成目录级 `.abstract.md` 和 `.overview.md`，帮助判断相关性并选择原文。
+
 [`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md)
-已完成华为云 ECS 及关联服务的诊断命令契约与资源衔接 Helper，场景 Recipe 仅规划。
+已完成华为云 ECS 及关联服务的诊断命令契约与资源衔接 Helper，场景指引为尚未完成端到端验证的草稿。
 当前独立存放在 `skills/drafts/`，尚未发布为可安装技能。
 
 [`kcs-foundry`](skills/drafts/kcs-foundry/README.md) 存放 KCS 知识提炼项目及 OpenKB 上游源码快照。
 
-## 安装
+## 安装已发布技能
 
 需要 Node.js 22.20+ 与 Git。在目标项目目录运行下列命令，直接复制即可；默认安装到当前项目的 Codex，不修改全局技能。
 
-运行云技能还需要 [KooCLI](https://support.huaweicloud.com/productdesc-hcli/hcli_01.html) 7.2+；技能不会自动安装它。
+运行已发布的云运维技能还需要 [KooCLI](https://support.huaweicloud.com/productdesc-hcli/hcli_01.html) 7.2+；技能不会自动安装它。
 
 `--agent codex` 可换为 `--agent claude-code` 或 `--agent cursor`；增加 `--global` 可供所有项目使用。技能安装器的[参数说明](https://github.com/vercel-labs/skills/blob/main/docs/commands.md)。
 

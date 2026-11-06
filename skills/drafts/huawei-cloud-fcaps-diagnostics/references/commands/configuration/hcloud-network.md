@@ -2,7 +2,7 @@
 
 核对实际路径中的网络配置。配置正常不等于端到端可达。
 
-表格约定见[索引](../index.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
+表格约定见[命令概览](../.overview.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
 
 目录：[CC](hcloud-network.md#cc) · [DNS](hcloud-network.md#dns) · [EIP](hcloud-network.md#eip) · [ELB](hcloud-network.md#elb) · [ER](hcloud-network.md#er) · [NAT](hcloud-network.md#nat) · [VPC](hcloud-network.md#vpc) · [VPCEP](hcloud-network.md#vpcep) · [VPN](hcloud-network.md#vpn)
 

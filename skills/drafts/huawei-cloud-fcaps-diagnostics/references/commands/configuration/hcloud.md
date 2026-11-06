@@ -2,7 +2,7 @@
 
 查询资源状态、配置和关系。ACTIVE 仅表示平台实例状态。
 
-表格约定见[索引](../index.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
+表格约定见[命令概览](../.overview.md)。按完整命令 ID 搜索，只读取命中行和必要 Helper。
 
 目录：[AOM](hcloud.md#aom) · [CBR](hcloud.md#cbr) · [COC](hcloud.md#coc) · [CTS](hcloud.md#cts) · [Config](hcloud.md#config) · [ECS](hcloud.md#ecs) · [EPS](hcloud.md#eps) · [EVS](hcloud.md#evs) · [IMS](hcloud.md#ims) · [LTS](hcloud.md#lts) · [RMS](hcloud.md#rms) · [SMN](hcloud.md#smn)
 
