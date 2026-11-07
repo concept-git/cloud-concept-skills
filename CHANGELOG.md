@@ -1,11 +1,14 @@
 # Changelog
 
-## Unreleased
+## 1.11.0 - 2026-11-07
 
 ### Improvements
-- Rename `skills/in-progress/` to `skills/drafts/`, retaining the four categories `engineering`, `drafts`, `productivity`, and `misc`.
-- Place all four skill categories under `skills/` and update documentation, catalog entries, skill homepages, installer configuration, and validation paths.
-- Mark the FCAPS draft as internal so default installer discovery continues to list only the six published language editions.
+- Rename `skills/in-progress/` to `skills/drafts/`, retaining the four categories `engineering`, `drafts`, `productivity`, and `misc`. (by @AgenticWeb4)
+- Place all four skill categories under `skills/` and update documentation, catalog entries, skill homepages, installer configuration, and validation paths. (by @AgenticWeb4)
+- Mark the FCAPS draft as internal so default installer discovery continues to list only the six published language editions. (by @AgenticWeb4)
+
+### Documentation
+- At the start of an FCAPS diagnosis, restate the user's goal and the problem to solve in the agent's own words. (by @AgenticWeb4)
 
 ## 1.10.0 - 2026-11-05
 
