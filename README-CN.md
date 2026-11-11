@@ -2,111 +2,76 @@
 
 [![skills.sh](https://skills.sh/b/concept-git/cloud-concept-skills)](https://skills.sh/concept-git/cloud-concept-skills)
 
-社区维护的云运维与自动化 Agent Skills 及相关项目。
-已发布技能覆盖账号与账务流程、成本估算和受控资源开通。
-仓库还包含开发中的诊断与知识提炼项目，并通过 Git 子模块引入前端设计和网页质量检查项目。
+社区维护的华为云运维技能。已发布的是账务、成本估算和账号实名认证。诊断和知识提炼仍是草稿。前端设计和网页检查以 Git 子模块引入。
 
-运行载荷位于 `skills/productivity/<locale>/<name>/`；校验与评估仅保留在本机 `qa/`，不提交、不发布。
+这些技能不是华为云官方产品。
 
-English: [README.md](README.md).
-
-## 目录分类
-
-四个分类目录统一放在 `skills/` 下。
-
-| 目录 | 用途 |
-| --- | --- |
-| `skills/engineering/` | 工程类技能，当前预留。 |
-| `skills/drafts/` | 开发中的技能与项目，包括 FCAPS 诊断和 KCS Foundry。 |
-| `skills/productivity/` | 已发布的账单分析、成本估算与账号实名认证技能，保留中英文版本。 |
-| `skills/misc/` | 其他技能与项目，按功能分类，包含前端设计与网页质量检查子模块。 |
-
-`skills.sh.json` 声明供安装器发现的已发布技能目录。草稿不进入公开索引和默认安装列表。
-
-## 相关项目
-
-[skills-list](https://github.com/daoxianglaonong/skills-list) 子模块位于 `skills/misc/frontend-design/skills-list/`，主要提供页面主题、响应式设计和设计验收技能。
-
-[MetaPQP](https://github.com/vi-vi-vi-vi-vivian/MetaPQP) 子模块位于 `skills/misc/web-quality/MetaPQP/`，主要提供官网体验检查和页面对比。
-
-克隆本仓库后，运行 `git submodule update --init` 下载这些子模块。
+English: [README.md](README.md)
 
 ## 已发布技能
 
-当前已发布的云运维技能适用于华为云。3 项能力提供 6 个中英文技能：英文使用基础名，简体中文增加 `-cn`。
-这些技能由社区维护，并非华为云官方产品。
+英文用基础名，简体中文加 `-cn`。
 
 | 技能 | 版本 | 用途 |
-| -------------------------------------------------------------------------------------------- | ----- | ------------------------------------ |
+| --- | --- | --- |
 | [`huawei-cloud-billing-scout-cn`](skills/productivity/zh-CN/huawei-cloud-billing-scout-cn/SKILL.md) | 2.3.12 | 只读查询余额、消费、扣费归因和对账。 |
-| [`huawei-cloud-cost-estimation-cn`](skills/productivity/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.3.0 | 当次响应询价与受控资源开通。 |
-| [`huawei-cloud-account-onboarding-cn`](skills/productivity/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | 只读查询实名状态并引导人脸扫码。 |
+| [`huawei-cloud-cost-estimation-cn`](skills/productivity/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.3.0 | 当次响应询价，并在约束内开通资源。 |
+| [`huawei-cloud-account-onboarding-cn`](skills/productivity/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | 只读查询实名状态，并引导人脸扫码。 |
 
-## 开发中
+目录：[catalog.yml](catalog.yml)。
 
-[`directory-summary`](skills/drafts/directory-summary/SKILL.md) 根据已有资料生成目录级 `.abstract.md` 和 `.overview.md`，帮助判断相关性并选择原文。
+账务和实名认证只读。开通资源仍受白名单、费用复核和确认约束。退订只给控制台指引。
 
-[`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md)
-已完成华为云 ECS 及关联服务的诊断命令契约与资源衔接 Helper，场景指引为尚未完成端到端验证的草稿。
-当前独立存放在 `skills/drafts/`，尚未发布为可安装技能。
+## 安装
 
-[`kcs-foundry`](skills/drafts/kcs-foundry/README.md) 存放 KCS 知识提炼项目及 OpenKB 上游源码快照。
+需要 Node.js 22.20+、Git，以及 [KooCLI](https://support.huaweicloud.com/productdesc-hcli/hcli_01.html) 7.2+。技能不安装 KooCLI。
 
-## 安装已发布技能
+在项目目录运行。默认装到该项目的 Codex。`--agent` 可换成 `claude-code` 或 `cursor`。加 `--global` 则所有项目可用。[安装参数](https://github.com/vercel-labs/skills/blob/main/docs/commands.md)。
 
-需要 Node.js 22.20+ 与 Git。在目标项目目录运行下列命令，直接复制即可；默认安装到当前项目的 Codex，不修改全局技能。
-
-运行已发布的云运维技能还需要 [KooCLI](https://support.huaweicloud.com/productdesc-hcli/hcli_01.html) 7.2+；技能不会自动安装它。
-
-`--agent codex` 可换为 `--agent claude-code` 或 `--agent cursor`；增加 `--global` 可供所有项目使用。技能安装器的[参数说明](https://github.com/vercel-labs/skills/blob/main/docs/commands.md)。
-
-### 中文版
+中文：
 
 ```bash
 npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-billing-scout-cn huawei-cloud-cost-estimation-cn huawei-cloud-account-onboarding-cn --agent codex --copy --yes
 ```
 
-### 英文版
+英文：同一命令，技能名换成 `huawei-cloud-billing-scout huawei-cloud-cost-estimation huawei-cloud-account-onboarding`。
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-billing-scout huawei-cloud-cost-estimation huawei-cloud-account-onboarding --agent codex --copy --yes
-```
+只装一个：把列表换成一个名字。查看可装技能：`npx --yes skills add concept-git/cloud-concept-skills --list`。
 
-### 按需安装单个技能
+载荷在 `skills/productivity/en/` 和 `skills/productivity/zh-CN/`。ClawHub 只发布英文版。
 
-**`huawei-cloud-billing-scout-cn`**
+## 目录
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-billing-scout-cn --agent codex --copy --yes
-```
+| 目录 | 用途 |
+| --- | --- |
+| `skills/productivity/` | 上面 6 个已发布技能。 |
+| `skills/drafts/` | 草稿。不进公开目录，也不进默认安装列表。 |
+| `skills/misc/` | 其他项目，包括下面两个子模块。 |
+| `skills/engineering/` | 预留。 |
 
-**`huawei-cloud-cost-estimation-cn`**
+`skills.sh.json` 列出安装器要发现的已发布技能。
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-cost-estimation-cn --agent codex --copy --yes
-```
+## 相关项目
 
-**`huawei-cloud-account-onboarding-cn`**
+[skills-list](https://github.com/daoxianglaonong/skills-list) 在 `skills/misc/frontend-design/skills-list/`：页面主题、响应式设计和设计验收。
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-account-onboarding-cn --agent codex --copy --yes
-```
+[MetaPQP](https://github.com/vi-vi-vi-vi-vivian/MetaPQP) 在 `skills/misc/web-quality/MetaPQP/`：官网体验检查和页面对比。
 
-### 查看可安装技能
+克隆后运行 `git submodule update --init`。
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --list
-```
+## 开发中
 
-英文载荷位于 `skills/productivity/en/`，简体中文载荷位于 `skills/productivity/zh-CN/`；中文技能名仍以 `-cn` 结尾。ClawHub 仅发布英文版。
+[`directory-summary`](skills/drafts/directory-summary/SKILL.md) 根据目录里已有的文件生成 `.abstract.md` 和 `.overview.md`。
 
-账务和实名认证技能只读；资源开通仍受技能的白名单、费用复核和确认约束；退订仅提供控制台指引。
+[`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md) 已有华为云 ECS 及相关服务的诊断命令契约和资源衔接 Helper。场景指引仍是草稿，还没有端到端验证。它还不能安装。
+
+[`kcs-foundry`](skills/drafts/kcs-foundry/README.md) 存放 KCS 知识提炼项目和 OpenKB 上游源码快照。
 
 ## 贡献
 
-`qa/` 仅供本机使用，不提交、不发布；公开校验不依赖它。需要运行本机用例时，使用 `./tools/validate-all.sh --local-qa`。
+`qa/` 只在本机，不提交、不发布。公开校验不使用它。本机有用例时再运行 `./tools/validate-all.sh --local-qa`。
 
-项目职责与目录规范见 [CLAUDE.md](CLAUDE.md)。
+规则：[CLAUDE.md](CLAUDE.md)。
 
 ```bash
 ./tools/validate-all.sh
@@ -114,5 +79,4 @@ npx --yes skills add concept-git/cloud-concept-skills --list
 
 ## 许可
 
-[Apache-2.0](LICENSE) © cloud-concept-skills
-contributors。发布到 ClawHub 的技能包在该平台为 MIT-0；仓库源码仍为 Apache-2.0。
+[Apache-2.0](LICENSE) © cloud-concept-skills contributors。ClawHub 上的安装包是 MIT-0。仓库源码仍是 Apache-2.0。

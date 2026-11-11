@@ -2,43 +2,15 @@
 
 [![skills.sh](https://skills.sh/b/concept-git/cloud-concept-skills)](https://skills.sh/concept-git/cloud-concept-skills)
 
-Community-maintained Agent Skills and related projects for cloud operations and automation.
-Published skills cover account and billing workflows, cost estimation, and controlled provisioning.
-The repository also includes diagnostic and knowledge-extraction projects in development,
-plus Git submodules for frontend design and website quality checks.
+Community-maintained skills for Huawei Cloud operations. Published skills cover billing, cost estimation, and account onboarding. Draft diagnostics and knowledge extraction stay in the repository. Frontend design and website checks come in as Git submodules.
 
-Published skills keep their runtime payload under `skills/productivity/<locale>/<name>/`; QA and evaluations remain private on the maintainer's machine and are not committed or installed.
+These skills are not an official Huawei Cloud product.
 
-中文说明见 [README-CN.md](README-CN.md).
-
-## Directory layout
-
-All four categories live under `skills/`.
-
-| Directory | Purpose |
-| --- | --- |
-| `skills/engineering/` | Engineering skills. Reserved for future additions. |
-| `skills/drafts/` | Draft skills and projects, including FCAPS diagnostics and KCS Foundry. |
-| `skills/productivity/` | Published billing, cost-estimation, and account-onboarding skills in English and Simplified Chinese. |
-| `skills/misc/` | Other skills and projects grouped by function, including frontend design and website quality checks. |
-
-`skills.sh.json` lists the published skill containers for installer discovery. Drafts remain outside the public catalog and default installation list.
-
-## Related projects
-
-The [skills-list](https://github.com/daoxianglaonong/skills-list) submodule lives in `skills/misc/frontend-design/skills-list/`.
-It contains page themes, responsive design, and design audits.
-
-The [MetaPQP](https://github.com/vi-vi-vi-vi-vivian/MetaPQP) submodule lives in `skills/misc/web-quality/MetaPQP/`.
-It provides website experience checks and page comparisons.
-
-After cloning this repository, run `git submodule update --init` to download these submodules.
+中文：[README-CN.md](README-CN.md)
 
 ## Published skills
 
-The published cloud operations skills currently support Huawei Cloud. Three capabilities ship as six
-localized skills: English uses the base name and Simplified Chinese adds `-cn`.
-These community-maintained skills are not an official Huawei Cloud product.
+English uses the base name. Simplified Chinese adds `-cn`.
 
 | English | 中文 | Version | Purpose |
 | --- | --- | --- | --- |
@@ -46,74 +18,60 @@ These community-maintained skills are not an official Huawei Cloud product.
 | [`huawei-cloud-cost-estimation`](skills/productivity/en/huawei-cloud-cost-estimation/SKILL.md) | [`huawei-cloud-cost-estimation-cn`](skills/productivity/zh-CN/huawei-cloud-cost-estimation-cn/SKILL.md) | 3.3.0 | Current-response quotes and guarded provisioning. |
 | [`huawei-cloud-account-onboarding`](skills/productivity/en/huawei-cloud-account-onboarding/SKILL.md) | [`huawei-cloud-account-onboarding-cn`](skills/productivity/zh-CN/huawei-cloud-account-onboarding-cn/SKILL.md) | 1.0.3 | Read-only real-name status and face-scan guidance. |
 
-Discovery metadata: [catalog.yml](catalog.yml).
+Index: [catalog.yml](catalog.yml).
 
-## In development
+Billing and onboarding are read-only. Provisioning stays inside the skill allowlist, cost review, and confirmation gates. Unsubscribe is console guidance only.
 
-[`directory-summary`](skills/drafts/directory-summary/SKILL.md) generates directory-level `.abstract.md` and `.overview.md` summaries from existing content for relevance checks and source navigation.
+## Install
 
-[`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md)
-contains verified diagnostic command contracts and resource helpers for Huawei Cloud
-ECS and related services, with draft diagnostic recipes that have not completed end-to-end validation. It stays under `skills/drafts/`
-and is not published as an installable skill.
+Node.js 22.20+, Git, and [KooCLI](https://support.huaweicloud.com/intl/en-us/productdesc-hcli/hcli_01.html) 7.2+. The skills do not install KooCLI.
 
-[`kcs-foundry`](skills/drafts/kcs-foundry/README.md) contains the KCS knowledge-extraction project and its OpenKB upstream source snapshot.
+Run from the project directory. This installs into Codex for that project. `--agent claude-code` or `--agent cursor` selects another agent. `--global` installs for every project. [Installer options](https://github.com/vercel-labs/skills/blob/main/docs/commands.md).
 
-## Install published skills
-
-Requires Node.js 22.20+ and Git. Copy a command below and run it from your project directory. These commands install to Codex in the current project.
-
-Running the published cloud operations skills also requires [KooCLI](https://support.huaweicloud.com/intl/en-us/productdesc-hcli/hcli_01.html) 7.2+; the skills do not install it automatically.
-
-Use `--agent claude-code` or `--agent cursor` for another agent; add `--global` to install across projects. See the [installer options](https://github.com/vercel-labs/skills/blob/main/docs/commands.md).
-
-### English editions
+English:
 
 ```bash
 npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-billing-scout huawei-cloud-cost-estimation huawei-cloud-account-onboarding --agent codex --copy --yes
 ```
 
-### Simplified Chinese editions
+Simplified Chinese: the same command with `huawei-cloud-billing-scout-cn huawei-cloud-cost-estimation-cn huawei-cloud-account-onboarding-cn`.
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-billing-scout-cn huawei-cloud-cost-estimation-cn huawei-cloud-account-onboarding-cn --agent codex --copy --yes
-```
+One skill: replace that list with one name. List the skills: `npx --yes skills add concept-git/cloud-concept-skills --list`.
 
-### Install one skill
+Payloads: `skills/productivity/en/`, `skills/productivity/zh-CN/`. ClawHub publishes English only.
 
-**`huawei-cloud-billing-scout`**
+## Layout
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-billing-scout --agent codex --copy --yes
-```
+| Directory | Purpose |
+| --- | --- |
+| `skills/productivity/` | The six published skills above. |
+| `skills/drafts/` | Drafts. Not in the public catalog or the default install list. |
+| `skills/misc/` | Other projects, including the two submodules below. |
+| `skills/engineering/` | Reserved. |
 
-**`huawei-cloud-cost-estimation`**
+`skills.sh.json` lists published skills for the installer.
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-cost-estimation --agent codex --copy --yes
-```
+## Related projects
 
-**`huawei-cloud-account-onboarding`**
+[skills-list](https://github.com/daoxianglaonong/skills-list) is at `skills/misc/frontend-design/skills-list/`: page themes, responsive design, and design audits.
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --skill huawei-cloud-account-onboarding --agent codex --copy --yes
-```
+[MetaPQP](https://github.com/vi-vi-vi-vi-vivian/MetaPQP) is at `skills/misc/web-quality/MetaPQP/`: website experience checks and page comparisons.
 
-### List available skills
+After clone: `git submodule update --init`.
 
-```bash
-npx --yes skills add concept-git/cloud-concept-skills --list
-```
+## In development
 
-English payloads live in `skills/productivity/en/`; Simplified Chinese payloads live in `skills/productivity/zh-CN/` and keep the `-cn` skill names. ClawHub publishes English editions only.
+[`directory-summary`](skills/drafts/directory-summary/SKILL.md) writes `.abstract.md` and `.overview.md` for a directory from the files already there.
 
-Billing and onboarding remain read-only. Provisioning follows the skill allowlist, cost review, and confirmation gates; unsubscribe is console-guided only.
+[`huawei-cloud-fcaps-diagnostics`](skills/drafts/huawei-cloud-fcaps-diagnostics/README.md) has verified diagnostic command contracts and resource helpers for Huawei Cloud ECS and related services. The recipes are drafts and have not passed end-to-end validation. It is not an installable skill.
+
+[`kcs-foundry`](skills/drafts/kcs-foundry/README.md) holds the KCS knowledge-extraction project and an OpenKB source snapshot.
 
 ## Contributing
 
-`qa/` is private and untracked; public checks do not depend on it. Run `./tools/validate-all.sh --local-qa` only when local QA is available.
+`qa/` is private and untracked. Public checks do not use it. Run `./tools/validate-all.sh --local-qa` only when local QA is present.
 
-Project rules and repository ownership: [CLAUDE.md](CLAUDE.md).
+Rules: [CLAUDE.md](CLAUDE.md).
 
 ```bash
 ./tools/validate-all.sh
@@ -121,5 +79,4 @@ Project rules and repository ownership: [CLAUDE.md](CLAUDE.md).
 
 ## License
 
-[Apache-2.0](LICENSE) © cloud-concept-skills contributors. Bundles published to ClawHub are MIT-0
-there; repository source remains Apache-2.0.
+[Apache-2.0](LICENSE) © cloud-concept-skills contributors. ClawHub bundles are MIT-0 on ClawHub. Repository source stays Apache-2.0.
