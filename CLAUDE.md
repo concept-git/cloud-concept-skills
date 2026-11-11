@@ -8,7 +8,7 @@ Community-maintained Huawei Cloud skills; this is not an official Huawei Cloud p
 | --- | --- |
 | `concept-skills` | Software concepts, semantic modeling, knowledge organization, and visual learning. |
 | `cloud-concept-skills` | Huawei Cloud operations, billing, controlled provisioning, and account onboarding. |
-| `myoffice-skills` | Office workflows, presentations, source notes, repository guidance, and Agent DX tooling. |
+| `handy-skills` | Office workflows, source notes, and Agent DX tooling. |
 
 ## Directory contract
 
