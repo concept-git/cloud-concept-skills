@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.12.0 - 2026-11-12
+
+### 文档
+- README 改为先列已发布的华为云技能，安装只保留一条命令。（by @AgenticWeb4）
+- 所有权表中的 `myoffice-skills` 改为 `handy-skills`。（by @AgenticWeb4）
+
 ## 1.11.0 - 2026-11-07
 
 ### 改进

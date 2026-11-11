@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.0 - 2026-11-12
+
+### Documentation
+- Lead the README with the published Huawei Cloud skills and one install command. (by @AgenticWeb4)
+- Rename `myoffice-skills` to `handy-skills` in the ownership table. (by @AgenticWeb4)
+
 ## 1.11.0 - 2026-11-07
 
 ### Improvements
